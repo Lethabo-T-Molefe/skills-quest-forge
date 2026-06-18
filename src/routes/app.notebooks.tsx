@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
+import { CodeEditor } from "@/components/lab/code-editor";
 import { Play } from "lucide-react";
 
 export const Route = createFileRoute("/app/notebooks")({ component: Page });
@@ -23,7 +24,11 @@ function Page() {
                 <Badge tone={c.type === "code" ? "info" : "muted"}>{c.type === "code" ? "py" : "md"}</Badge>
                 {c.type === "code" && <button className="ml-auto text-xs inline-flex items-center gap-1"><Play className="size-3" /> Run</button>}
               </div>
-              <pre className="p-3 text-xs font-mono whitespace-pre-wrap">{c.content}</pre>
+              {c.type === "code" ? (
+                <CodeEditor value={c.content} language="python" readOnly height="auto" />
+              ) : (
+                <pre className="p-3 text-xs font-mono whitespace-pre-wrap">{c.content}</pre>
+              )}
               {c.out && <div className="px-3 py-2 border-t border-border bg-background text-xs font-mono text-success">→ {c.out}</div>}
             </div>
           ))}

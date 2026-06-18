@@ -20,8 +20,8 @@ export function ProvinceHeatMap({ data, label = "rate" }: { data: Datum[]; label
   const min = Math.min(...data.map(d => d.value));
   const tone = (v: number) => {
     const t = (v - min) / Math.max(1, max - min);
-    if (t > 0.66) return "bg-success/80 text-white";
-    if (t > 0.33) return "bg-accent/70 text-ink";
+    if (t > 0.66) return "bg-success/25 text-ink";
+    if (t > 0.33) return "bg-peach text-ink";
     return "bg-danger/70 text-white";
   };
   return (
@@ -31,7 +31,7 @@ export function ProvinceHeatMap({ data, label = "rate" }: { data: Datum[]; label
         const v = map[p] ?? 0;
         return (
           <div key={p}
-            className={`rounded-md border border-border p-2 flex flex-col justify-between text-[10px] font-medium ${tone(v)}`}
+            className={`rounded-md border border-ink p-2 flex flex-col justify-between text-[10px] font-medium ${tone(v)}`}
             style={{ gridColumn: pos.col + 1, gridRow: pos.row + 1 }}>
             <div className="opacity-90 leading-tight">{p}</div>
             <div className="font-display text-base font-bold">{v.toFixed(0)}<span className="opacity-70 text-[10px] ml-0.5">{label === "rate" ? "%" : ""}</span></div>

@@ -6,7 +6,7 @@ function Page() {
   return (<><PageHeader title="My Contributions" subtitle="R. Mahlangu · Student Developer · CPUT" />
     <div className="grid sm:grid-cols-3 gap-4">
       {[["Tasks completed","42"],["Hours logged","186"],["Badges earned","3"]].map(([l,v])=>(
-        <div key={l} className="rounded-xl border border-border bg-card p-4">
+        <div key={l} className="sw-card bg-card p-4">
           <div className="text-xs text-muted-foreground">{l}</div>
           <div className="font-display text-3xl font-bold mt-1">{v}</div>
         </div>

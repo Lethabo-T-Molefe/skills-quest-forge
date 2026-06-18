@@ -4,9 +4,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ============ DUAL THEME ============
- * Default (Sowieso) — playful marketing / login
- * [data-theme="navy"] — CHIETA Data Lab (dark navy dashboards)
+/* ============ CHIETA BRAND THEME ============
+ * Colors sourced directly from chieta.org.za's Elementor global palette:
+ * primary gold #CA8A1C, secondary purple #3C1B50/#3E1D54, body gray #666668,
+ * white background. Applied across the marketing/login page and the
+ * CHIETA Data Lab dashboard.
  */
 
 @theme inline {
@@ -49,13 +51,9 @@
   --color-lime: var(--sw-lime);
   --color-lavender: var(--sw-lavender);
   --color-peach: var(--sw-peach);
-  --color-fuchsia-pop: var(--sw-fuchsia);
 
-  --color-teal: var(--accent-teal);
-  --color-amber: var(--accent-amber);
   --color-success: var(--success);
   --color-danger: var(--danger);
-  --color-brand-blue: var(--brand-blue);
 
   --font-display: "Inter", "GT Walsheim", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
@@ -65,84 +63,55 @@
 :root {
   --radius: 0.625rem;
 
-  /* Sowieso palette */
-  --sw-yellow: oklch(0.96 0.13 100);
-  --sw-pink: oklch(0.65 0.31 0);
-  --sw-mint: oklch(0.92 0.10 195);
-  --sw-lime: oklch(0.91 0.18 140);
-  --sw-lavender: oklch(0.82 0.16 330);
-  --sw-peach: oklch(0.82 0.12 60);
-  --sw-fuchsia: oklch(0.74 0.27 330);
-  --ink: oklch(0.20 0.01 285);
+  /* CHIETA brand colors (chieta.org.za) */
+  --chieta-purple: #3C1B50;
+  --chieta-purple-deep: #3E1D54;
+  --chieta-gold: #CA8A1C;
+  --chieta-gold-deep: #D3830C;
+  --chieta-gray: #666668;
+  --chieta-coral: #E7334C;
+  --chieta-green: #3E8602;
 
-  /* Default theme = Sowieso */
-  --background: oklch(0.96 0.13 100);
-  --foreground: oklch(0.20 0.01 285);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.20 0.01 285);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0.01 285);
-  --primary: oklch(0.20 0.01 285);
-  --primary-foreground: oklch(0.96 0.13 100);
-  --secondary: oklch(0.92 0.10 195);
-  --secondary-foreground: oklch(0.20 0.01 285);
-  --muted: oklch(0.95 0.03 100);
-  --muted-foreground: oklch(0.45 0.02 285);
-  --accent: oklch(0.91 0.18 140);
-  --accent-foreground: oklch(0.20 0.01 285);
-  --destructive: oklch(0.6 0.24 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.20 0.01 285);
-  --input: oklch(0.20 0.01 285 / 0.2);
-  --ring: oklch(0.20 0.01 285);
+  /* brand-derived utility palette */
+  --ink: var(--chieta-purple);
+  --sw-yellow: #F8EFDC;
+  --sw-pink: var(--chieta-gold);
+  --sw-mint: #DCF0EE;
+  --sw-lime: var(--chieta-gold);
+  --sw-lavender: #E4D9ED;
+  --sw-peach: #F3DDB0;
 
-  /* CHIETA Navy palette (for navy theme) */
-  --accent-teal: oklch(0.72 0.14 215);
-  --accent-amber: oklch(0.76 0.14 60);
-  --success: oklch(0.74 0.15 175);
-  --danger: oklch(0.63 0.23 25);
-  --brand-blue: oklch(0.35 0.10 255);
+  --background: #FFFFFF;
+  --foreground: #221531;
+  --card: #FFFFFF;
+  --card-foreground: #221531;
+  --popover: #FFFFFF;
+  --popover-foreground: #221531;
+  --primary: var(--chieta-gold);
+  --primary-foreground: #2B1438;
+  --secondary: var(--chieta-purple);
+  --secondary-foreground: #FFFFFF;
+  --muted: #F3F1F5;
+  --muted-foreground: var(--chieta-gray);
+  --accent: var(--chieta-gold);
+  --accent-foreground: #FFFFFF;
+  --destructive: var(--chieta-coral);
+  --destructive-foreground: #FFFFFF;
+  --border: #E3DCE8;
+  --input: #E3DCE8;
+  --ring: var(--chieta-purple);
 
-  --sidebar: oklch(0.96 0.13 100);
-  --sidebar-foreground: oklch(0.20 0.01 285);
-  --sidebar-primary: oklch(0.20 0.01 285);
-  --sidebar-primary-foreground: oklch(0.96 0.13 100);
-  --sidebar-accent: oklch(0.91 0.18 140);
-  --sidebar-accent-foreground: oklch(0.20 0.01 285);
-  --sidebar-border: oklch(0.20 0.01 285);
-  --sidebar-ring: oklch(0.20 0.01 285);
-}
+  --success: var(--chieta-green);
+  --danger: var(--chieta-coral);
 
-/* ===== NAVY (CHIETA Data Lab) ===== */
-[data-theme="navy"] {
-  --background: oklch(0.18 0.04 255);     /* #0A1628 */
-  --foreground: oklch(0.99 0 0);
-  --card: oklch(0.24 0.05 260);            /* #112240 */
-  --card-foreground: oklch(0.99 0 0);
-  --popover: oklch(0.24 0.05 260);
-  --popover-foreground: oklch(0.99 0 0);
-  --primary: oklch(0.72 0.14 215);         /* teal */
-  --primary-foreground: oklch(0.18 0.04 255);
-  --secondary: oklch(0.30 0.05 255);
-  --secondary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.28 0.04 255);
-  --muted-foreground: oklch(0.70 0.02 255);
-  --accent: oklch(0.76 0.14 60);            /* amber */
-  --accent-foreground: oklch(0.18 0.04 255);
-  --destructive: oklch(0.63 0.23 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.34 0.06 250);
-  --input: oklch(0.28 0.04 255);
-  --ring: oklch(0.72 0.14 215);
-
-  --sidebar: oklch(0.21 0.04 258);
-  --sidebar-foreground: oklch(0.90 0.01 255);
-  --sidebar-primary: oklch(0.72 0.14 215);
-  --sidebar-primary-foreground: oklch(0.18 0.04 255);
-  --sidebar-accent: oklch(0.28 0.05 255);
-  --sidebar-accent-foreground: oklch(0.99 0 0);
-  --sidebar-border: oklch(0.32 0.05 252);
-  --sidebar-ring: oklch(0.72 0.14 215);
+  --sidebar: var(--chieta-purple);
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: var(--chieta-gold);
+  --sidebar-primary-foreground: #2B1438;
+  --sidebar-accent: var(--chieta-purple-deep);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: var(--chieta-purple-deep);
+  --sidebar-ring: var(--chieta-gold);
 }
 
 @layer base {
@@ -156,10 +125,10 @@
   code, pre, .font-mono { font-family: var(--font-mono); }
 }
 
-/* ============ SOWIESO UTILITIES ============ */
+/* ============ BRAND UTILITIES ============ */
 
 @utility sw-gradient-bg {
-  background: linear-gradient(121deg, oklch(0.65 0.31 0) -20%, oklch(0.96 0.13 100) 66%);
+  background: linear-gradient(121deg, var(--sw-lavender) -20%, var(--sw-yellow) 66%);
   background-size: 200% 200%;
   animation: sw-gradient 14s ease infinite;
 }
@@ -176,7 +145,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  background: oklch(0.96 0.13 100);
+  background: var(--sw-yellow);
   color: var(--ink);
   border: 1px solid var(--ink);
   border-radius: 999px;
@@ -227,7 +196,8 @@
   padding: 0 0.25em;
   border: 1px solid var(--ink);
   border-radius: 12px;
-  background: oklch(0.91 0.18 140);
+  background: var(--chieta-gold);
+  color: #2B1438;
 }
 
 /* count-up + fade-in helpers */

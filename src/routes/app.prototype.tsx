@@ -178,7 +178,7 @@ function Recs() {
   return (
     <div className="grid lg:grid-cols-2 gap-5">
       {[...aiRecommendations, ...aiRecommendations.slice(0,2)].map((r,i)=>(
-        <div key={i} className="rounded-xl border border-border bg-card p-5">
+        <div key={i} className="sw-card bg-card p-5">
           <div className="flex items-center justify-between"><Badge tone={r.priority==="Critical"?"danger":"warn"}>{r.priority}</Badge><span className="text-[10px] text-muted-foreground">REC-{(1000+i).toString()}</span></div>
           <h3 className="font-display font-bold text-lg mt-2 leading-snug">{r.title}</h3>
           <p className="text-sm text-muted-foreground mt-1">{r.rationale}</p>

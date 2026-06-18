@@ -3,13 +3,14 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend,
 } from "recharts";
 
-const grid = "color-mix(in oklab, var(--border) 60%, transparent)";
-const axis = "color-mix(in oklab, var(--muted-foreground) 80%, transparent)";
+const grid = "color-mix(in oklab, var(--ink) 18%, transparent)";
+const axis = "color-mix(in oklab, var(--ink) 65%, transparent)";
 
 const tooltipStyle = {
   background: "var(--popover)",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
+  border: "1px solid var(--ink)",
+  borderRadius: 10,
+  boxShadow: "0 4px 0 0 var(--ink)",
   color: "var(--foreground)",
   fontSize: 12,
 };

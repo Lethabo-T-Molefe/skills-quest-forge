@@ -9,38 +9,372 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppUsersRouteImport } from './routes/app.users'
+import { Route as AppUploadRouteImport } from './routes/app.upload'
+import { Route as AppTasksRouteImport } from './routes/app.tasks'
+import { Route as AppSqlRouteImport } from './routes/app.sql'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppScheduledRouteImport } from './routes/app.scheduled'
+import { Route as AppRolesRouteImport } from './routes/app.roles'
+import { Route as AppReportsRouteImport } from './routes/app.reports'
+import { Route as AppQualityRouteImport } from './routes/app.quality'
+import { Route as AppPrototypeRouteImport } from './routes/app.prototype'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppNotebooksRouteImport } from './routes/app.notebooks'
+import { Route as AppMyDashboardsRouteImport } from './routes/app.my-dashboards'
+import { Route as AppLineageRouteImport } from './routes/app.lineage'
+import { Route as AppLearnerRouteImport } from './routes/app.learner'
+import { Route as AppHistoryRouteImport } from './routes/app.history'
+import { Route as AppHealthRouteImport } from './routes/app.health'
+import { Route as AppGrantsRouteImport } from './routes/app.grants'
+import { Route as AppExplorerRouteImport } from './routes/app.explorer'
+import { Route as AppExecutiveRouteImport } from './routes/app.executive'
+import { Route as AppEtqaRouteImport } from './routes/app.etqa'
+import { Route as AppDatasetsRouteImport } from './routes/app.datasets'
+import { Route as AppContributionsRouteImport } from './routes/app.contributions'
+import { Route as AppCentresRouteImport } from './routes/app.centres'
+import { Route as AppAuditRouteImport } from './routes/app.audit'
 
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUsersRoute = AppUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUploadRoute = AppUploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTasksRoute = AppTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSqlRoute = AppSqlRouteImport.update({
+  id: '/sql',
+  path: '/sql',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppScheduledRoute = AppScheduledRouteImport.update({
+  id: '/scheduled',
+  path: '/scheduled',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRolesRoute = AppRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppQualityRoute = AppQualityRouteImport.update({
+  id: '/quality',
+  path: '/quality',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPrototypeRoute = AppPrototypeRouteImport.update({
+  id: '/prototype',
+  path: '/prototype',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotebooksRoute = AppNotebooksRouteImport.update({
+  id: '/notebooks',
+  path: '/notebooks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyDashboardsRoute = AppMyDashboardsRouteImport.update({
+  id: '/my-dashboards',
+  path: '/my-dashboards',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLineageRoute = AppLineageRouteImport.update({
+  id: '/lineage',
+  path: '/lineage',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLearnerRoute = AppLearnerRouteImport.update({
+  id: '/learner',
+  path: '/learner',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHealthRoute = AppHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGrantsRoute = AppGrantsRouteImport.update({
+  id: '/grants',
+  path: '/grants',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExplorerRoute = AppExplorerRouteImport.update({
+  id: '/explorer',
+  path: '/explorer',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExecutiveRoute = AppExecutiveRouteImport.update({
+  id: '/executive',
+  path: '/executive',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEtqaRoute = AppEtqaRouteImport.update({
+  id: '/etqa',
+  path: '/etqa',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDatasetsRoute = AppDatasetsRouteImport.update({
+  id: '/datasets',
+  path: '/datasets',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContributionsRoute = AppContributionsRouteImport.update({
+  id: '/contributions',
+  path: '/contributions',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCentresRoute = AppCentresRouteImport.update({
+  id: '/centres',
+  path: '/centres',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAuditRoute = AppAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/audit': typeof AppAuditRoute
+  '/app/centres': typeof AppCentresRoute
+  '/app/contributions': typeof AppContributionsRoute
+  '/app/datasets': typeof AppDatasetsRoute
+  '/app/etqa': typeof AppEtqaRoute
+  '/app/executive': typeof AppExecutiveRoute
+  '/app/explorer': typeof AppExplorerRoute
+  '/app/grants': typeof AppGrantsRoute
+  '/app/health': typeof AppHealthRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/learner': typeof AppLearnerRoute
+  '/app/lineage': typeof AppLineageRoute
+  '/app/my-dashboards': typeof AppMyDashboardsRoute
+  '/app/notebooks': typeof AppNotebooksRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/prototype': typeof AppPrototypeRoute
+  '/app/quality': typeof AppQualityRoute
+  '/app/reports': typeof AppReportsRoute
+  '/app/roles': typeof AppRolesRoute
+  '/app/scheduled': typeof AppScheduledRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/sql': typeof AppSqlRoute
+  '/app/tasks': typeof AppTasksRoute
+  '/app/upload': typeof AppUploadRoute
+  '/app/users': typeof AppUsersRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/audit': typeof AppAuditRoute
+  '/app/centres': typeof AppCentresRoute
+  '/app/contributions': typeof AppContributionsRoute
+  '/app/datasets': typeof AppDatasetsRoute
+  '/app/etqa': typeof AppEtqaRoute
+  '/app/executive': typeof AppExecutiveRoute
+  '/app/explorer': typeof AppExplorerRoute
+  '/app/grants': typeof AppGrantsRoute
+  '/app/health': typeof AppHealthRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/learner': typeof AppLearnerRoute
+  '/app/lineage': typeof AppLineageRoute
+  '/app/my-dashboards': typeof AppMyDashboardsRoute
+  '/app/notebooks': typeof AppNotebooksRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/prototype': typeof AppPrototypeRoute
+  '/app/quality': typeof AppQualityRoute
+  '/app/reports': typeof AppReportsRoute
+  '/app/roles': typeof AppRolesRoute
+  '/app/scheduled': typeof AppScheduledRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/sql': typeof AppSqlRoute
+  '/app/tasks': typeof AppTasksRoute
+  '/app/upload': typeof AppUploadRoute
+  '/app/users': typeof AppUsersRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/audit': typeof AppAuditRoute
+  '/app/centres': typeof AppCentresRoute
+  '/app/contributions': typeof AppContributionsRoute
+  '/app/datasets': typeof AppDatasetsRoute
+  '/app/etqa': typeof AppEtqaRoute
+  '/app/executive': typeof AppExecutiveRoute
+  '/app/explorer': typeof AppExplorerRoute
+  '/app/grants': typeof AppGrantsRoute
+  '/app/health': typeof AppHealthRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/learner': typeof AppLearnerRoute
+  '/app/lineage': typeof AppLineageRoute
+  '/app/my-dashboards': typeof AppMyDashboardsRoute
+  '/app/notebooks': typeof AppNotebooksRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/prototype': typeof AppPrototypeRoute
+  '/app/quality': typeof AppQualityRoute
+  '/app/reports': typeof AppReportsRoute
+  '/app/roles': typeof AppRolesRoute
+  '/app/scheduled': typeof AppScheduledRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/sql': typeof AppSqlRoute
+  '/app/tasks': typeof AppTasksRoute
+  '/app/upload': typeof AppUploadRoute
+  '/app/users': typeof AppUsersRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/audit'
+    | '/app/centres'
+    | '/app/contributions'
+    | '/app/datasets'
+    | '/app/etqa'
+    | '/app/executive'
+    | '/app/explorer'
+    | '/app/grants'
+    | '/app/health'
+    | '/app/history'
+    | '/app/learner'
+    | '/app/lineage'
+    | '/app/my-dashboards'
+    | '/app/notebooks'
+    | '/app/profile'
+    | '/app/prototype'
+    | '/app/quality'
+    | '/app/reports'
+    | '/app/roles'
+    | '/app/scheduled'
+    | '/app/settings'
+    | '/app/sql'
+    | '/app/tasks'
+    | '/app/upload'
+    | '/app/users'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/app/audit'
+    | '/app/centres'
+    | '/app/contributions'
+    | '/app/datasets'
+    | '/app/etqa'
+    | '/app/executive'
+    | '/app/explorer'
+    | '/app/grants'
+    | '/app/health'
+    | '/app/history'
+    | '/app/learner'
+    | '/app/lineage'
+    | '/app/my-dashboards'
+    | '/app/notebooks'
+    | '/app/profile'
+    | '/app/prototype'
+    | '/app/quality'
+    | '/app/reports'
+    | '/app/roles'
+    | '/app/scheduled'
+    | '/app/settings'
+    | '/app/sql'
+    | '/app/tasks'
+    | '/app/upload'
+    | '/app/users'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/audit'
+    | '/app/centres'
+    | '/app/contributions'
+    | '/app/datasets'
+    | '/app/etqa'
+    | '/app/executive'
+    | '/app/explorer'
+    | '/app/grants'
+    | '/app/health'
+    | '/app/history'
+    | '/app/learner'
+    | '/app/lineage'
+    | '/app/my-dashboards'
+    | '/app/notebooks'
+    | '/app/profile'
+    | '/app/prototype'
+    | '/app/quality'
+    | '/app/reports'
+    | '/app/roles'
+    | '/app/scheduled'
+    | '/app/settings'
+    | '/app/sql'
+    | '/app/tasks'
+    | '/app/upload'
+    | '/app/users'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +382,254 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/users': {
+      id: '/app/users'
+      path: '/users'
+      fullPath: '/app/users'
+      preLoaderRoute: typeof AppUsersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/upload': {
+      id: '/app/upload'
+      path: '/upload'
+      fullPath: '/app/upload'
+      preLoaderRoute: typeof AppUploadRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/tasks': {
+      id: '/app/tasks'
+      path: '/tasks'
+      fullPath: '/app/tasks'
+      preLoaderRoute: typeof AppTasksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/sql': {
+      id: '/app/sql'
+      path: '/sql'
+      fullPath: '/app/sql'
+      preLoaderRoute: typeof AppSqlRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/scheduled': {
+      id: '/app/scheduled'
+      path: '/scheduled'
+      fullPath: '/app/scheduled'
+      preLoaderRoute: typeof AppScheduledRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/roles': {
+      id: '/app/roles'
+      path: '/roles'
+      fullPath: '/app/roles'
+      preLoaderRoute: typeof AppRolesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/reports': {
+      id: '/app/reports'
+      path: '/reports'
+      fullPath: '/app/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/quality': {
+      id: '/app/quality'
+      path: '/quality'
+      fullPath: '/app/quality'
+      preLoaderRoute: typeof AppQualityRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/prototype': {
+      id: '/app/prototype'
+      path: '/prototype'
+      fullPath: '/app/prototype'
+      preLoaderRoute: typeof AppPrototypeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/notebooks': {
+      id: '/app/notebooks'
+      path: '/notebooks'
+      fullPath: '/app/notebooks'
+      preLoaderRoute: typeof AppNotebooksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/my-dashboards': {
+      id: '/app/my-dashboards'
+      path: '/my-dashboards'
+      fullPath: '/app/my-dashboards'
+      preLoaderRoute: typeof AppMyDashboardsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/lineage': {
+      id: '/app/lineage'
+      path: '/lineage'
+      fullPath: '/app/lineage'
+      preLoaderRoute: typeof AppLineageRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/learner': {
+      id: '/app/learner'
+      path: '/learner'
+      fullPath: '/app/learner'
+      preLoaderRoute: typeof AppLearnerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/history': {
+      id: '/app/history'
+      path: '/history'
+      fullPath: '/app/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/health': {
+      id: '/app/health'
+      path: '/health'
+      fullPath: '/app/health'
+      preLoaderRoute: typeof AppHealthRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/grants': {
+      id: '/app/grants'
+      path: '/grants'
+      fullPath: '/app/grants'
+      preLoaderRoute: typeof AppGrantsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/explorer': {
+      id: '/app/explorer'
+      path: '/explorer'
+      fullPath: '/app/explorer'
+      preLoaderRoute: typeof AppExplorerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/executive': {
+      id: '/app/executive'
+      path: '/executive'
+      fullPath: '/app/executive'
+      preLoaderRoute: typeof AppExecutiveRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/etqa': {
+      id: '/app/etqa'
+      path: '/etqa'
+      fullPath: '/app/etqa'
+      preLoaderRoute: typeof AppEtqaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/datasets': {
+      id: '/app/datasets'
+      path: '/datasets'
+      fullPath: '/app/datasets'
+      preLoaderRoute: typeof AppDatasetsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/contributions': {
+      id: '/app/contributions'
+      path: '/contributions'
+      fullPath: '/app/contributions'
+      preLoaderRoute: typeof AppContributionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/centres': {
+      id: '/app/centres'
+      path: '/centres'
+      fullPath: '/app/centres'
+      preLoaderRoute: typeof AppCentresRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/audit': {
+      id: '/app/audit'
+      path: '/audit'
+      fullPath: '/app/audit'
+      preLoaderRoute: typeof AppAuditRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppAuditRoute: typeof AppAuditRoute
+  AppCentresRoute: typeof AppCentresRoute
+  AppContributionsRoute: typeof AppContributionsRoute
+  AppDatasetsRoute: typeof AppDatasetsRoute
+  AppEtqaRoute: typeof AppEtqaRoute
+  AppExecutiveRoute: typeof AppExecutiveRoute
+  AppExplorerRoute: typeof AppExplorerRoute
+  AppGrantsRoute: typeof AppGrantsRoute
+  AppHealthRoute: typeof AppHealthRoute
+  AppHistoryRoute: typeof AppHistoryRoute
+  AppLearnerRoute: typeof AppLearnerRoute
+  AppLineageRoute: typeof AppLineageRoute
+  AppMyDashboardsRoute: typeof AppMyDashboardsRoute
+  AppNotebooksRoute: typeof AppNotebooksRoute
+  AppProfileRoute: typeof AppProfileRoute
+  AppPrototypeRoute: typeof AppPrototypeRoute
+  AppQualityRoute: typeof AppQualityRoute
+  AppReportsRoute: typeof AppReportsRoute
+  AppRolesRoute: typeof AppRolesRoute
+  AppScheduledRoute: typeof AppScheduledRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppSqlRoute: typeof AppSqlRoute
+  AppTasksRoute: typeof AppTasksRoute
+  AppUploadRoute: typeof AppUploadRoute
+  AppUsersRoute: typeof AppUsersRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAuditRoute: AppAuditRoute,
+  AppCentresRoute: AppCentresRoute,
+  AppContributionsRoute: AppContributionsRoute,
+  AppDatasetsRoute: AppDatasetsRoute,
+  AppEtqaRoute: AppEtqaRoute,
+  AppExecutiveRoute: AppExecutiveRoute,
+  AppExplorerRoute: AppExplorerRoute,
+  AppGrantsRoute: AppGrantsRoute,
+  AppHealthRoute: AppHealthRoute,
+  AppHistoryRoute: AppHistoryRoute,
+  AppLearnerRoute: AppLearnerRoute,
+  AppLineageRoute: AppLineageRoute,
+  AppMyDashboardsRoute: AppMyDashboardsRoute,
+  AppNotebooksRoute: AppNotebooksRoute,
+  AppProfileRoute: AppProfileRoute,
+  AppPrototypeRoute: AppPrototypeRoute,
+  AppQualityRoute: AppQualityRoute,
+  AppReportsRoute: AppReportsRoute,
+  AppRolesRoute: AppRolesRoute,
+  AppScheduledRoute: AppScheduledRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppSqlRoute: AppSqlRoute,
+  AppTasksRoute: AppTasksRoute,
+  AppUploadRoute: AppUploadRoute,
+  AppUsersRoute: AppUsersRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

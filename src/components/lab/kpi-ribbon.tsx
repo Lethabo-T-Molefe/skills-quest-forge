@@ -31,12 +31,12 @@ export function KpiCard({ kpi, i }: { kpi: Kpi; i: number }) {
   const up = kpi.trend >= 0;
   return (
     <div
-      className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2 fade-up"
+      className="sw-card bg-card p-4 flex flex-col gap-2 fade-up"
       style={{ animationDelay: `${i * 70}ms` }}
     >
       <div className="text-xs uppercase tracking-wider text-muted-foreground">{kpi.label}</div>
       <div className="flex items-end justify-between gap-2">
-        <div className="font-display text-3xl font-bold tracking-tight">
+        <div className="font-display text-3xl font-extrabold tracking-tight">
           {format(v, isFloat ? 1 : 0)}<span className="text-primary">{kpi.suffix}</span>
         </div>
         <div className={`flex items-center gap-1 text-xs font-medium ${up ? "text-success" : "text-danger"}`}>

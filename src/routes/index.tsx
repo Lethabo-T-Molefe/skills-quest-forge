@@ -28,8 +28,7 @@ function Login() {
       {/* floating header logo pill */}
       <header className="fixed inset-x-0 top-6 z-40 flex justify-center px-4">
         <div className="sw-card flex items-center gap-3 px-4 py-2 bg-white">
-          <div className="size-7 rounded-md bg-pink grid place-items-center text-white font-black text-xs">C</div>
-          <span className="font-display font-extrabold tracking-tight">CHIETA</span>
+          <img src="/chieta-logo.png" alt="CHIETA" className="h-8 w-auto" />
           <span className="h-5 w-px bg-ink/30" />
           <span className="font-display font-extrabold tracking-tight lowercase">data lab.</span>
         </div>
@@ -42,7 +41,7 @@ function Login() {
             <span className="size-6 grid place-items-center rounded-full border border-ink">
               <ArrowUpRight className="size-3.5" />
             </span>
-            <span className="text-sm">Evidence without borders. Sowieso.</span>
+            <span className="text-sm">Evidence without borders. Innovating for impact.</span>
           </span>
         </div>
 
@@ -52,7 +51,7 @@ function Login() {
           SKILLS DATA
           <br />
           <span className="inline-block">
-            <span className="word-highlight bg-mint">BECOMES</span>
+            <span className="word-highlight">BECOMES</span>
           </span>
           <br />
           INTELLIGENCE.

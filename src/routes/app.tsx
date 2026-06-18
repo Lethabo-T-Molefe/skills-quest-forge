@@ -8,7 +8,7 @@ export const Route = createFileRoute("/app")({
 
 function AppLayout() {
   return (
-    <div data-theme="navy" className="min-h-screen bg-background text-foreground flex">
+    <div className="min-h-screen bg-background text-foreground flex">
       <LabSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <LabTopbar />

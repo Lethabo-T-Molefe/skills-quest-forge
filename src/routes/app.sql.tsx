@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
+import { CodeEditor } from "@/components/lab/code-editor";
 import { Play, Download, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
@@ -58,8 +59,9 @@ ORDER BY completion_rate DESC;`);
               <button className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5"><Play className="size-3.5" /> Run</button>
             </div>
           }>
-            <textarea value={q} onChange={e=>setQ(e.target.value)} spellCheck={false}
-              className="w-full h-56 font-mono text-xs bg-background border border-border rounded-lg p-3 outline-none focus:border-primary" />
+            <div className="rounded-lg border border-ink overflow-hidden">
+              <CodeEditor value={q} onChange={setQ} language="sql" height="224px" />
+            </div>
           </Panel>
 
           <Panel title="Results" subtitle="8 rows · 142 ms" action={

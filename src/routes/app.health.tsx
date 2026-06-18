@@ -13,7 +13,7 @@ function Page() {
       <PageHeader title="System Health" subtitle="Live infrastructure & service status" />
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[["API","Operational"],["Database","Operational"],["Storage","Operational"],["Auth Service","Operational"]].map(([n,s])=>(
-          <div key={n} className="rounded-xl border border-border bg-card p-4">
+          <div key={n} className="sw-card bg-card p-4">
             <div className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-success animate-pulse"/><span className="text-sm font-medium">{n}</span></div>
             <div className="font-display text-2xl font-bold mt-2">{s}</div>
             <div className="text-xs text-muted-foreground">Uptime 99.98% · 30d</div>
