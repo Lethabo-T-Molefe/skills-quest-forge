@@ -30,9 +30,11 @@ import { Route as AppLearnerRouteImport } from './routes/app.learner'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppHealthRouteImport } from './routes/app.health'
 import { Route as AppGrantsRouteImport } from './routes/app.grants'
+import { Route as AppGovernanceRouteImport } from './routes/app.governance'
 import { Route as AppExplorerRouteImport } from './routes/app.explorer'
 import { Route as AppExecutiveRouteImport } from './routes/app.executive'
 import { Route as AppEtqaRouteImport } from './routes/app.etqa'
+import { Route as AppEthicsRouteImport } from './routes/app.ethics'
 import { Route as AppDatasetsRouteImport } from './routes/app.datasets'
 import { Route as AppContributionsRouteImport } from './routes/app.contributions'
 import { Route as AppCentresRouteImport } from './routes/app.centres'
@@ -143,6 +145,11 @@ const AppGrantsRoute = AppGrantsRouteImport.update({
   path: '/grants',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGovernanceRoute = AppGovernanceRouteImport.update({
+  id: '/governance',
+  path: '/governance',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppExplorerRoute = AppExplorerRouteImport.update({
   id: '/explorer',
   path: '/explorer',
@@ -156,6 +163,11 @@ const AppExecutiveRoute = AppExecutiveRouteImport.update({
 const AppEtqaRoute = AppEtqaRouteImport.update({
   id: '/etqa',
   path: '/etqa',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEthicsRoute = AppEthicsRouteImport.update({
+  id: '/ethics',
+  path: '/ethics',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDatasetsRoute = AppDatasetsRouteImport.update({
@@ -186,9 +198,11 @@ export interface FileRoutesByFullPath {
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
   '/app/datasets': typeof AppDatasetsRoute
+  '/app/ethics': typeof AppEthicsRoute
   '/app/etqa': typeof AppEtqaRoute
   '/app/executive': typeof AppExecutiveRoute
   '/app/explorer': typeof AppExplorerRoute
+  '/app/governance': typeof AppGovernanceRoute
   '/app/grants': typeof AppGrantsRoute
   '/app/health': typeof AppHealthRoute
   '/app/history': typeof AppHistoryRoute
@@ -215,9 +229,11 @@ export interface FileRoutesByTo {
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
   '/app/datasets': typeof AppDatasetsRoute
+  '/app/ethics': typeof AppEthicsRoute
   '/app/etqa': typeof AppEtqaRoute
   '/app/executive': typeof AppExecutiveRoute
   '/app/explorer': typeof AppExplorerRoute
+  '/app/governance': typeof AppGovernanceRoute
   '/app/grants': typeof AppGrantsRoute
   '/app/health': typeof AppHealthRoute
   '/app/history': typeof AppHistoryRoute
@@ -246,9 +262,11 @@ export interface FileRoutesById {
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
   '/app/datasets': typeof AppDatasetsRoute
+  '/app/ethics': typeof AppEthicsRoute
   '/app/etqa': typeof AppEtqaRoute
   '/app/executive': typeof AppExecutiveRoute
   '/app/explorer': typeof AppExplorerRoute
+  '/app/governance': typeof AppGovernanceRoute
   '/app/grants': typeof AppGrantsRoute
   '/app/health': typeof AppHealthRoute
   '/app/history': typeof AppHistoryRoute
@@ -278,9 +296,11 @@ export interface FileRouteTypes {
     | '/app/centres'
     | '/app/contributions'
     | '/app/datasets'
+    | '/app/ethics'
     | '/app/etqa'
     | '/app/executive'
     | '/app/explorer'
+    | '/app/governance'
     | '/app/grants'
     | '/app/health'
     | '/app/history'
@@ -307,9 +327,11 @@ export interface FileRouteTypes {
     | '/app/centres'
     | '/app/contributions'
     | '/app/datasets'
+    | '/app/ethics'
     | '/app/etqa'
     | '/app/executive'
     | '/app/explorer'
+    | '/app/governance'
     | '/app/grants'
     | '/app/health'
     | '/app/history'
@@ -337,9 +359,11 @@ export interface FileRouteTypes {
     | '/app/centres'
     | '/app/contributions'
     | '/app/datasets'
+    | '/app/ethics'
     | '/app/etqa'
     | '/app/executive'
     | '/app/explorer'
+    | '/app/governance'
     | '/app/grants'
     | '/app/health'
     | '/app/history'
@@ -515,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGrantsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/governance': {
+      id: '/app/governance'
+      path: '/governance'
+      fullPath: '/app/governance'
+      preLoaderRoute: typeof AppGovernanceRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/explorer': {
       id: '/app/explorer'
       path: '/explorer'
@@ -534,6 +565,13 @@ declare module '@tanstack/react-router' {
       path: '/etqa'
       fullPath: '/app/etqa'
       preLoaderRoute: typeof AppEtqaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ethics': {
+      id: '/app/ethics'
+      path: '/ethics'
+      fullPath: '/app/ethics'
+      preLoaderRoute: typeof AppEthicsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/datasets': {
@@ -572,9 +610,11 @@ interface AppRouteChildren {
   AppCentresRoute: typeof AppCentresRoute
   AppContributionsRoute: typeof AppContributionsRoute
   AppDatasetsRoute: typeof AppDatasetsRoute
+  AppEthicsRoute: typeof AppEthicsRoute
   AppEtqaRoute: typeof AppEtqaRoute
   AppExecutiveRoute: typeof AppExecutiveRoute
   AppExplorerRoute: typeof AppExplorerRoute
+  AppGovernanceRoute: typeof AppGovernanceRoute
   AppGrantsRoute: typeof AppGrantsRoute
   AppHealthRoute: typeof AppHealthRoute
   AppHistoryRoute: typeof AppHistoryRoute
@@ -601,9 +641,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppCentresRoute: AppCentresRoute,
   AppContributionsRoute: AppContributionsRoute,
   AppDatasetsRoute: AppDatasetsRoute,
+  AppEthicsRoute: AppEthicsRoute,
   AppEtqaRoute: AppEtqaRoute,
   AppExecutiveRoute: AppExecutiveRoute,
   AppExplorerRoute: AppExplorerRoute,
+  AppGovernanceRoute: AppGovernanceRoute,
   AppGrantsRoute: AppGrantsRoute,
   AppHealthRoute: AppHealthRoute,
   AppHistoryRoute: AppHistoryRoute,

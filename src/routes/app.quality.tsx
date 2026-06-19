@@ -40,7 +40,10 @@ function Page() {
               <button className="text-xs px-3 py-1.5 rounded-md border border-border">Re-run Validation</button>
               <button className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground">Download PDF</button>
             </div>
-          }>
+          } info={{
+            what: "Overall data quality score for this dataset, and the five dimensions it's built from: completeness, validity, consistency, uniqueness, and timeliness.",
+            calculation: "Overall score is a weighted average of the five dimension scores (Great Expectations validation suite). Each dimension is 0–100, where 100 = no issues found.",
+            source: "governance.data_quality_results ← Great Expectations validation run", updated: "Re-run on every dataset upload, or manually via 'Re-run Validation'." }}>
             <div className="grid md:grid-cols-[260px_1fr] gap-6 items-center">
               <div className="grid place-items-center"><Gauge value={sel.score} /></div>
               <div className="space-y-3">
@@ -55,7 +58,10 @@ function Page() {
             </div>
           </Panel>
 
-          <Panel title="Failed Validation Rules">
+          <Panel title="Failed Validation Rules" info={{
+            what: "Specific data quality rules that failed on the most recent validation run for this dataset, with the affected field and row count.",
+            calculation: "Each row is a Great Expectations 'expectation' that evaluated to false against the current data, e.g. a range check, format check, or cross-field consistency check.",
+            source: "governance.data_quality_results" }}>
             <table className="w-full text-sm">
               <thead className="text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="text-left py-2">Rule</th><th className="text-left">Field</th><th className="text-left">Issue</th><th className="text-right">Rows</th><th className="text-right">Status</th></tr></thead>
               <tbody>

@@ -2,10 +2,15 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { NAV } from "@/lib/nav";
 import { ChevronLeft, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { useRole } from "@/lib/role-context";
 
 export function LabSidebar() {
   const path = useRouterState({ select: s => s.location.pathname });
   const [collapsed, setCollapsed] = useState(false);
+  const { role } = useRole();
+  const visibleNav = NAV
+    .map(group => ({ ...group, items: group.items.filter(item => item.roles.includes(role)) }))
+    .filter(group => group.items.length > 0);
 
   return (
     <aside
@@ -30,7 +35,7 @@ export function LabSidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-3 px-2 scrollbar-thin">
-        {NAV.map(group => (
+        {visibleNav.map(group => (
           <div key={group.title} className="mb-4">
             {!collapsed && (
               <div className={`px-3 mb-1 text-[10px] uppercase tracking-[0.18em] ${group.accent ? "text-primary" : "text-white/40"}`}>

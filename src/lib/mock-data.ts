@@ -7,12 +7,30 @@ export const PROVINCES = [
 export const PROGRAMMES = ["Learnerships", "Skills Programmes", "Internships", "Bursaries", "Apprenticeships"];
 
 export const homeKpis = [
-  { label: "Total Learners Enrolled", value: 84230, suffix: "", trend: 6.4, spark: [40,42,45,48,50,55,60,62,68,72,78,84] },
-  { label: "Overall Completion Rate", value: 67.4, suffix: "%", trend: 2.1, spark: [55,57,60,61,63,62,64,65,66,67,67,67] },
-  { label: "Active Grants", value: 1248, suffix: "", trend: -1.2, spark: [1300,1290,1280,1270,1265,1260,1255,1252,1250,1249,1248,1248] },
-  { label: "Grant Utilisation", value: 81.6, suffix: "%", trend: 4.8, spark: [70,72,73,75,76,77,78,79,80,80,81,81] },
-  { label: "Active Smart Skills Centres", value: 47, suffix: "", trend: 11.9, spark: [38,40,41,42,43,44,45,45,46,46,47,47] },
-  { label: "APP Achievement Rate", value: 89.2, suffix: "%", trend: 3.4, spark: [80,82,83,84,85,86,87,87,88,88,89,89] },
+  { label: "Total Learners Enrolled", value: 84230, suffix: "", trend: 6.4, spark: [40,42,45,48,50,55,60,62,68,72,78,84],
+    info: { what: "Count of learners with an active or completed enrolment record across all CHIETA programmes (learnerships, skills programmes, internships, bursaries, apprenticeships) in the current financial year.",
+      calculation: "COUNT(DISTINCT learner_id) WHERE enrolment_date in current FY, deduplicated by hashed learner ID.",
+      source: "mart.learner_completion_summary ← clean.learners", updated: "Refreshes daily at 02:00 from the Learner pipeline." } },
+  { label: "Overall Completion Rate", value: 67.4, suffix: "%", trend: 2.1, spark: [55,57,60,61,63,62,64,65,66,67,67,67],
+    info: { what: "Share of enrolled learners who reached a 'Completed' status, across all active programmes.",
+      calculation: "completions ÷ enrolments × 100, for learners whose enrolment window has elapsed. Excludes learners still mid-programme.",
+      source: "mart.completion_rates", updated: "Refreshes daily." } },
+  { label: "Active Grants", value: 1248, suffix: "", trend: -1.2, spark: [1300,1290,1280,1270,1265,1260,1255,1252,1250,1249,1248,1248],
+    info: { what: "Number of Discretionary (DG) and Mandatory (MG) grants currently in 'Active' status — approved, disbursing, or under implementation.",
+      calculation: "COUNT(grant_id) WHERE status = 'Active'. A grant moves out of this count when closed, fully spent, or terminated.",
+      source: "mart.grant_utilisation ← clean.grants", updated: "Refreshes daily." } },
+  { label: "Grant Utilisation", value: 81.6, suffix: "%", trend: 4.8, spark: [70,72,73,75,76,77,78,79,80,80,81,81],
+    info: { what: "Proportion of allocated grant budget that has actually been spent/disbursed to date, across all active grants.",
+      calculation: "SUM(spent) ÷ SUM(allocated) × 100 across active grants for the current financial year.",
+      source: "mart.grant_utilisation", updated: "Refreshes daily." } },
+  { label: "Active Smart Skills Centres", value: 47, suffix: "", trend: 11.9, spark: [38,40,41,42,43,44,45,45,46,46,47,47],
+    info: { what: "Number of Smart Skills Centres currently operational and reporting utilisation data.",
+      calculation: "COUNT(centre_id) WHERE operational_status = 'Active'.",
+      source: "mart.centre_utilisation_summary", updated: "Refreshes weekly." } },
+  { label: "APP Achievement Rate", value: 89.2, suffix: "%", trend: 3.4, spark: [80,82,83,84,85,86,87,87,88,88,89,89],
+    info: { what: "Average performance against Annual Performance Plan (APP) targets submitted to DHET, blended across all tracked APP KPIs (enrolments, completions, certifications, bursaries).",
+      calculation: "AVG(current ÷ prorated year-to-date target × 100) across all APP KPIs.",
+      source: "mart.etqa_app_target_summary", updated: "Refreshes daily · alerts if any KPI < 70% of YTD target." } },
 ];
 
 export const enrolmentTrend = Array.from({ length: 24 }).map((_, i) => {
@@ -93,6 +111,88 @@ export const auditLog = Array.from({ length: 30 }).map((_, i) => ({
   ip: `196.${i%255}.${(i*7)%255}.${(i*3)%255}`,
   status: i % 9 === 0 ? "Failed" : "Success",
 }));
+
+export const popiaScorecard = [
+  { control: "Encryption at rest (AES-256)", status: "Pass", note: "All PostgreSQL & object storage volumes encrypted" },
+  { control: "Encryption in transit (TLS 1.3)", status: "Pass", note: "No unencrypted endpoints exposed" },
+  { control: "Access control (RBAC)", status: "Pass", note: "8 roles enforced at API + UI layer" },
+  { control: "Audit logging", status: "Pass", note: "Immutable, 36-month retention" },
+  { control: "Data masking / pseudonymisation", status: "Pass", note: "PII hashed at Silver-zone ingestion" },
+  { control: "Data classification", status: "Pass", note: "100% of datasets classified" },
+  { control: "Retention policy enforcement", status: "Watch", note: "2 datasets exceed defined retention window" },
+  { control: "Data breach response plan", status: "Pass", note: "Documented · last tested 14 May 2026" },
+];
+
+export const piiRegister = [
+  { field: "Learner full name", dataset: "Learner_Records_2026", classification: "Direct identifier", action: "Pseudonymise (SHA-256 + salt)", status: "Applied" },
+  { field: "ID / passport number", dataset: "Learner_Records_2026", classification: "Direct identifier", action: "Mask (show last 4 digits)", status: "Applied" },
+  { field: "Phone number", dataset: "Learner_Records_2026", classification: "Direct identifier", action: "Mask", status: "Applied" },
+  { field: "Email address", dataset: "Bursary_Awards_2026", classification: "Direct identifier", action: "Mask unless approved", status: "Applied" },
+  { field: "Province + qualification", dataset: "ETQA_Assessments_2026", classification: "Quasi-identifier", action: "Aggregate for dashboards", status: "Applied" },
+  { field: "Employer banking details", dataset: "Grants_Master_Q3", classification: "Sensitive financial", action: "Role-controlled access only", status: "Applied" },
+  { field: "Disability status", dataset: "Learner_Records_2026", classification: "Special personal information", action: "Aggregate only, no individual export", status: "Review pending" },
+  { field: "Race / demographic code", dataset: "Learner_Records_2026", classification: "Special personal information", action: "Aggregate only, equity reporting", status: "Applied" },
+];
+
+export const datasetApprovals = [
+  { dataset: "Internship_Pipeline_Q3", owner: "Learner Records", submitted: "16 Jun 2026", status: "Pending", steward: "S. Naidoo" },
+  { dataset: "ETQA_Assessments_2026", owner: "ETQA", submitted: "10 Jun 2026", status: "Pending", steward: "K. Botha" },
+  { dataset: "Bursary_Awards_2026", owner: "Grants", submitted: "01 Jun 2026", status: "Approved", steward: "S. Naidoo" },
+  { dataset: "Smart_Centres_Utilisation", owner: "Skills Centres", submitted: "08 Jun 2026", status: "Approved", steward: "K. Botha" },
+  { dataset: "Labour_Market_Signals_2026", owner: "Labour Market", submitted: "05 Jun 2026", status: "Rejected", steward: "S. Naidoo" },
+];
+
+export const retentionPolicy = [
+  { category: "Raw uploaded files (Bronze)", retention: "12 months", trigger: "Auto-archive to cold storage" },
+  { category: "Cleaned / analytical data (Silver, Gold)", retention: "5 years", trigger: "Aligned to APP reporting cycle" },
+  { category: "Audit logs", retention: "36 months", trigger: "POPIA Section 14 minimum" },
+  { category: "Learner PII (pseudonymised)", retention: "7 years", trigger: "DHET record-keeping requirement" },
+  { category: "Exported reports", retention: "24 months", trigger: "Manual review on expiry" },
+];
+
+export const biasModels = [
+  { model: "Learner Completion Predictor", owner: "L. Patel", status: "Approved", lastReviewed: "02 Jun 2026", reviewer: "Data Steward + Information Officer" },
+  { model: "Grant Risk Scorer", owner: "L. Patel", status: "Approved", lastReviewed: "28 May 2026", reviewer: "Data Steward + Information Officer" },
+  { model: "Smart Skills Centre Demand Forecast", owner: "M. Dlamini", status: "Pending review", lastReviewed: "—", reviewer: "—" },
+];
+
+export const fairnessMetrics = [
+  { attribute: "Gender", metric: "Demographic Parity", gap: 2.1, threshold: 5, status: "Pass" },
+  { attribute: "Gender", metric: "Equalised Odds", gap: 3.4, threshold: 5, status: "Pass" },
+  { attribute: "Province", metric: "Demographic Parity", gap: 6.8, threshold: 5, status: "Fail" },
+  { attribute: "Province", metric: "Equalised Odds", gap: 4.2, threshold: 5, status: "Pass" },
+  { attribute: "Age group", metric: "Demographic Parity", gap: 1.6, threshold: 5, status: "Pass" },
+  { attribute: "Disability status", metric: "Demographic Parity", gap: 2.9, threshold: 5, status: "Pass" },
+];
+
+export const disparateImpact = PROVINCES.slice(0, 6).map((p, i) => ({
+  province: p,
+  predicted: Math.round(70 + Math.sin(i) * 8),
+  actual: Math.round(68 + Math.cos(i) * 9),
+}));
+
+export const explainabilityFactors = [
+  { feature: "Programme type", pct: 30 },
+  { feature: "Provider quality rating", pct: 25 },
+  { feature: "Funding level", pct: 20 },
+  { feature: "Province", pct: 15 },
+  { feature: "Age group", pct: 10 },
+];
+
+export const pipelineRuns = [
+  { dag: "Grants DAG (DG + MG)", status: "Success", duration: "4m 12s", lastRun: "Today, 02:00", rows: 1248 },
+  { dag: "Learner DAG", status: "Success", duration: "9m 47s", lastRun: "Today, 02:08", rows: 84230 },
+  { dag: "ETQA DAG", status: "Success", duration: "3m 02s", lastRun: "Today, 02:17", rows: 22115 },
+  { dag: "Skills Centre DAG", status: "Warning", duration: "1m 55s", lastRun: "Today, 02:20", rows: 47 },
+  { dag: "Labour Market DAG", status: "Failed", duration: "0m 38s", lastRun: "Today, 02:22", rows: 0 },
+];
+
+export const mlExperiments = [
+  { name: "Completion-Predictor-v12", model: "XGBoost", metric: "AUC 0.87", status: "Production", by: "L. Patel", when: "Today, 09:14" },
+  { name: "GrantRisk-IsoForest-v6", model: "Isolation Forest", metric: "Precision 0.81", status: "Production", by: "L. Patel", when: "28 May 2026" },
+  { name: "CentreDemand-Prophet-v3", model: "Prophet", metric: "MAPE 6.4%", status: "Staging", by: "M. Dlamini", when: "12 Jun 2026" },
+  { name: "Completion-Predictor-v13", model: "XGBoost", metric: "AUC 0.89", status: "Development", by: "L. Patel", when: "17 Jun 2026" },
+];
 
 export const tasks = [
   { sprint: "Sprint 12 — Data Cleaning", title: "Validate Bursary_Awards_2026 nulls", status: "In Progress", due: "20 Jun 2026", by: "S. Naidoo" },

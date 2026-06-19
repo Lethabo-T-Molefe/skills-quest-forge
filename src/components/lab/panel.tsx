@@ -1,13 +1,17 @@
 import type { ReactNode } from "react";
+import { InfoHint, type InfoContent } from "./info-hint";
 
-export function Panel({ title, subtitle, action, children, className = "" }: {
-  title: string; subtitle?: string; action?: ReactNode; children: ReactNode; className?: string;
+export function Panel({ title, subtitle, action, children, className = "", info }: {
+  title: string; subtitle?: string; action?: ReactNode; children: ReactNode; className?: string; info?: InfoContent;
 }) {
   return (
     <div className={`sw-card bg-card p-5 flex flex-col gap-4 ${className}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="font-display font-extrabold uppercase tracking-tight">{title}</div>
+          <div className="flex items-center gap-1.5">
+            <div className="font-display font-extrabold uppercase tracking-tight">{title}</div>
+            {info && <InfoHint title={title} content={info} />}
+          </div>
           {subtitle && <div className="text-xs text-muted-foreground mt-0.5">{subtitle}</div>}
         </div>
         {action}

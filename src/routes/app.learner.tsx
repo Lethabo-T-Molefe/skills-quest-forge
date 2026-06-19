@@ -7,12 +7,18 @@ import { enrolmentTrend, learnerCohorts, PROVINCES } from "@/lib/mock-data";
 export const Route = createFileRoute("/app/learner")({ component: Page });
 
 const kpis = [
-  { label: "Total Enrolled", value: 84230, trend: 6.4, spark: [40,42,45,48,55,60,68,78,84] },
-  { label: "Total Completed", value: 56740, trend: 7.1, spark: [25,30,33,38,42,47,50,54,56] },
-  { label: "Completion Rate", value: 67.4, suffix:"%", trend: 2.1, spark: [60,62,64,65,66,67,67,67,67] },
-  { label: "Drop-off Rate", value: 14.8, suffix:"%", trend: -1.4, spark: [18,17,16,16,15,15,15,14,14] },
-  { label: "Learners at Risk", value: 3120, trend: 9.2, spark: [2200,2400,2600,2800,2900,3000,3100,3120] },
-  { label: "Gender Parity Index", value: 0.96, suffix:"", trend: 1.0, spark: [0.88,0.9,0.91,0.93,0.94,0.95,0.96] as any },
+  { label: "Total Enrolled", value: 84230, trend: 6.4, spark: [40,42,45,48,55,60,68,78,84],
+    info: { what: "Learners with an active or completed enrolment record in the current financial year.", calculation: "COUNT(DISTINCT learner_id) WHERE enrolment_date in current FY.", source: "mart.learner_completion_summary" } },
+  { label: "Total Completed", value: 56740, trend: 7.1, spark: [25,30,33,38,42,47,50,54,56],
+    info: { what: "Learners whose programme is recorded as completed.", calculation: "COUNT(learner_id) WHERE completion_status = 'Completed'.", source: "mart.completion_rates" } },
+  { label: "Completion Rate", value: 67.4, suffix:"%", trend: 2.1, spark: [60,62,64,65,66,67,67,67,67],
+    info: { what: "Share of enrolled learners (whose programme window has elapsed) who completed.", calculation: "completions ÷ enrolments × 100.", source: "mart.completion_rates" } },
+  { label: "Drop-off Rate", value: 14.8, suffix:"%", trend: -1.4, spark: [18,17,16,16,15,15,15,14,14],
+    info: { what: "Share of enrolled learners who withdrew or were marked inactive before completing their programme.", calculation: "withdrawals ÷ enrolments × 100.", source: "mart.completion_rates" } },
+  { label: "Learners at Risk", value: 3120, trend: 9.2, spark: [2200,2400,2600,2800,2900,3000,3100,3120],
+    info: { what: "Currently-enrolled learners flagged 'Medium' or 'High' risk of non-completion by the Learner Completion Predictor.", calculation: "COUNT(learner_id) WHERE predicted completion probability < 60%.", source: "mart.learner_completion_summary ← Learner Completion Predictor (XGBoost)" } },
+  { label: "Gender Parity Index", value: 0.96, suffix:"", trend: 1.0, spark: [0.88,0.9,0.91,0.93,0.94,0.95,0.96] as any,
+    info: { what: "Ratio of female to male completion rates. 1.00 = perfect parity; values below 1 indicate female learners completing at a lower rate than male learners.", calculation: "female completion rate ÷ male completion rate.", source: "mart.completion_rates, grouped by gender" } },
 ];
 
 const provinceRank = PROVINCES.map((p,i)=>({province:p, spend: 78-i*4}));
@@ -26,16 +32,31 @@ function Page() {
       <KpiRibbon kpis={kpis as any} />
 
       <div className="grid lg:grid-cols-[3fr_2fr] gap-6">
-        <Panel title="Enrolment & Completion Trend"><AreaTrend data={enrolmentTrend} keys={["Enrolled","Completed"]} /></Panel>
-        <Panel title="Province Performance Ranking"><HBar data={provinceRank} x="spend" y="province" color="var(--success)" /></Panel>
+        <Panel title="Enrolment & Completion Trend" info={{
+          what: "Monthly enrolment and completion counts over the trailing 24 months.",
+          calculation: "Enrolled = COUNT(enrolments) per month. Completed = COUNT(completions) per month.",
+          source: "mart.completion_rates" }}><AreaTrend data={enrolmentTrend} keys={["Enrolled","Completed"]} /></Panel>
+        <Panel title="Province Performance Ranking" info={{
+          what: "Provinces ranked by completion rate, highlighting where learner outcomes are strongest and weakest.",
+          calculation: "completions ÷ enrolments × 100, grouped by province, ranked descending.",
+          source: "mart.completion_rates" }}><HBar data={provinceRank} x="spend" y="province" color="var(--success)" /></Panel>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <Panel title="Completion Rate by Provider · top 10"><HBar data={topProviders} x="spend" y="province" /></Panel>
-        <Panel title="Dropout Trend by Programme"><VBar data={dropout} x="month" keys={["Learnerships","Skills","Bursaries"]} /></Panel>
+        <Panel title="Completion Rate by Provider · top 10" info={{
+          what: "The ten training providers with the highest learner completion rates, used to identify high-performing delivery partners.",
+          calculation: "completions ÷ enrolments × 100, grouped by provider, minimum cohort size applied to avoid small-sample distortion.",
+          source: "mart.completion_rates, grouped by provider" }}><HBar data={topProviders} x="spend" y="province" /></Panel>
+        <Panel title="Dropout Trend by Programme" info={{
+          what: "Quarterly dropout rate for the three largest programme categories, used to spot emerging retention problems early.",
+          calculation: "withdrawals ÷ enrolments × 100 per quarter, grouped by programme type.",
+          source: "mart.completion_rates, grouped by programme" }}><VBar data={dropout} x="month" keys={["Learnerships","Skills","Bursaries"]} /></Panel>
       </div>
 
-      <Panel title="Learner Completion Risk Model" subtitle="ML predictions for current cohorts · anonymised">
+      <Panel title="Learner Completion Risk Model" subtitle="ML predictions for current cohorts · anonymised" info={{
+        what: "Predicted completion outcomes for current learner cohorts, generated by the Learner Completion Predictor model. Learner identities are pseudonymised — only cohort-level aggregates are shown.",
+        calculation: "Gradient-boosted (XGBoost) classification model trained on province, programme, provider, funding type, age group, and prior cohort outcomes. Confidence = model's predicted-probability margin.",
+        source: "ml.predictions ← Learner Completion Predictor", updated: "Bias & fairness assessment on file — see Ethics & Bias Review." }}>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead className="text-muted-foreground uppercase text-[10px] tracking-wider">

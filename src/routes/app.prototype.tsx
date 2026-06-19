@@ -51,8 +51,14 @@ function ExecView() {
       </div>
       <KpiRibbon kpis={homeKpis} />
       <div className="grid lg:grid-cols-2 gap-6">
-        <Panel title="National Skills Heat Map"><ProvinceHeatMap data={heat} /></Panel>
-        <Panel title="Enrolment vs Completion"><AreaTrend data={enrolmentTrend} keys={["Enrolled","Completed"]} /></Panel>
+        <Panel title="National Skills Heat Map" info={{
+          what: "Completion rate by province — the same calculation used across all CHIETA dashboards, shown here for the leadership-facing executive view.",
+          calculation: "completions ÷ enrolments × 100 per province, current FY.",
+          source: "mart.completion_rates" }}><ProvinceHeatMap data={heat} /></Panel>
+        <Panel title="Enrolment vs Completion" info={{
+          what: "24-month trend of learners enrolled vs. learners who completed, the headline trend leadership reviews each month.",
+          calculation: "Enrolled/Completed = COUNT(record) per month, attributed to the month the event occurred.",
+          source: "mart.completion_rates" }}><AreaTrend data={enrolmentTrend} keys={["Enrolled","Completed"]} /></Panel>
       </div>
     </div>
   );
@@ -69,7 +75,10 @@ function Prediction() {
   ];
   return (
     <div className="grid lg:grid-cols-3 gap-6">
-      <Panel title="Learner Completion Predictor" action={<BrainCircuit className="size-4 text-accent" />}>
+      <Panel title="Learner Completion Predictor" action={<BrainCircuit className="size-4 text-accent" />} info={{
+        what: "Predicts the probability that a learner matching the selected profile will complete their programme, to help target support at learners most at risk of dropping out.",
+        calculation: "Gradient-boosted (XGBoost) classifier trained on historical cohorts; inputs are province, programme, provider, gender, and funding type. Top contributing factors shown via SHAP values.",
+        source: "ml.predictions ← Learner Completion Predictor", updated: "Subject to mandatory fairness review — see Ethics & Bias Review for the latest sign-off status." }}>
         <div className="grid gap-3">
           {["Province","Programme","Provider","Gender","Funding Type"].map(l => (
             <label key={l} className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">{l}</span>
@@ -100,7 +109,10 @@ function Prediction() {
         )}
       </Panel>
 
-      <Panel title="Grant Risk Scorer" action={<BrainCircuit className="size-4 text-accent" />}>
+      <Panel title="Grant Risk Scorer" action={<BrainCircuit className="size-4 text-accent" />} info={{
+        what: "Triage tool that scores a grant's risk of irregularity or underperformance from 0–100, directing limited human review capacity to the most suspicious records. It does not make decisions — a human reviewer must confirm any action.",
+        calculation: "Isolation Forest anomaly detection over claim-to-approval time, claim amount vs. provider history, claim frequency, and utilisation rate.",
+        source: "mart.risk_scores ← Grant Risk Scorer model", updated: "Scores recompute weekly on the latest grants batch." }}>
         <div className="grid gap-3">
           {["Province","Provider","Programme Type"].map(l => (
             <label key={l} className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">{l}</span><select className="bg-muted border border-border rounded-md h-9 px-3 text-sm"><option>Gauteng</option></select></label>
@@ -119,7 +131,10 @@ function Prediction() {
         </div>
       </Panel>
 
-      <Panel title="Skills Centre Demand Forecast" action={<BrainCircuit className="size-4 text-accent" />}>
+      <Panel title="Skills Centre Demand Forecast" action={<BrainCircuit className="size-4 text-accent" />} info={{
+        what: "Forecasts expected learner demand at a selected Smart Skills Centre over the chosen horizon, to support capacity and staffing decisions.",
+        calculation: "Prophet time-series model trained on 24 months of historical booking and attendance data for the selected centre.",
+        source: "ml.predictions ← Smart Skills Centre Demand Forecast model" }}>
         <div className="grid gap-3">
           <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Centre</span><select className="bg-muted border border-border rounded-md h-9 px-3 text-sm"><option>Sasolburg Smart Centre</option></select></label>
           <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Forecast period</span><select className="bg-muted border border-border rounded-md h-9 px-3 text-sm"><option>6 months</option><option>3</option><option>12</option></select></label>
@@ -140,7 +155,10 @@ function Scenario() {
   ];
   return (
     <div className="grid lg:grid-cols-[1fr_2fr] gap-6">
-      <Panel title="Scenario Controls">
+      <Panel title="Scenario Controls" info={{
+        what: "Adjust a single planning lever (funding, a new centre, or provider capacity) and project the likely effect on learners, completions, and budget before committing to it.",
+        calculation: "Projections are model-based estimates from historical elasticity between funding/capacity changes and outcomes for similar provinces and programme types — they are not guarantees.",
+        source: "Scenario Engine, parameterised over mart.completion_rates and mart.grant_spending_summary" }}>
         <label className="flex flex-col gap-1 mb-3"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Scenario type</span>
           <select className="bg-muted border border-border rounded-md h-9 px-3 text-sm"><option>Increase Funding</option><option>Open New Centre</option><option>Increase Provider Capacity</option></select>
         </label>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Sparkline } from "./sparkline";
+import { InfoHint, type InfoContent } from "./info-hint";
 
-export type Kpi = { label: string; value: number; suffix?: string; trend: number; spark: number[] };
+export type Kpi = { label: string; value: number; suffix?: string; trend: number; spark: number[]; info?: InfoContent };
 
 function useCountUp(target: number, duration = 1200) {
   const [val, setVal] = useState(0);
@@ -34,7 +35,10 @@ export function KpiCard({ kpi, i }: { kpi: Kpi; i: number }) {
       className="sw-card bg-card p-4 flex flex-col gap-2 fade-up"
       style={{ animationDelay: `${i * 70}ms` }}
     >
-      <div className="text-xs uppercase tracking-wider text-muted-foreground">{kpi.label}</div>
+      <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground">
+        {kpi.label}
+        {kpi.info && <InfoHint title={kpi.label} content={kpi.info} />}
+      </div>
       <div className="flex items-end justify-between gap-2">
         <div className="font-display text-3xl font-extrabold tracking-tight">
           {format(v, isFloat ? 1 : 0)}<span className="text-primary">{kpi.suffix}</span>
