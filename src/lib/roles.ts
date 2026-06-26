@@ -11,15 +11,15 @@ export const ROLES = [
 
 export type Role = typeof ROLES[number];
 
-export const ROLE_IDENTITY: Record<Role, { name: string; initials: string }> = {
-  "System Admin": { name: "T. Mokoena", initials: "TM" },
-  "Data Steward": { name: "S. Naidoo", initials: "SN" },
-  "Data Engineer": { name: "K. Botha", initials: "KB" },
-  "Data Analyst": { name: "N. Khumalo", initials: "NK" },
-  "Data Scientist": { name: "L. Patel", initials: "LP" },
-  "Student Dev": { name: "R. Mahlangu", initials: "RM" },
-  "Viewer / Exec": { name: "Dr. Z. Dube", initials: "ZD" },
-  "Auditor": { name: "M. van Wyk", initials: "MW" },
+export const ROLE_IDENTITY: Record<Role, { name: string; initials: string; email: string }> = {
+  "System Admin": { name: "T. Mokoena", initials: "TM", email: "t.mokoena@chieta.org.za" },
+  "Data Steward": { name: "S. Naidoo", initials: "SN", email: "s.naidoo@chieta.org.za" },
+  "Data Engineer": { name: "K. Botha", initials: "KB", email: "k.botha@chieta.org.za" },
+  "Data Analyst": { name: "N. Khumalo", initials: "NK", email: "n.khumalo@chieta.org.za" },
+  "Data Scientist": { name: "L. Patel", initials: "LP", email: "l.patel@chieta.org.za" },
+  "Student Dev": { name: "R. Mahlangu", initials: "RM", email: "r.mahlangu@cput.ac.za" },
+  "Viewer / Exec": { name: "Dr. Z. Dube", initials: "ZD", email: "z.dube@chieta.org.za" },
+  "Auditor": { name: "M. van Wyk", initials: "MW", email: "m.vanwyk@chieta.org.za" },
 };
 
 export const ROLE_BLURB: Record<Role, string> = {

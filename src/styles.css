@@ -55,8 +55,8 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
 
-  --font-display: "Inter", "GT Walsheim", system-ui, sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Roboto", system-ui, sans-serif;
+  --font-sans: "Poppins", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 

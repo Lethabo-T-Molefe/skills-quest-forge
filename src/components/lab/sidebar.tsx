@@ -3,6 +3,7 @@ import { NAV } from "@/lib/nav";
 import { ChevronLeft, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useRole } from "@/lib/role-context";
+import { RingDonutLight } from "@/components/lab/circle-decor";
 
 export function LabSidebar() {
   const path = useRouterState({ select: s => s.location.pathname });
@@ -15,9 +16,11 @@ export function LabSidebar() {
   return (
     <aside
       data-collapsed={collapsed}
-      className="group/sb shrink-0 sticky top-0 h-screen bg-sidebar text-sidebar-foreground border-r-2 border-ink flex flex-col transition-[width] duration-200"
+      className="group/sb shrink-0 sticky top-0 h-screen bg-sidebar text-sidebar-foreground border-r-2 border-ink flex flex-col transition-[width] duration-200 relative overflow-hidden"
       style={{ width: collapsed ? 68 : 260 }}
     >
+      {!collapsed && <RingDonutLight className="absolute -bottom-10 -right-14 w-48 opacity-30 -z-10 pointer-events-none" />}
+
       <div className="h-16 px-4 flex items-center gap-2 border-b-2 border-white/15">
         {collapsed ? (
           <div className="size-9 rounded-md grid place-items-center bg-white text-ink font-display font-black mx-auto">C</div>
