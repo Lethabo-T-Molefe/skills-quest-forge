@@ -36,15 +36,42 @@ function Home() {
       <div className="fixed inset-0 -z-10 sw-gradient-bg" />
       <div className="fixed inset-x-0 top-0 h-1 bg-ink z-50" />
 
-      <header className="fixed inset-x-0 top-6 z-40 flex justify-center px-4">
-        <div className="sw-card flex items-center gap-3 px-4 py-2 bg-white">
-          <img src="/chieta-logo.png" alt="CHIETA" className="h-8 w-auto" />
-          <span className="h-5 w-px bg-ink/30" />
-          <span className="font-display font-extrabold tracking-tight lowercase">data lab.</span>
+      <header className="fixed inset-x-0 top-0 z-40 px-4 md:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="sw-card flex items-center gap-3 px-4 py-2 bg-white">
+            <img src="/chieta-logo.png" alt="CHIETA" className="h-8 w-auto" />
+            <span className="h-5 w-px bg-ink/30" />
+            <span className="font-display font-extrabold tracking-tight lowercase">data lab.</span>
+          </div>
+          <a
+            href="https://chieta.org.za/about-us/who-we-are/"
+            target="_blank"
+            rel="noreferrer"
+            className="sw-pill !py-3 text-sm hidden sm:inline-flex"
+          >
+            About CHIETA
+            <span className="size-6 grid place-items-center rounded-full bg-white border border-ink">
+              <ArrowUpRight className="size-3.5" />
+            </span>
+          </a>
         </div>
+
+        <div className="sw-pill-white !py-3 text-sm hidden lg:inline-flex">
+          <span>Grants</span>
+          <span>·</span>
+          <span>ETQA</span>
+          <span>·</span>
+          <span>Skills Programmes</span>
+          <span>·</span>
+          <span>Smart Skills Centres</span>
+        </div>
+
+        <Link to="/signin" className="sw-pill-white !py-3 text-sm">
+          Sign in <ArrowUpRight className="size-3.5" />
+        </Link>
       </header>
 
-      <main className="relative pt-32 pb-16 px-6 md:px-16 max-w-[1400px] mx-auto">
+      <main className="relative pt-36 md:pt-32 pb-16 px-6 md:px-16 max-w-[1400px] mx-auto">
         <RingArcs className="hidden md:block absolute -top-10 right-0 w-72 md:w-96 -z-10 pointer-events-none" />
 
         {/* eyebrow */}
@@ -211,35 +238,6 @@ function Home() {
             <span className="size-7 grid place-items-center rounded-full bg-yellow border border-ink">
               <ArrowUpRight className="size-4" />
             </span>
-          </Link>
-        </div>
-
-        {/* footer bar */}
-        <div className="mt-16 flex flex-wrap items-center justify-between gap-3">
-          <a
-            href="https://chieta.org.za/about-us/who-we-are/"
-            target="_blank"
-            rel="noreferrer"
-            className="sw-pill !py-3 text-sm"
-          >
-            About CHIETA
-            <span className="size-6 grid place-items-center rounded-full bg-white border border-ink">
-              <ArrowUpRight className="size-3.5" />
-            </span>
-          </a>
-
-          <div className="sw-pill-white !py-3 text-sm hidden md:inline-flex">
-            <span>Grants</span>
-            <span>·</span>
-            <span>ETQA</span>
-            <span>·</span>
-            <span>Skills Programmes</span>
-            <span>·</span>
-            <span>Smart Skills Centres</span>
-          </div>
-
-          <Link to="/signin" className="sw-pill-white !py-3 text-sm">
-            Sign in <ArrowUpRight className="size-3.5" />
           </Link>
         </div>
       </main>
