@@ -3,19 +3,23 @@ import { PageHeader, Panel, Badge } from "@/components/lab/panel";
 import { Gauge } from "@/components/lab/charts";
 import { datasets } from "@/lib/mock-data";
 import { useState } from "react";
+import { QUALITY_TABLES, type QualityTable } from "@/lib/api/data-quality";
+import { useQualityReport } from "@/lib/queries/data-quality";
 
 export const Route = createFileRoute("/app/quality")({ component: Page });
 
-const dims = [
-  { name: "Completeness", value: 96, desc: "Few nulls across required fields" },
-  { name: "Validity",     value: 88, desc: "Province codes & date formats valid" },
-  { name: "Consistency",  value: 82, desc: "Some provider naming variants" },
-  { name: "Uniqueness",   value: 100, desc: "No duplicate primary keys" },
-  { name: "Timeliness",   value: 76, desc: "1.2 days avg ingest latency" },
-];
-
 function Page() {
   const [sel, setSel] = useState(datasets[0]);
+  const [table, setTable] = useState<QualityTable>(QUALITY_TABLES[0]);
+  const { data: report, isLoading: qualityLoading } = useQualityReport(table);
+
+  const dims = report
+    ? [
+        { name: "Completeness", value: report.completeness_pct, desc: `${report.row_count.toLocaleString()} rows · ${report.column_count} columns` },
+        { name: "Uniqueness", value: report.uniqueness_pct, desc: "First column, distinct ÷ total rows" },
+      ]
+    : [];
+
   return (
     <>
       <PageHeader title="Data Quality Reports" subtitle="Validation, profiling and rule outcomes per dataset" />
@@ -36,17 +40,25 @@ function Page() {
 
         <div className="flex flex-col gap-6">
           <Panel title={sel.name} subtitle={`Owner: ${sel.owner} · ${sel.classification}`} action={
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <select
+                className="bg-muted border border-border rounded-md h-8 px-2 text-xs"
+                value={table}
+                onChange={(e) => setTable(e.target.value as QualityTable)}
+              >
+                {QUALITY_TABLES.map(t => <option key={t} value={t}>bronze.{t}</option>)}
+              </select>
               <button className="text-xs px-3 py-1.5 rounded-md border border-border">Re-run Validation</button>
               <button className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground">Download PDF</button>
             </div>
           } info={{
-            what: "Overall data quality score for this dataset, and the five dimensions it's built from: completeness, validity, consistency, uniqueness, and timeliness.",
-            calculation: "Overall score is a weighted average of the five dimension scores (Great Expectations validation suite). Each dimension is 0–100, where 100 = no issues found.",
-            source: "governance.data_quality_results ← Great Expectations validation run", updated: "Re-run on every dataset upload, or manually via 'Re-run Validation'." }}>
+            what: "Live completeness and uniqueness scores computed directly against the selected bronze warehouse table, plus the overall score (their average).",
+            calculation: "Completeness = average across all columns of (1 − NULL count ÷ row count) × 100. Uniqueness = distinct values ÷ row count × 100 for the table's first column, as a simple key-uniqueness proxy. Overall = average of the two.",
+            source: "playground warehouse · bronze schema (live query)", updated: "Computed fresh on every page load / table switch." }}>
             <div className="grid md:grid-cols-[260px_1fr] gap-6 items-center">
-              <div className="grid place-items-center"><Gauge value={sel.score} /></div>
+              <div className="grid place-items-center"><Gauge value={qualityLoading ? 0 : (report?.overall_score ?? 0)} /></div>
               <div className="space-y-3">
+                {qualityLoading && <div className="text-xs text-muted-foreground">Loading bronze.{table}…</div>}
                 {dims.map(d => (
                   <div key={d.name}>
                     <div className="flex justify-between text-xs"><span className="font-medium">{d.name}</span><span className="text-muted-foreground">{d.value}/100</span></div>

@@ -4,6 +4,7 @@ import { KpiRibbon } from "@/components/lab/kpi-ribbon";
 import { LineTrend, HBar } from "@/components/lab/charts";
 import { ProvinceHeatMap } from "@/components/lab/sa-map";
 import { PROVINCES } from "@/lib/mock-data";
+import { useCentreUtilisationHeatmap, useSkillsCentres } from "@/lib/queries/skills-centres";
 
 export const Route = createFileRoute("/app/centres")({ component: Page });
 
@@ -22,11 +23,21 @@ const kpis = [
     info: { what: "Projected learner sessions across all centres for the next 6 months.", calculation: "Prophet time-series forecast trained on 24 months of historical booking data, 80% confidence interval.", source: "ml.predictions ← Smart Skills Centre Demand Forecast model" } },
 ];
 
-const heat = PROVINCES.map((p,i)=>({province:p, value: 90 - i*6}));
-const ranked = Array.from({length:12}).map((_,i)=>({province:`Centre ${String.fromCharCode(65+i)}`, spend: 95-i*5}));
 const forecast = Array.from({length:18}).map((_,i)=>({month:`M${i+1}`, Actual: i<12 ? 70+Math.sin(i/2)*10+i : null, Forecast: i>=11 ? 80+(i-11)*2 : null }));
 
 function Page() {
+  const { data: utilisation = [] } = useCentreUtilisationHeatmap();
+  const { data: centres = [] } = useSkillsCentres();
+
+  const heat = utilisation.length > 0
+    ? utilisation.map(u => ({ province: u.province, value: u.avg_utilisation }))
+    : PROVINCES.map((p,i)=>({province:p, value: 90 - i*6}));
+
+  const ranked = [...centres]
+    .sort((a,b) => b.utilisation_pct - a.utilisation_pct)
+    .slice(0, 12)
+    .map(c => ({ province: c.name, spend: c.utilisation_pct }));
+
   return (
     <>
       <PageHeader title="Smart Skills Centres" subtitle="47 active centres across 9 provinces" />
@@ -35,12 +46,12 @@ function Page() {
       <div className="grid lg:grid-cols-[3fr_2fr] gap-6">
         <Panel title="National Centre Footprint" subtitle="Utilisation by province" info={{
           what: "Average Smart Skills Centre utilisation by province, used to identify geographic coverage gaps and over/under-served regions.",
-          calculation: "AVG(utilisation_rate) across centres, grouped by province.",
-          source: "mart.centre_utilisation_summary, grouped by province" }}><ProvinceHeatMap data={heat} /></Panel>
+          calculation: "AVG(utilisation_pct) across centres, grouped by province.",
+          source: "skills_centres (live), grouped by province" }}><ProvinceHeatMap data={heat} /></Panel>
         <Panel title="Centre Utilisation Ranking · top 12" info={{
           what: "The 12 centres with the highest booked-capacity utilisation, ranked descending.",
-          calculation: "booked_sessions ÷ available_capacity × 100 per centre, current FY.",
-          source: "mart.centre_utilisation_summary" }}><HBar data={ranked} x="spend" y="province" color="var(--success)" /></Panel>
+          calculation: "utilisation_pct per centre, current snapshot.",
+          source: "skills_centres (live)" }}><HBar data={ranked} x="spend" y="province" color="var(--success)" /></Panel>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">

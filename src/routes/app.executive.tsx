@@ -3,16 +3,20 @@ import { PageHeader, Panel, Badge } from "@/components/lab/panel";
 import { KpiRibbon } from "@/components/lab/kpi-ribbon";
 import { LineTrend, HBar } from "@/components/lab/charts";
 import { ProvinceHeatMap } from "@/components/lab/sa-map";
-import { homeKpis, grantByProvince, aiRecommendations } from "@/lib/mock-data";
+import { useAiRecommendations, useHomeKpis } from "@/lib/queries/dashboards";
 import { Download } from "lucide-react";
 
 export const Route = createFileRoute("/app/executive")({ component: Page });
 
+// Page-local, illustrative-only chart series — no backend source built this pass.
 const utilTrend = Array.from({length:12}).map((_,i)=>({ month: `M${i+1}`, Allocated: 100+i*4, Spent: 80+i*3 + (i%3)*4, Remaining: 20-i*0.5 }));
 const heatData = ["Gauteng","KwaZulu-Natal","Western Cape","Eastern Cape","Limpopo","Mpumalanga","North West","Free State","Northern Cape"].map((p,i)=>({province:p, value: 78 - i*4}));
 const programmeRate = ["Learnerships","Skills Programmes","Internships","Bursaries","Apprenticeships"].map((p,i)=>({province:p, spend: 75 - i*7}));
 
 function Page() {
+  const { data: kpis = [] } = useHomeKpis();
+  const { data: aiRecommendations = [] } = useAiRecommendations();
+
   return (
     <>
       <PageHeader title="Executive Cockpit" subtitle="National view · FY 2026" actions={
@@ -23,7 +27,7 @@ function Page() {
         </>
       } />
 
-      <KpiRibbon kpis={homeKpis} />
+      <KpiRibbon kpis={kpis} />
 
       <div className="grid lg:grid-cols-2 gap-6">
         <Panel title="National Skills Heat Map" subtitle="Completion rate by province" info={{
@@ -66,7 +70,7 @@ function Page() {
           source: "mart.grants · mart.completion_rates · labour_market_signals" }}>
           <ul className="space-y-2">
             {aiRecommendations.map(r=>(
-              <li key={r.title} className="rounded-md border border-border p-2.5">
+              <li key={r.id ?? r.title} className="rounded-md border border-border p-2.5">
                 <div className="flex items-center justify-between gap-2 text-xs">
                   <span className="font-medium">{r.title}</span>
                   <Badge tone={r.priority==="Critical"?"danger":"warn"}>{r.priority}</Badge>

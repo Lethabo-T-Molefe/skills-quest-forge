@@ -1,7 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
-import { popiaScorecard, piiRegister, datasetApprovals, retentionPolicy } from "@/lib/mock-data";
 import { Lock } from "lucide-react";
+import {
+  usePopiaScorecard,
+  usePiiRegister,
+  useRetentionPolicies,
+  useDatasetApprovals,
+  useReviewDatasetApproval,
+} from "@/lib/queries/governance";
 
 export const Route = createFileRoute("/app/governance")({ component: Page });
 
@@ -12,6 +18,11 @@ function statusTone(s: string) {
 }
 
 function Page() {
+  const { data: popiaScorecard = [] } = usePopiaScorecard();
+  const { data: piiRegister = [] } = usePiiRegister();
+  const { data: retentionPolicy = [] } = useRetentionPolicies();
+  const { data: datasetApprovals = [] } = useDatasetApprovals();
+  const reviewApproval = useReviewDatasetApproval();
   const passCount = popiaScorecard.filter(c => c.status === "Pass").length;
   return (
     <>
@@ -81,12 +92,31 @@ function Page() {
         <Panel title="Dataset Approval Queue" subtitle="Data Steward sign-off required before use">
           <ul className="flex flex-col divide-y divide-border">
             {datasetApprovals.map(d => (
-              <li key={d.dataset} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+              <li key={d.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
                 <div>
                   <div className="text-sm font-medium">{d.dataset}</div>
                   <div className="text-xs text-muted-foreground">{d.owner} · submitted {d.submitted} · steward {d.steward}</div>
                 </div>
-                <Badge tone={statusTone(d.status)}>{d.status}</Badge>
+                {d.status === "Pending" ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="text-xs px-2.5 py-1 rounded-md border border-border hover:bg-muted"
+                      disabled={reviewApproval.isPending}
+                      onClick={() => reviewApproval.mutate({ id: d.id, status: "Approved" })}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className="text-xs px-2.5 py-1 rounded-md border border-border hover:bg-muted"
+                      disabled={reviewApproval.isPending}
+                      onClick={() => reviewApproval.mutate({ id: d.id, status: "Rejected" })}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                ) : (
+                  <Badge tone={statusTone(d.status)}>{d.status}</Badge>
+                )}
               </li>
             ))}
           </ul>

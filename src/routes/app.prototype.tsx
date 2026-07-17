@@ -3,7 +3,11 @@ import { PageHeader, Panel, Badge } from "@/components/lab/panel";
 import { KpiRibbon } from "@/components/lab/kpi-ribbon";
 import { AreaTrend, HBar, LineTrend, VBar } from "@/components/lab/charts";
 import { ProvinceHeatMap } from "@/components/lab/sa-map";
-import { homeKpis, PROVINCES, PROGRAMMES, aiRecommendations, enrolmentTrend } from "@/lib/mock-data";
+import { homeKpis, PROVINCES, PROGRAMMES, enrolmentTrend } from "@/lib/mock-data";
+import { useAiRecommendations, useAcceptRecommendation, useDismissRecommendation } from "@/lib/queries/dashboards";
+import {
+  usePredictCompletion, useScoreGrantRisk, useForecastCentreDemand, useRunScenarioSimulation,
+} from "@/lib/queries/prototype";
 import { Sparkles, Presentation, Download, ArrowRight, BrainCircuit, Lightbulb } from "lucide-react";
 import { useState } from "react";
 
@@ -65,42 +69,62 @@ function ExecView() {
 }
 
 function Prediction() {
-  const [pred, setPred] = useState<number | null>(null);
-  const factors = [
-    { name: "Province (Gauteng)", pct: 24 },
-    { name: "Programme: Learnerships", pct: 19 },
-    { name: "Provider track record", pct: 17 },
-    { name: "Funding type: DG", pct: 12 },
-    { name: "Cohort size", pct: 8 },
-  ];
+  const [province, setProvince] = useState(PROVINCES[0]);
+  const [programme, setProgramme] = useState(PROGRAMMES[0]);
+  const [fundingType, setFundingType] = useState("Full funding");
+  const completionMutation = usePredictCompletion();
+
+  const [riskProvince, setRiskProvince] = useState(PROVINCES[0]);
+  const [allocated, setAllocated] = useState(1_000_000);
+  const [spent, setSpent] = useState(500_000);
+  const [daysSinceDrawdown, setDaysSinceDrawdown] = useState(30);
+  const riskMutation = useScoreGrantRisk();
+
+  const [centre, setCentre] = useState(PROVINCES[0]);
+  const [months, setMonths] = useState(6);
+  const demandMutation = useForecastCentreDemand();
+
   return (
     <div className="grid lg:grid-cols-3 gap-6">
       <Panel title="Learner Completion Predictor" action={<BrainCircuit className="size-4 text-accent" />} info={{
-        what: "Predicts the probability that a learner matching the selected profile will complete their programme, to help target support at learners most at risk of dropping out.",
-        calculation: "Gradient-boosted (XGBoost) classifier trained on historical cohorts; inputs are province, programme, provider, gender, and funding type. Top contributing factors shown via SHAP values.",
-        source: "ml.predictions ← Learner Completion Predictor", updated: "Subject to mandatory fairness review — see Ethics & Bias Review for the latest sign-off status." }}>
+        what: "Predicts the completion rate for learners matching the selected profile, so support can be targeted at cohorts most at risk of dropping out.",
+        calculation: "Heuristic blend of the historical completion rate for the province/programme (from learner_cohorts) plus a documented funding-type adjustment (Full funding +5pp, Self-funded -8pp). Not a trained model — see application/use_cases/prototype.py for the exact formula.",
+        source: "prototype.predict_completion ← learner_cohorts (live where available)", updated: "Subject to mandatory fairness review — see Ethics & Bias Review for the latest sign-off status." }}>
         <div className="grid gap-3">
-          {["Province","Programme","Provider","Gender","Funding Type"].map(l => (
-            <label key={l} className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">{l}</span>
-              <select className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
-                {(l==="Province"?PROVINCES:l==="Programme"?PROGRAMMES:["Skills Co.","TechAcademy SA","TradesFirst"]).map(o=><option key={o}>{o}</option>)}
-              </select>
-            </label>
-          ))}
-          <button onClick={()=>setPred(74)} className="mt-2 px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium">Run Prediction</button>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Province</span>
+            <select value={province} onChange={e=>setProvince(e.target.value)} className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
+              {PROVINCES.map(o=><option key={o}>{o}</option>)}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Programme</span>
+            <select value={programme} onChange={e=>setProgramme(e.target.value)} className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
+              {PROGRAMMES.map(o=><option key={o}>{o}</option>)}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Funding Type</span>
+            <select value={fundingType} onChange={e=>setFundingType(e.target.value)} className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
+              <option>Full funding</option><option>Partial funding</option><option>Self-funded</option>
+            </select>
+          </label>
+          <button
+            onClick={() => completionMutation.mutate({ province, programme, funding_type: fundingType })}
+            disabled={completionMutation.isPending}
+            className="mt-2 px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium disabled:opacity-60"
+          >
+            {completionMutation.isPending ? "Running…" : "Run Prediction"}
+          </button>
         </div>
-        {pred !== null && (
+        {completionMutation.data && (
           <div className="mt-5 rounded-xl border border-border p-4 bg-success/15">
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Predicted completion probability</div>
-            <div className="font-display text-5xl font-extrabold text-success mt-1">{pred}%</div>
-            <div className="text-xs text-muted-foreground mt-2">High-confidence range 70–78% · n=1,240 similar cohorts</div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">Predicted completion rate</div>
+            <div className="font-display text-5xl font-extrabold text-success mt-1">{completionMutation.data.predicted_pct}%</div>
             <div className="mt-4">
-              <div className="text-xs font-medium mb-2">Top contributing factors (SHAP)</div>
+              <div className="text-xs font-medium mb-2">Contributing factors</div>
               <div className="space-y-1.5">
-                {factors.map(f => (
+                {completionMutation.data.factors.map(f => (
                   <div key={f.name}>
-                    <div className="flex justify-between text-[11px]"><span>{f.name}</span><span className="text-muted-foreground">+{f.pct}%</span></div>
-                    <div className="h-1.5 rounded bg-muted"><div className="h-full bg-accent rounded" style={{width:`${f.pct*3}%`}} /></div>
+                    <div className="flex justify-between text-[11px]"><span>{f.name}</span><span className="text-muted-foreground">{f.pct>=0?"+":""}{f.pct}%</span></div>
+                    <div className="h-1.5 rounded bg-muted"><div className="h-full bg-accent rounded" style={{width:`${Math.min(100, Math.abs(f.pct)*3)}%`}} /></div>
                   </div>
                 ))}
               </div>
@@ -111,79 +135,128 @@ function Prediction() {
 
       <Panel title="Grant Risk Scorer" action={<BrainCircuit className="size-4 text-accent" />} info={{
         what: "Triage tool that scores a grant's risk of irregularity or underperformance from 0–100, directing limited human review capacity to the most suspicious records. It does not make decisions — a human reviewer must confirm any action.",
-        calculation: "Isolation Forest anomaly detection over claim-to-approval time, claim amount vs. provider history, claim frequency, and utilisation rate.",
-        source: "mart.risk_scores ← Grant Risk Scorer model", updated: "Scores recompute weekly on the latest grants batch." }}>
+        calculation: "Heuristic weighted blend: under-utilisation (up to 40 pts), days since last drawdown capped at 90 (up to 40 pts), and the province's average grant risk tier (up to 20 pts). See application/use_cases/prototype.py for the exact weights.",
+        source: "prototype.score_grant_risk ← grants (live)", updated: "Computed on every request from the live grants table." }}>
         <div className="grid gap-3">
-          {["Province","Provider","Programme Type"].map(l => (
-            <label key={l} className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">{l}</span><select className="bg-muted border border-border rounded-md h-9 px-3 text-sm"><option>Gauteng</option></select></label>
-          ))}
-          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Budget (ZAR)</span><input type="range" defaultValue={50} className="accent-accent" /></label>
-          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Previous Completion Rate</span><input type="range" defaultValue={68} className="accent-accent" /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Province</span>
+            <select value={riskProvince} onChange={e=>setRiskProvince(e.target.value)} className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
+              {PROVINCES.map(o=><option key={o}>{o}</option>)}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Allocated (ZAR)</span>
+            <input type="number" value={allocated} onChange={e=>setAllocated(Number(e.target.value))} className="bg-muted border border-border rounded-md h-9 px-3 text-sm" />
+          </label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Spent (ZAR)</span>
+            <input type="number" value={spent} onChange={e=>setSpent(Number(e.target.value))} className="bg-muted border border-border rounded-md h-9 px-3 text-sm" />
+          </label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Days since last drawdown</span>
+            <input type="number" value={daysSinceDrawdown} onChange={e=>setDaysSinceDrawdown(Number(e.target.value))} className="bg-muted border border-border rounded-md h-9 px-3 text-sm" />
+          </label>
+          <button
+            onClick={() => riskMutation.mutate({ allocated, spent, province: riskProvince, days_since_last_drawdown: daysSinceDrawdown })}
+            disabled={riskMutation.isPending}
+            className="mt-2 px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium disabled:opacity-60"
+          >
+            {riskMutation.isPending ? "Scoring…" : "Score Risk"}
+          </button>
         </div>
-        <div className="mt-5 rounded-xl border border-border p-4">
-          <Badge tone="warn">Medium Risk</Badge>
-          <div className="font-display text-4xl font-extrabold mt-2">52<span className="text-base text-muted-foreground">/100</span></div>
-          <ul className="text-xs mt-3 space-y-1 text-muted-foreground">
-            <li>· Provider has 2 conditional accreditations in last 18 months</li>
-            <li>· Programme dropout rate 6pp above sector average</li>
-            <li>· Province under-utilisation 14% in prior FY</li>
-          </ul>
-        </div>
+        {riskMutation.data && (
+          <div className="mt-5 rounded-xl border border-border p-4">
+            <Badge tone={riskMutation.data.tier === "High" ? "danger" : riskMutation.data.tier === "Medium" ? "warn" : "success"}>{riskMutation.data.tier} Risk</Badge>
+            <div className="font-display text-4xl font-extrabold mt-2">{riskMutation.data.score}<span className="text-base text-muted-foreground">/100</span></div>
+            <ul className="text-xs mt-3 space-y-1 text-muted-foreground">
+              {riskMutation.data.reasons.map((r,i) => <li key={i}>· {r}</li>)}
+            </ul>
+          </div>
+        )}
       </Panel>
 
       <Panel title="Skills Centre Demand Forecast" action={<BrainCircuit className="size-4 text-accent" />} info={{
-        what: "Forecasts expected learner demand at a selected Smart Skills Centre over the chosen horizon, to support capacity and staffing decisions.",
-        calculation: "Prophet time-series model trained on 24 months of historical booking and attendance data for the selected centre.",
-        source: "ml.predictions ← Smart Skills Centre Demand Forecast model" }}>
+        what: "Forecasts expected utilisation/demand at a selected centre or province over the chosen horizon, to support capacity and staffing decisions.",
+        calculation: "Simple linear projection from the current utilisation reading (skills_centres, live where available): forecast(i) = current + i × 1.5pp/month. Documented heuristic, not a time-series model.",
+        source: "prototype.forecast_centre_demand ← skills_centres (live where available)" }}>
         <div className="grid gap-3">
-          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Centre</span><select className="bg-muted border border-border rounded-md h-9 px-3 text-sm"><option>Sasolburg Smart Centre</option></select></label>
-          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Forecast period</span><select className="bg-muted border border-border rounded-md h-9 px-3 text-sm"><option>6 months</option><option>3</option><option>12</option></select></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Centre / Province</span>
+            <select value={centre} onChange={e=>setCentre(e.target.value)} className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
+              {PROVINCES.map(o=><option key={o}>{o}</option>)}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Forecast period</span>
+            <select value={months} onChange={e=>setMonths(Number(e.target.value))} className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
+              <option value={3}>3 months</option><option value={6}>6 months</option><option value={12}>12 months</option>
+            </select>
+          </label>
+          <button
+            onClick={() => demandMutation.mutate({ centre_id_or_province: centre, months })}
+            disabled={demandMutation.isPending}
+            className="mt-2 px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium disabled:opacity-60"
+          >
+            {demandMutation.isPending ? "Forecasting…" : "Forecast"}
+          </button>
         </div>
-        <div className="mt-4"><LineTrend data={Array.from({length:18}).map((_,i)=>({month:`M${i+1}`, Actual: i<12?70+i:null, Forecast: i>=11?80+(i-11)*2:null}))} keys={["Actual","Forecast"]} dashedLast /></div>
-        <div className="text-xs text-muted-foreground mt-2">Expected learners: <span className="text-accent font-semibold">2,420</span> · Recommend +1 facilitator</div>
+        {demandMutation.data && (
+          <>
+            <div className="mt-4"><LineTrend data={demandMutation.data.series} keys={["Actual","Forecast"]} dashedLast /></div>
+            <div className="text-xs text-muted-foreground mt-2">Expected learners: <span className="text-accent font-semibold">{demandMutation.data.expected_learners.toLocaleString()}</span> · {demandMutation.data.recommendation}</div>
+          </>
+        )}
       </Panel>
     </div>
   );
 }
 
 function Scenario() {
-  const [ran, setRan] = useState(false);
-  const compare = [
-    { metric:"Enrolled", Before: 8400, After: 11200 },
-    { metric:"Completed", Before: 5670, After: 7820 },
-    { metric:"Spend (M)", Before: 240, After: 295 },
-  ];
+  const [scenarioType, setScenarioType] = useState("Increase Funding");
+  const [targetProvince, setTargetProvince] = useState(PROVINCES[0]);
+  const [fundingIncreasePct, setFundingIncreasePct] = useState(25);
+  const simMutation = useRunScenarioSimulation();
+
   return (
     <div className="grid lg:grid-cols-[1fr_2fr] gap-6">
       <Panel title="Scenario Controls" info={{
         what: "Adjust a single planning lever (funding, a new centre, or provider capacity) and project the likely effect on learners, completions, and budget before committing to it.",
-        calculation: "Projections are model-based estimates from historical elasticity between funding/capacity changes and outcomes for similar provinces and programme types — they are not guarantees.",
-        source: "Scenario Engine, parameterised over mart.completion_rates and mart.grant_spending_summary" }}>
+        calculation: "Deterministic formula over the request inputs: additional_learners = funding_increase_pct × 12, completion_impact (pp) = funding_increase_pct × 0.3, budget_impact (ZAR M) = province's live allocated budget × funding_increase_pct. Documented heuristic, not a fitted model — see application/use_cases/prototype.py.",
+        source: "prototype.run_scenario_simulation ← grants (live baseline where available)" }}>
         <label className="flex flex-col gap-1 mb-3"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Scenario type</span>
-          <select className="bg-muted border border-border rounded-md h-9 px-3 text-sm"><option>Increase Funding</option><option>Open New Centre</option><option>Increase Provider Capacity</option></select>
+          <select value={scenarioType} onChange={e=>setScenarioType(e.target.value)} className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
+            <option>Increase Funding</option><option>Open New Centre</option><option>Increase Provider Capacity</option>
+          </select>
         </label>
         <label className="flex flex-col gap-1 mb-3"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Target province</span>
-          <select className="bg-muted border border-border rounded-md h-9 px-3 text-sm">{PROVINCES.map(p=><option key={p}>{p}</option>)}</select>
+          <select value={targetProvince} onChange={e=>setTargetProvince(e.target.value)} className="bg-muted border border-border rounded-md h-9 px-3 text-sm">
+            {PROVINCES.map(p=><option key={p}>{p}</option>)}
+          </select>
         </label>
-        <label className="flex flex-col gap-1 mb-3"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Funding increase (%)</span>
-          <input type="range" defaultValue={25} className="accent-accent" />
+        <label className="flex flex-col gap-1 mb-3"><span className="text-[11px] uppercase tracking-wider text-muted-foreground">Funding increase (%): {fundingIncreasePct}%</span>
+          <input type="range" min={0} max={100} value={fundingIncreasePct} onChange={e=>setFundingIncreasePct(Number(e.target.value))} className="accent-accent" />
         </label>
-        <button onClick={()=>setRan(true)} className="w-full mt-2 px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium">Run Simulation</button>
+        <button
+          onClick={() => simMutation.mutate({ scenario_type: scenarioType, target_province: targetProvince, funding_increase_pct: fundingIncreasePct })}
+          disabled={simMutation.isPending}
+          className="w-full mt-2 px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium disabled:opacity-60"
+        >
+          {simMutation.isPending ? "Running…" : "Run Simulation"}
+        </button>
       </Panel>
       <Panel title="Simulation Results">
-        {!ran ? (
+        {!simMutation.data ? (
           <div className="text-sm text-muted-foreground py-12 text-center">Configure a scenario on the left and run the simulation.</div>
         ) : (
           <>
             <div className="grid sm:grid-cols-4 gap-3 mb-4">
-              {[{l:"Additional learners",v:"+2,800"},{l:"Completion impact",v:"+12%"},{l:"Budget impact",v:"R 55M"},{l:"Risk change",v:"-4 pts"}].map(k=>(
+              {[
+                {l:"Additional learners",v:`+${simMutation.data.additional_learners.toLocaleString()}`},
+                {l:"Completion impact",v:`+${simMutation.data.completion_impact}%`},
+                {l:"Budget impact",v:`R ${simMutation.data.budget_impact}M`},
+                {l:"Risk change",v:`${simMutation.data.risk_change} pts`},
+              ].map(k=>(
                 <div key={k.l} className="rounded-lg border border-border p-3 bg-muted/30"><div className="text-xs text-muted-foreground">{k.l}</div><div className="font-display text-xl font-bold mt-1">{k.v}</div></div>
               ))}
             </div>
-            <VBar data={compare} x="metric" keys={["Before","After"]} colors={["var(--muted-foreground)","var(--accent)"]} />
+            <VBar data={simMutation.data.compare} x="metric" keys={["Before","After"]} colors={["var(--muted-foreground)","var(--accent)"]} />
             <div className="mt-4 rounded-lg border border-accent/40 bg-accent/10 p-3 text-sm">
               <Lightbulb className="size-4 text-accent inline mr-2" />
-              A 25% funding increase to KZN is expected to onboard 2,800 additional learners and lift completion by 12pp, with a moderate budget impact of R 55M.
+              {simMutation.data.narrative}
             </div>
           </>
         )}
@@ -193,18 +266,42 @@ function Scenario() {
 }
 
 function Recs() {
+  const { data: recommendations = [], isLoading } = useAiRecommendations();
+  const acceptMutation = useAcceptRecommendation();
+  const dismissMutation = useDismissRecommendation();
+
+  if (!isLoading && recommendations.length === 0) {
+    return <div className="text-sm text-muted-foreground py-12 text-center">No recommendations yet.</div>;
+  }
+
   return (
     <div className="grid lg:grid-cols-2 gap-5">
-      {[...aiRecommendations, ...aiRecommendations.slice(0,2)].map((r,i)=>(
-        <div key={i} className="sw-card bg-card p-5">
-          <div className="flex items-center justify-between"><Badge tone={r.priority==="Critical"?"danger":"warn"}>{r.priority}</Badge><span className="text-[10px] text-muted-foreground">REC-{(1000+i).toString()}</span></div>
+      {recommendations.map((r, i)=>(
+        <div key={r.id ?? i} className="sw-card bg-card p-5">
+          <div className="flex items-center justify-between">
+            <Badge tone={r.priority==="Critical"?"danger":"warn"}>{r.priority}</Badge>
+            <span className="text-[10px] text-muted-foreground">REC-{(r.id ?? 1000+i).toString()}</span>
+          </div>
           <h3 className="font-display font-bold text-lg mt-2 leading-snug">{r.title}</h3>
           <p className="text-sm text-muted-foreground mt-1">{r.rationale}</p>
           <div className="text-xs text-accent font-medium mt-2">Expected impact: {r.impact}</div>
+          <div className="text-[11px] text-muted-foreground mt-1">Status: {r.status}</div>
           <div className="text-[11px] text-muted-foreground mt-3">Sources: mart.grants · mart.completion_rates · labour_market_signals</div>
           <div className="flex gap-2 mt-4">
-            <button className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1">Accept & Log <ArrowRight className="size-3" /></button>
-            <button className="text-xs px-3 py-1.5 rounded-md border border-border">Dismiss</button>
+            <button
+              disabled={r.id == null || r.status === "accepted"}
+              onClick={() => r.id != null && acceptMutation.mutate(r.id)}
+              className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1 disabled:opacity-60"
+            >
+              Accept & Log <ArrowRight className="size-3" />
+            </button>
+            <button
+              disabled={r.id == null || r.status === "dismissed"}
+              onClick={() => r.id != null && dismissMutation.mutate(r.id)}
+              className="text-xs px-3 py-1.5 rounded-md border border-border disabled:opacity-60"
+            >
+              Dismiss
+            </button>
             <button className="text-xs px-3 py-1.5 rounded-md border border-border">Explore Data</button>
           </div>
         </div>

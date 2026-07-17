@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
 import { KpiRibbon } from "@/components/lab/kpi-ribbon";
 import { AreaTrend, HBar, VBar } from "@/components/lab/charts";
-import { enrolmentTrend, learnerCohorts, PROVINCES } from "@/lib/mock-data";
+import { PROVINCES } from "@/lib/mock-data";
+import { useEnrolmentTrend, useLearnerCohorts } from "@/lib/queries/learners";
 
 export const Route = createFileRoute("/app/learner")({ component: Page });
 
@@ -26,6 +27,11 @@ const topProviders = Array.from({length:10}).map((_,i)=>({province:`Provider ${S
 const dropout = Array.from({length:8}).map((_,i)=>({month:`Q${(i%4)+1}-${24+Math.floor(i/4)}`, Learnerships: 10+i, Skills: 8+i*0.6, Bursaries: 5+i*0.4 }));
 
 function Page() {
+  const { data: enrolmentTrend = [] } = useEnrolmentTrend();
+  const { data: learnerCohorts = [] } = useLearnerCohorts();
+
+  const trendData = enrolmentTrend.map(p => ({ month: p.month, Enrolled: p.enrolled, Completed: p.completed }));
+
   return (
     <>
       <PageHeader title="Learner Intelligence" subtitle="Enrolment, completion and risk · FY 2026" />
@@ -35,7 +41,7 @@ function Page() {
         <Panel title="Enrolment & Completion Trend" info={{
           what: "Monthly enrolment and completion counts over the trailing 24 months.",
           calculation: "Enrolled = COUNT(enrolments) per month. Completed = COUNT(completions) per month.",
-          source: "mart.completion_rates" }}><AreaTrend data={enrolmentTrend} keys={["Enrolled","Completed"]} /></Panel>
+          source: "learner_cohorts / enrolment_trend (live)" }}><AreaTrend data={trendData} keys={["Enrolled","Completed"]} /></Panel>
         <Panel title="Province Performance Ranking" info={{
           what: "Provinces ranked by completion rate, highlighting where learner outcomes are strongest and weakest.",
           calculation: "completions ÷ enrolments × 100, grouped by province, ranked descending.",

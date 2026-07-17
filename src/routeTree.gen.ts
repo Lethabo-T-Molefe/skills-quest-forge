@@ -16,6 +16,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppUsersRouteImport } from './routes/app.users'
 import { Route as AppUploadRouteImport } from './routes/app.upload'
 import { Route as AppTasksRouteImport } from './routes/app.tasks'
+import { Route as AppSupersetDashboardsRouteImport } from './routes/app.superset-dashboards'
 import { Route as AppSqlRouteImport } from './routes/app.sql'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppScheduledRouteImport } from './routes/app.scheduled'
@@ -26,6 +27,7 @@ import { Route as AppPrototypeRouteImport } from './routes/app.prototype'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppNotebooksRouteImport } from './routes/app.notebooks'
 import { Route as AppMyDashboardsRouteImport } from './routes/app.my-dashboards'
+import { Route as AppMlExperimentsRouteImport } from './routes/app.ml-experiments'
 import { Route as AppLineageRouteImport } from './routes/app.lineage'
 import { Route as AppLearnerRouteImport } from './routes/app.learner'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
@@ -36,6 +38,7 @@ import { Route as AppExplorerRouteImport } from './routes/app.explorer'
 import { Route as AppExecutiveRouteImport } from './routes/app.executive'
 import { Route as AppEtqaRouteImport } from './routes/app.etqa'
 import { Route as AppEthicsRouteImport } from './routes/app.ethics'
+import { Route as AppDevWorkspaceRouteImport } from './routes/app.dev-workspace'
 import { Route as AppDatasetsRouteImport } from './routes/app.datasets'
 import { Route as AppContributionsRouteImport } from './routes/app.contributions'
 import { Route as AppCentresRouteImport } from './routes/app.centres'
@@ -74,6 +77,11 @@ const AppUploadRoute = AppUploadRouteImport.update({
 const AppTasksRoute = AppTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSupersetDashboardsRoute = AppSupersetDashboardsRouteImport.update({
+  id: '/superset-dashboards',
+  path: '/superset-dashboards',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSqlRoute = AppSqlRouteImport.update({
@@ -126,6 +134,11 @@ const AppMyDashboardsRoute = AppMyDashboardsRouteImport.update({
   path: '/my-dashboards',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMlExperimentsRoute = AppMlExperimentsRouteImport.update({
+  id: '/ml-experiments',
+  path: '/ml-experiments',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppLineageRoute = AppLineageRouteImport.update({
   id: '/lineage',
   path: '/lineage',
@@ -176,6 +189,11 @@ const AppEthicsRoute = AppEthicsRouteImport.update({
   path: '/ethics',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDevWorkspaceRoute = AppDevWorkspaceRouteImport.update({
+  id: '/dev-workspace',
+  path: '/dev-workspace',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDatasetsRoute = AppDatasetsRouteImport.update({
   id: '/datasets',
   path: '/datasets',
@@ -205,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
   '/app/datasets': typeof AppDatasetsRoute
+  '/app/dev-workspace': typeof AppDevWorkspaceRoute
   '/app/ethics': typeof AppEthicsRoute
   '/app/etqa': typeof AppEtqaRoute
   '/app/executive': typeof AppExecutiveRoute
@@ -215,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/app/history': typeof AppHistoryRoute
   '/app/learner': typeof AppLearnerRoute
   '/app/lineage': typeof AppLineageRoute
+  '/app/ml-experiments': typeof AppMlExperimentsRoute
   '/app/my-dashboards': typeof AppMyDashboardsRoute
   '/app/notebooks': typeof AppNotebooksRoute
   '/app/profile': typeof AppProfileRoute
@@ -225,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/app/scheduled': typeof AppScheduledRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/sql': typeof AppSqlRoute
+  '/app/superset-dashboards': typeof AppSupersetDashboardsRoute
   '/app/tasks': typeof AppTasksRoute
   '/app/upload': typeof AppUploadRoute
   '/app/users': typeof AppUsersRoute
@@ -237,6 +258,7 @@ export interface FileRoutesByTo {
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
   '/app/datasets': typeof AppDatasetsRoute
+  '/app/dev-workspace': typeof AppDevWorkspaceRoute
   '/app/ethics': typeof AppEthicsRoute
   '/app/etqa': typeof AppEtqaRoute
   '/app/executive': typeof AppExecutiveRoute
@@ -247,6 +269,7 @@ export interface FileRoutesByTo {
   '/app/history': typeof AppHistoryRoute
   '/app/learner': typeof AppLearnerRoute
   '/app/lineage': typeof AppLineageRoute
+  '/app/ml-experiments': typeof AppMlExperimentsRoute
   '/app/my-dashboards': typeof AppMyDashboardsRoute
   '/app/notebooks': typeof AppNotebooksRoute
   '/app/profile': typeof AppProfileRoute
@@ -257,6 +280,7 @@ export interface FileRoutesByTo {
   '/app/scheduled': typeof AppScheduledRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/sql': typeof AppSqlRoute
+  '/app/superset-dashboards': typeof AppSupersetDashboardsRoute
   '/app/tasks': typeof AppTasksRoute
   '/app/upload': typeof AppUploadRoute
   '/app/users': typeof AppUsersRoute
@@ -271,6 +295,7 @@ export interface FileRoutesById {
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
   '/app/datasets': typeof AppDatasetsRoute
+  '/app/dev-workspace': typeof AppDevWorkspaceRoute
   '/app/ethics': typeof AppEthicsRoute
   '/app/etqa': typeof AppEtqaRoute
   '/app/executive': typeof AppExecutiveRoute
@@ -281,6 +306,7 @@ export interface FileRoutesById {
   '/app/history': typeof AppHistoryRoute
   '/app/learner': typeof AppLearnerRoute
   '/app/lineage': typeof AppLineageRoute
+  '/app/ml-experiments': typeof AppMlExperimentsRoute
   '/app/my-dashboards': typeof AppMyDashboardsRoute
   '/app/notebooks': typeof AppNotebooksRoute
   '/app/profile': typeof AppProfileRoute
@@ -291,6 +317,7 @@ export interface FileRoutesById {
   '/app/scheduled': typeof AppScheduledRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/sql': typeof AppSqlRoute
+  '/app/superset-dashboards': typeof AppSupersetDashboardsRoute
   '/app/tasks': typeof AppTasksRoute
   '/app/upload': typeof AppUploadRoute
   '/app/users': typeof AppUsersRoute
@@ -306,6 +333,7 @@ export interface FileRouteTypes {
     | '/app/centres'
     | '/app/contributions'
     | '/app/datasets'
+    | '/app/dev-workspace'
     | '/app/ethics'
     | '/app/etqa'
     | '/app/executive'
@@ -316,6 +344,7 @@ export interface FileRouteTypes {
     | '/app/history'
     | '/app/learner'
     | '/app/lineage'
+    | '/app/ml-experiments'
     | '/app/my-dashboards'
     | '/app/notebooks'
     | '/app/profile'
@@ -326,6 +355,7 @@ export interface FileRouteTypes {
     | '/app/scheduled'
     | '/app/settings'
     | '/app/sql'
+    | '/app/superset-dashboards'
     | '/app/tasks'
     | '/app/upload'
     | '/app/users'
@@ -338,6 +368,7 @@ export interface FileRouteTypes {
     | '/app/centres'
     | '/app/contributions'
     | '/app/datasets'
+    | '/app/dev-workspace'
     | '/app/ethics'
     | '/app/etqa'
     | '/app/executive'
@@ -348,6 +379,7 @@ export interface FileRouteTypes {
     | '/app/history'
     | '/app/learner'
     | '/app/lineage'
+    | '/app/ml-experiments'
     | '/app/my-dashboards'
     | '/app/notebooks'
     | '/app/profile'
@@ -358,6 +390,7 @@ export interface FileRouteTypes {
     | '/app/scheduled'
     | '/app/settings'
     | '/app/sql'
+    | '/app/superset-dashboards'
     | '/app/tasks'
     | '/app/upload'
     | '/app/users'
@@ -371,6 +404,7 @@ export interface FileRouteTypes {
     | '/app/centres'
     | '/app/contributions'
     | '/app/datasets'
+    | '/app/dev-workspace'
     | '/app/ethics'
     | '/app/etqa'
     | '/app/executive'
@@ -381,6 +415,7 @@ export interface FileRouteTypes {
     | '/app/history'
     | '/app/learner'
     | '/app/lineage'
+    | '/app/ml-experiments'
     | '/app/my-dashboards'
     | '/app/notebooks'
     | '/app/profile'
@@ -391,6 +426,7 @@ export interface FileRouteTypes {
     | '/app/scheduled'
     | '/app/settings'
     | '/app/sql'
+    | '/app/superset-dashboards'
     | '/app/tasks'
     | '/app/upload'
     | '/app/users'
@@ -452,6 +488,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks'
       fullPath: '/app/tasks'
       preLoaderRoute: typeof AppTasksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/superset-dashboards': {
+      id: '/app/superset-dashboards'
+      path: '/superset-dashboards'
+      fullPath: '/app/superset-dashboards'
+      preLoaderRoute: typeof AppSupersetDashboardsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/sql': {
@@ -524,6 +567,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMyDashboardsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/ml-experiments': {
+      id: '/app/ml-experiments'
+      path: '/ml-experiments'
+      fullPath: '/app/ml-experiments'
+      preLoaderRoute: typeof AppMlExperimentsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/lineage': {
       id: '/app/lineage'
       path: '/lineage'
@@ -594,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEthicsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/dev-workspace': {
+      id: '/app/dev-workspace'
+      path: '/dev-workspace'
+      fullPath: '/app/dev-workspace'
+      preLoaderRoute: typeof AppDevWorkspaceRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/datasets': {
       id: '/app/datasets'
       path: '/datasets'
@@ -630,6 +687,7 @@ interface AppRouteChildren {
   AppCentresRoute: typeof AppCentresRoute
   AppContributionsRoute: typeof AppContributionsRoute
   AppDatasetsRoute: typeof AppDatasetsRoute
+  AppDevWorkspaceRoute: typeof AppDevWorkspaceRoute
   AppEthicsRoute: typeof AppEthicsRoute
   AppEtqaRoute: typeof AppEtqaRoute
   AppExecutiveRoute: typeof AppExecutiveRoute
@@ -640,6 +698,7 @@ interface AppRouteChildren {
   AppHistoryRoute: typeof AppHistoryRoute
   AppLearnerRoute: typeof AppLearnerRoute
   AppLineageRoute: typeof AppLineageRoute
+  AppMlExperimentsRoute: typeof AppMlExperimentsRoute
   AppMyDashboardsRoute: typeof AppMyDashboardsRoute
   AppNotebooksRoute: typeof AppNotebooksRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -650,6 +709,7 @@ interface AppRouteChildren {
   AppScheduledRoute: typeof AppScheduledRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSqlRoute: typeof AppSqlRoute
+  AppSupersetDashboardsRoute: typeof AppSupersetDashboardsRoute
   AppTasksRoute: typeof AppTasksRoute
   AppUploadRoute: typeof AppUploadRoute
   AppUsersRoute: typeof AppUsersRoute
@@ -661,6 +721,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCentresRoute: AppCentresRoute,
   AppContributionsRoute: AppContributionsRoute,
   AppDatasetsRoute: AppDatasetsRoute,
+  AppDevWorkspaceRoute: AppDevWorkspaceRoute,
   AppEthicsRoute: AppEthicsRoute,
   AppEtqaRoute: AppEtqaRoute,
   AppExecutiveRoute: AppExecutiveRoute,
@@ -671,6 +732,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppHistoryRoute: AppHistoryRoute,
   AppLearnerRoute: AppLearnerRoute,
   AppLineageRoute: AppLineageRoute,
+  AppMlExperimentsRoute: AppMlExperimentsRoute,
   AppMyDashboardsRoute: AppMyDashboardsRoute,
   AppNotebooksRoute: AppNotebooksRoute,
   AppProfileRoute: AppProfileRoute,
@@ -681,6 +743,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppScheduledRoute: AppScheduledRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSqlRoute: AppSqlRoute,
+  AppSupersetDashboardsRoute: AppSupersetDashboardsRoute,
   AppTasksRoute: AppTasksRoute,
   AppUploadRoute: AppUploadRoute,
   AppUsersRoute: AppUsersRoute,

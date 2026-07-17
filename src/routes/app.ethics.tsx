@@ -1,19 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
 import { VBar } from "@/components/lab/charts";
-import { biasModels, fairnessMetrics, disparateImpact, explainabilityFactors } from "@/lib/mock-data";
 import { Scale, CheckCircle2 } from "lucide-react";
+import {
+  useBiasModels,
+  useFairnessMetrics,
+  useDisparateImpact,
+  useExplainability,
+  useSignOffModel,
+} from "@/lib/queries/ethics";
 
 export const Route = createFileRoute("/app/ethics")({ component: Page });
 
 function statusTone(s: string) {
-  if (s === "Pass" || s === "Approved") return "success";
+  if (s === "Pass" || s === "Approved" || s === "Reviewed") return "success";
   if (s === "Pending review") return "warn";
   if (s === "Fail") return "danger";
   return "muted";
 }
 
 function Page() {
+  const { data: biasModels = [] } = useBiasModels();
+  const primaryModel = biasModels[0];
+  const { data: fairnessMetrics = [] } = useFairnessMetrics(primaryModel?.id);
+  const { data: disparateImpact = [] } = useDisparateImpact(primaryModel?.id);
+  const { data: explainabilityFactors = [] } = useExplainability(primaryModel?.id);
+  const signOff = useSignOffModel();
+
   return (
     <>
       <PageHeader title="Ethics & Bias Review" subtitle="Mandatory fairness assessment for any model affecting individuals" actions={
@@ -23,19 +36,30 @@ function Page() {
       <Panel title="Models Under Review" action={<Scale className="size-4 text-accent" />}>
         <ul className="flex flex-col divide-y divide-border">
           {biasModels.map(m => (
-            <li key={m.model} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+            <li key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-medium">{m.model}</div>
-                <div className="text-xs text-muted-foreground">Owner {m.owner} · last reviewed {m.lastReviewed} · {m.reviewer}</div>
+                <div className="text-xs text-muted-foreground">Owner {m.owner} · last reviewed {m.last_reviewed} · {m.reviewer}</div>
               </div>
-              <Badge tone={statusTone(m.status)}>{m.status}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge tone={statusTone(m.status)}>{m.status}</Badge>
+                {m.status === "Pending review" && (
+                  <button
+                    className="text-xs px-2.5 py-1 rounded-md border border-border hover:bg-muted"
+                    disabled={signOff.isPending}
+                    onClick={() => signOff.mutate(m.id)}
+                  >
+                    Sign off
+                  </button>
+                )}
+              </div>
             </li>
           ))}
         </ul>
       </Panel>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <Panel title="Fairness Metrics — Learner Completion Predictor" subtitle="Demographic parity & equalised odds across protected attributes" info={{
+        <Panel title={`Fairness Metrics${primaryModel ? ` — ${primaryModel.model}` : ""}`} subtitle="Demographic parity & equalised odds across protected attributes" info={{
           what: "Tests whether the model's predictions are equally accurate and equally favourable across protected groups, not just accurate on average.",
           calculation: "Demographic Parity gap = |P(positive prediction | group A) − P(positive prediction | group B)|. Equalised Odds gap = the same comparison restricted to true-outcome-matched subgroups. A gap above the 5pp threshold fails.",
           source: "Fairlearn bias assessment, run before every model promotion to production" }}>
@@ -44,8 +68,8 @@ function Page() {
               <tr><th className="text-left py-2">Attribute</th><th className="text-left">Metric</th><th className="text-right">Gap</th><th>Status</th></tr>
             </thead>
             <tbody>
-              {fairnessMetrics.map((f, i) => (
-                <tr key={i} className="border-t border-border">
+              {fairnessMetrics.map((f) => (
+                <tr key={f.id} className="border-t border-border">
                   <td className="py-2 font-medium">{f.attribute}</td>
                   <td className="text-muted-foreground">{f.metric}</td>
                   <td className="text-right">{f.gap}pp <span className="text-muted-foreground">/ {f.threshold}pp</span></td>
@@ -66,7 +90,7 @@ function Page() {
         <Panel title="Explainability Summary" subtitle="Top contributing features · SHAP">
           <div className="space-y-3">
             {explainabilityFactors.map(f => (
-              <div key={f.feature}>
+              <div key={f.id}>
                 <div className="flex justify-between text-xs mb-1"><span className="font-medium">{f.feature}</span><span className="text-muted-foreground">{f.pct}%</span></div>
                 <div className="h-2 rounded bg-muted"><div className="h-full bg-accent rounded" style={{ width: `${f.pct * 3}%` }} /></div>
               </div>

@@ -2,6 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
 import { KpiRibbon } from "@/components/lab/kpi-ribbon";
 import { LineTrend, Donut, Gauge } from "@/components/lab/charts";
+import {
+  useAppTargets,
+  useCertificationTrend,
+  useProviderAccreditationSummary,
+} from "@/lib/queries/etqa";
 
 export const Route = createFileRoute("/app/etqa")({ component: Page });
 
@@ -20,9 +25,14 @@ const kpis = [
     info: { what: "Share of providers and assessments meeting all ETQA quality and accreditation requirements.", calculation: "compliant_records ÷ total_records × 100 across provider audits and assessment moderation checks.", source: "mart.etqa_app_target_summary" } },
 ];
 
-const certTrend = Array.from({length:8}).map((_,i)=>({ month:`Q${(i%4)+1}-${24+Math.floor(i/4)}`, Certifications: 2000+i*350 }));
-
 function Page() {
+  const { data: appTargets = [] } = useAppTargets();
+  const { data: certificationTrend = [] } = useCertificationTrend();
+  const { data: providerAccreditation = [] } = useProviderAccreditationSummary();
+
+  const certTrend = certificationTrend.map(p => ({ month: p.month, Certifications: p.certifications }));
+  const accreditationDonut = providerAccreditation.map(p => ({ name: p.status, value: p.count }));
+
   return (
     <>
       <PageHeader title="ETQA Performance" subtitle="Education, training & quality assurance · FY 2026" />
@@ -32,28 +42,28 @@ function Page() {
         <Panel title="APP Target Achievement" subtitle="Annual Performance Plan targets" info={{
           what: "Progress against four key APP targets submitted to DHET, each shown as % achieved against its year-to-date prorated target.",
           calculation: "current_value ÷ prorated_ytd_target × 100, recalculated daily as new data lands.",
-          source: "mart.etqa_app_target_summary" }}>
+          source: "app_targets (live)" }}>
           <div className="grid grid-cols-2 gap-4">
-            {[{n:"Learners enrolled",v:92},{n:"Certifications",v:88},{n:"Provider audits",v:76},{n:"Compliance",v:96}].map(t=>(
-              <div key={t.n} className="rounded-lg border border-border p-4 text-center">
-                <div className="text-xs text-muted-foreground mb-2">{t.n}</div>
-                <Gauge value={t.v} />
+            {appTargets.map(t=>(
+              <div key={t.id} className="rounded-lg border border-border p-4 text-center">
+                <div className="text-xs text-muted-foreground mb-2">{t.name}</div>
+                <Gauge value={t.achievement_pct} />
               </div>
             ))}
           </div>
         </Panel>
         <Panel title="Certification Trend" info={{
-          what: "Quarterly count of certificates issued, used to track momentum toward the annual certification target.",
-          calculation: "COUNT(certificate_id) per quarter, current and prior financial year.",
-          source: "mart.etqa_app_target_summary" }}><LineTrend data={certTrend} keys={["Certifications"]} /></Panel>
+          what: "Monthly count of certificates issued, used to track momentum toward the annual certification target.",
+          calculation: "COUNT(certificate_id) per month, current financial year.",
+          source: "certification_trend (live)" }}><LineTrend data={certTrend} keys={["Certifications"]} /></Panel>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         <Panel title="Provider Accreditation Status" info={{
           what: "Breakdown of all registered providers by current accreditation standing.",
-          calculation: "COUNT(provider_id), grouped by accreditation_status (Accredited / Conditional / Suspended).",
-          source: "clean.provider_accreditation" }}>
-          <Donut data={[{name:"Accredited",value:280},{name:"Conditional",value:28},{name:"Suspended",value:10}]} />
+          calculation: "COUNT(provider_id), grouped by accreditation_status.",
+          source: "bronze.providers (warehouse, live)" }}>
+          <Donut data={accreditationDonut} />
         </Panel>
         <Panel title="ETQA Scorecard" info={{
           what: "Baseline vs. current performance for the five core ETQA targets, with status derived from % achieved.",

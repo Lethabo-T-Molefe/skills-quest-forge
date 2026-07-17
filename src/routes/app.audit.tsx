@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
-import { auditLog } from "@/lib/mock-data";
 import { Download, Search } from "lucide-react";
+import { useAuditLog } from "@/lib/queries/audit";
 
 export const Route = createFileRoute("/app/audit")({ component: Page });
 
@@ -11,9 +11,10 @@ const tone: Record<string, any> = {
 };
 
 function Page() {
+  const { data: auditLog = [] } = useAuditLog();
   return (
     <>
-      <PageHeader title="Audit Logs" subtitle="Immutable event trail · 30-day window shown" actions={
+      <PageHeader title="Audit Logs" subtitle="Immutable event trail" actions={
         <button className="text-sm px-3 py-2 rounded-md bg-primary text-primary-foreground inline-flex items-center gap-2"><Download className="size-4"/> Export CSV</button>
       } />
       <Panel title="Events">
@@ -25,8 +26,8 @@ function Page() {
         </div>
         <table className="w-full text-xs">
           <thead className="text-muted-foreground uppercase text-[10px] tracking-wider"><tr><th className="text-left py-2">Timestamp</th><th>User</th><th>Action</th><th>Object</th><th>Name</th><th>IP</th><th>Status</th></tr></thead>
-          <tbody>{auditLog.map((l,i)=>(
-            <tr key={i} className="border-t border-border">
+          <tbody>{auditLog.map((l)=>(
+            <tr key={l.id} className="border-t border-border">
               <td className="py-2 font-mono">{l.ts}</td><td>{l.user}</td>
               <td><Badge tone={tone[l.action]}>{l.action}</Badge></td>
               <td>{l.obj}</td><td className="font-mono text-muted-foreground">{l.name}</td>

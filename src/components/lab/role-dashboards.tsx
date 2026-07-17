@@ -308,7 +308,7 @@ function ScientistDashboard() {
         { label: "Ethics & Bias Review", to: "/app/ethics", icon: <ShieldCheck className="size-3.5" /> },
       ]} />
       <div className="grid lg:grid-cols-2 gap-6">
-        <Panel title="ML Experiments" subtitle="MLflow registry">
+        <Panel title="ML Experiments" subtitle="MLflow registry" action={<Link to="/app/ml-experiments" className="text-xs text-primary hover:underline">Open MLflow →</Link>}>
           <ul className="flex flex-col divide-y divide-border">
             {mlExperiments.map(e => (
               <li key={e.name} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
@@ -362,6 +362,7 @@ function StudentDashboard() {
       <QuickLinks links={[
         { label: "My Tasks", to: "/app/tasks", icon: <Award className="size-3.5" /> },
         { label: "Contributions", to: "/app/contributions", icon: <Award className="size-3.5" /> },
+        { label: "JupyterLab", to: "/app/notebooks", icon: <FlaskConical className="size-3.5" /> },
         { label: "SQL Lab (sandbox)", to: "/app/sql", icon: <Database className="size-3.5" /> },
       ]} />
       <div className="grid lg:grid-cols-2 gap-6">
