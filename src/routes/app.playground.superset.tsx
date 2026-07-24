@@ -1,22 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHeader, Panel } from "@/components/lab/panel";
-import { ServiceEmbed } from "@/components/lab/service-embed";
-import { usePlaygroundLinks } from "@/lib/use-playground-links";
+import { PageHeader } from "@/components/lab/panel";
+import { BiDashboards } from "@/components/lab/bi-dashboard";
 
 export const Route = createFileRoute("/app/playground/superset")({ component: Page });
 
 function Page() {
-  const { links, isLive } = usePlaygroundLinks();
-
   return (
     <>
       <PageHeader
         title="Superset"
-        subtitle="Dashboards and SQL Workspace (SQL Lab) against the shared warehouse"
+        subtitle="Dashboards against the shared warehouse — for open-ended SQL, use the SQL Workspace"
       />
-      <Panel title="Apache Superset" subtitle="Open SQL Lab from the top menu, or browse dashboards">
-        <ServiceEmbed service={links.superset} isLive={isLive} height="75vh" />
-      </Panel>
+      <BiDashboards />
     </>
   );
 }
