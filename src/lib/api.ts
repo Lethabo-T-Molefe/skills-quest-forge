@@ -1,21 +1,43 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
-export type PlaygroundService = {
+export type PlaygroundServiceLink = {
   url: string;
   label: string;
   description: string;
 };
 
+/** @deprecated Prefer PlaygroundServiceLink; kept for existing embeds. */
+export type PlaygroundService = PlaygroundServiceLink;
+
 export type PlaygroundLinks = {
-  jupyterhub: PlaygroundService;
-  superset: PlaygroundService;
-  mlflow: PlaygroundService;
-  codeServer: PlaygroundService;
+  jupyterhub: PlaygroundServiceLink;
+  superset: PlaygroundServiceLink;
+  mlflow: PlaygroundServiceLink;
+  codeServer: PlaygroundServiceLink;
+};
+
+export type PlaygroundServiceStatus = "up" | "down" | "unknown" | "external";
+
+export type PlaygroundCatalogueService = {
+  id: string;
+  label: string;
+  description: string;
+  url: string | null;
+  frontend_path: string | null;
+  category: string;
+  is_primary_ide: boolean;
+  status: PlaygroundServiceStatus;
 };
 
 export async function getPlaygroundLinks(): Promise<PlaygroundLinks> {
   const res = await fetch(`${API_BASE_URL}/playground/links`);
   if (!res.ok) throw new Error(`GET /playground/links failed: ${res.status}`);
+  return res.json();
+}
+
+export async function getPlaygroundServices(): Promise<PlaygroundCatalogueService[]> {
+  const res = await fetch(`${API_BASE_URL}/playground/services`);
+  if (!res.ok) throw new Error(`GET /playground/services failed: ${res.status}`);
   return res.json();
 }
 

@@ -2,7 +2,7 @@ import {
   Home, Database, Upload, ShieldCheck, GitBranch, Terminal, Notebook, TableProperties,
   LayoutDashboard, Briefcase, GraduationCap, BadgeCheck, Building2, Star, Sparkles,
   FileText, Calendar, History, Users, Shield, ScrollText, Activity, Settings,
-  CheckSquare, Award, User, Lock, Scale, FlaskConical, Code2,
+  CheckSquare, Award, User, Lock, Scale, FlaskConical, Code2, Boxes, Bot,
 } from "lucide-react";
 import { ROLES, type Role } from "./roles";
 
@@ -14,10 +14,23 @@ const ADMIN: Role[] = ["System Admin"];
 const BUILDERS: Role[] = ["System Admin", "Data Steward", "Data Engineer", "Data Analyst", "Data Scientist", "Student Dev"];
 const VIEWERS_TOO: Role[] = [...BUILDERS, "Viewer / Exec"];
 const GOVERNANCE: Role[] = ["System Admin", "Data Steward", "Auditor"];
+const PLAYGROUND_USERS: Role[] = [
+  "System Admin", "Data Steward", "Data Engineer", "Data Analyst",
+  "Data Scientist", "Student Dev", "Auditor",
+];
+const TECH: Role[] = ["System Admin", "Data Engineer"];
 
 export const NAV: NavGroup[] = [
   { title: "Home", items: [
     { label: "Dashboard", to: "/app", icon: Home, roles: ALL },
+  ]},
+  { title: "Playground", accent: true, items: [
+    { label: "Playground Home", to: "/app/playground", icon: Boxes, roles: PLAYGROUND_USERS },
+    { label: "JupyterLab (Primary IDE)", to: "/app/playground/jupyter", icon: Notebook, roles: BUILDERS },
+    { label: "Superset", to: "/app/playground/superset", icon: LayoutDashboard, roles: BUILDERS },
+    { label: "MLflow", to: "/app/playground/mlflow", icon: FlaskConical, roles: ["System Admin", "Data Engineer", "Data Analyst", "Data Scientist", "Student Dev"] },
+    { label: "Student Sandbox", to: "/app/playground/sandbox", icon: GraduationCap, roles: ["System Admin", "Student Dev", "Data Scientist"] },
+    { label: "Developer Workspace", to: "/app/playground/code", icon: Code2, roles: TECH },
   ]},
   { title: "Data", items: [
     { label: "Dataset Catalogue", to: "/app/datasets", icon: Database, roles: ["System Admin", "Data Steward", "Data Engineer", "Data Analyst", "Data Scientist", "Student Dev", "Auditor"] },
@@ -31,6 +44,7 @@ export const NAV: NavGroup[] = [
   ]},
   { title: "Analytics", items: [
     { label: "SQL Workspace", to: "/app/sql", icon: Terminal, roles: BUILDERS },
+    { label: "AI Analyst", to: "/app/ai-analyst", icon: Bot, roles: BUILDERS },
     { label: "Notebooks", to: "/app/notebooks", icon: Notebook, roles: ["System Admin", "Data Engineer", "Data Analyst", "Data Scientist", "Student Dev"] },
     { label: "ML Experiments", to: "/app/ml-experiments", icon: FlaskConical, roles: ["System Admin", "Data Engineer", "Data Analyst", "Data Scientist", "Student Dev"] },
     { label: "Data Explorer", to: "/app/explorer", icon: TableProperties, roles: BUILDERS },

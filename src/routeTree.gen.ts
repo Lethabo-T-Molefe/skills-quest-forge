@@ -25,6 +25,7 @@ import { Route as AppReportsRouteImport } from './routes/app.reports'
 import { Route as AppQualityRouteImport } from './routes/app.quality'
 import { Route as AppPrototypeRouteImport } from './routes/app.prototype'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppPlaygroundRouteImport } from './routes/app.playground'
 import { Route as AppNotebooksRouteImport } from './routes/app.notebooks'
 import { Route as AppMyDashboardsRouteImport } from './routes/app.my-dashboards'
 import { Route as AppMlExperimentsRouteImport } from './routes/app.ml-experiments'
@@ -43,6 +44,13 @@ import { Route as AppDatasetsRouteImport } from './routes/app.datasets'
 import { Route as AppContributionsRouteImport } from './routes/app.contributions'
 import { Route as AppCentresRouteImport } from './routes/app.centres'
 import { Route as AppAuditRouteImport } from './routes/app.audit'
+import { Route as AppAiAnalystRouteImport } from './routes/app.ai-analyst'
+import { Route as AppPlaygroundIndexRouteImport } from './routes/app.playground.index'
+import { Route as AppPlaygroundSupersetRouteImport } from './routes/app.playground.superset'
+import { Route as AppPlaygroundSandboxRouteImport } from './routes/app.playground.sandbox'
+import { Route as AppPlaygroundMlflowRouteImport } from './routes/app.playground.mlflow'
+import { Route as AppPlaygroundJupyterRouteImport } from './routes/app.playground.jupyter'
+import { Route as AppPlaygroundCodeRouteImport } from './routes/app.playground.code'
 
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
@@ -122,6 +130,11 @@ const AppPrototypeRoute = AppPrototypeRouteImport.update({
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPlaygroundRoute = AppPlaygroundRouteImport.update({
+  id: '/playground',
+  path: '/playground',
   getParentRoute: () => AppRoute,
 } as any)
 const AppNotebooksRoute = AppNotebooksRouteImport.update({
@@ -214,11 +227,47 @@ const AppAuditRoute = AppAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAiAnalystRoute = AppAiAnalystRouteImport.update({
+  id: '/ai-analyst',
+  path: '/ai-analyst',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPlaygroundIndexRoute = AppPlaygroundIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppPlaygroundRoute,
+} as any)
+const AppPlaygroundSupersetRoute = AppPlaygroundSupersetRouteImport.update({
+  id: '/superset',
+  path: '/superset',
+  getParentRoute: () => AppPlaygroundRoute,
+} as any)
+const AppPlaygroundSandboxRoute = AppPlaygroundSandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
+  getParentRoute: () => AppPlaygroundRoute,
+} as any)
+const AppPlaygroundMlflowRoute = AppPlaygroundMlflowRouteImport.update({
+  id: '/mlflow',
+  path: '/mlflow',
+  getParentRoute: () => AppPlaygroundRoute,
+} as any)
+const AppPlaygroundJupyterRoute = AppPlaygroundJupyterRouteImport.update({
+  id: '/jupyter',
+  path: '/jupyter',
+  getParentRoute: () => AppPlaygroundRoute,
+} as any)
+const AppPlaygroundCodeRoute = AppPlaygroundCodeRouteImport.update({
+  id: '/code',
+  path: '/code',
+  getParentRoute: () => AppPlaygroundRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/signin': typeof SigninRoute
+  '/app/ai-analyst': typeof AppAiAnalystRoute
   '/app/audit': typeof AppAuditRoute
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
@@ -237,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/app/ml-experiments': typeof AppMlExperimentsRoute
   '/app/my-dashboards': typeof AppMyDashboardsRoute
   '/app/notebooks': typeof AppNotebooksRoute
+  '/app/playground': typeof AppPlaygroundRouteWithChildren
   '/app/profile': typeof AppProfileRoute
   '/app/prototype': typeof AppPrototypeRoute
   '/app/quality': typeof AppQualityRoute
@@ -250,10 +300,17 @@ export interface FileRoutesByFullPath {
   '/app/upload': typeof AppUploadRoute
   '/app/users': typeof AppUsersRoute
   '/app/': typeof AppIndexRoute
+  '/app/playground/code': typeof AppPlaygroundCodeRoute
+  '/app/playground/jupyter': typeof AppPlaygroundJupyterRoute
+  '/app/playground/mlflow': typeof AppPlaygroundMlflowRoute
+  '/app/playground/sandbox': typeof AppPlaygroundSandboxRoute
+  '/app/playground/superset': typeof AppPlaygroundSupersetRoute
+  '/app/playground/': typeof AppPlaygroundIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/signin': typeof SigninRoute
+  '/app/ai-analyst': typeof AppAiAnalystRoute
   '/app/audit': typeof AppAuditRoute
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
@@ -285,12 +342,19 @@ export interface FileRoutesByTo {
   '/app/upload': typeof AppUploadRoute
   '/app/users': typeof AppUsersRoute
   '/app': typeof AppIndexRoute
+  '/app/playground/code': typeof AppPlaygroundCodeRoute
+  '/app/playground/jupyter': typeof AppPlaygroundJupyterRoute
+  '/app/playground/mlflow': typeof AppPlaygroundMlflowRoute
+  '/app/playground/sandbox': typeof AppPlaygroundSandboxRoute
+  '/app/playground/superset': typeof AppPlaygroundSupersetRoute
+  '/app/playground': typeof AppPlaygroundIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/signin': typeof SigninRoute
+  '/app/ai-analyst': typeof AppAiAnalystRoute
   '/app/audit': typeof AppAuditRoute
   '/app/centres': typeof AppCentresRoute
   '/app/contributions': typeof AppContributionsRoute
@@ -309,6 +373,7 @@ export interface FileRoutesById {
   '/app/ml-experiments': typeof AppMlExperimentsRoute
   '/app/my-dashboards': typeof AppMyDashboardsRoute
   '/app/notebooks': typeof AppNotebooksRoute
+  '/app/playground': typeof AppPlaygroundRouteWithChildren
   '/app/profile': typeof AppProfileRoute
   '/app/prototype': typeof AppPrototypeRoute
   '/app/quality': typeof AppQualityRoute
@@ -322,6 +387,12 @@ export interface FileRoutesById {
   '/app/upload': typeof AppUploadRoute
   '/app/users': typeof AppUsersRoute
   '/app/': typeof AppIndexRoute
+  '/app/playground/code': typeof AppPlaygroundCodeRoute
+  '/app/playground/jupyter': typeof AppPlaygroundJupyterRoute
+  '/app/playground/mlflow': typeof AppPlaygroundMlflowRoute
+  '/app/playground/sandbox': typeof AppPlaygroundSandboxRoute
+  '/app/playground/superset': typeof AppPlaygroundSupersetRoute
+  '/app/playground/': typeof AppPlaygroundIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -329,6 +400,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/signin'
+    | '/app/ai-analyst'
     | '/app/audit'
     | '/app/centres'
     | '/app/contributions'
@@ -347,6 +419,7 @@ export interface FileRouteTypes {
     | '/app/ml-experiments'
     | '/app/my-dashboards'
     | '/app/notebooks'
+    | '/app/playground'
     | '/app/profile'
     | '/app/prototype'
     | '/app/quality'
@@ -360,10 +433,17 @@ export interface FileRouteTypes {
     | '/app/upload'
     | '/app/users'
     | '/app/'
+    | '/app/playground/code'
+    | '/app/playground/jupyter'
+    | '/app/playground/mlflow'
+    | '/app/playground/sandbox'
+    | '/app/playground/superset'
+    | '/app/playground/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/signin'
+    | '/app/ai-analyst'
     | '/app/audit'
     | '/app/centres'
     | '/app/contributions'
@@ -395,11 +475,18 @@ export interface FileRouteTypes {
     | '/app/upload'
     | '/app/users'
     | '/app'
+    | '/app/playground/code'
+    | '/app/playground/jupyter'
+    | '/app/playground/mlflow'
+    | '/app/playground/sandbox'
+    | '/app/playground/superset'
+    | '/app/playground'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/signin'
+    | '/app/ai-analyst'
     | '/app/audit'
     | '/app/centres'
     | '/app/contributions'
@@ -418,6 +505,7 @@ export interface FileRouteTypes {
     | '/app/ml-experiments'
     | '/app/my-dashboards'
     | '/app/notebooks'
+    | '/app/playground'
     | '/app/profile'
     | '/app/prototype'
     | '/app/quality'
@@ -431,6 +519,12 @@ export interface FileRouteTypes {
     | '/app/upload'
     | '/app/users'
     | '/app/'
+    | '/app/playground/code'
+    | '/app/playground/jupyter'
+    | '/app/playground/mlflow'
+    | '/app/playground/sandbox'
+    | '/app/playground/superset'
+    | '/app/playground/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -551,6 +645,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/app/profile'
       preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/playground': {
+      id: '/app/playground'
+      path: '/playground'
+      fullPath: '/app/playground'
+      preLoaderRoute: typeof AppPlaygroundRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/notebooks': {
@@ -679,10 +780,82 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAuditRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/ai-analyst': {
+      id: '/app/ai-analyst'
+      path: '/ai-analyst'
+      fullPath: '/app/ai-analyst'
+      preLoaderRoute: typeof AppAiAnalystRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/playground/': {
+      id: '/app/playground/'
+      path: '/'
+      fullPath: '/app/playground/'
+      preLoaderRoute: typeof AppPlaygroundIndexRouteImport
+      parentRoute: typeof AppPlaygroundRoute
+    }
+    '/app/playground/superset': {
+      id: '/app/playground/superset'
+      path: '/superset'
+      fullPath: '/app/playground/superset'
+      preLoaderRoute: typeof AppPlaygroundSupersetRouteImport
+      parentRoute: typeof AppPlaygroundRoute
+    }
+    '/app/playground/sandbox': {
+      id: '/app/playground/sandbox'
+      path: '/sandbox'
+      fullPath: '/app/playground/sandbox'
+      preLoaderRoute: typeof AppPlaygroundSandboxRouteImport
+      parentRoute: typeof AppPlaygroundRoute
+    }
+    '/app/playground/mlflow': {
+      id: '/app/playground/mlflow'
+      path: '/mlflow'
+      fullPath: '/app/playground/mlflow'
+      preLoaderRoute: typeof AppPlaygroundMlflowRouteImport
+      parentRoute: typeof AppPlaygroundRoute
+    }
+    '/app/playground/jupyter': {
+      id: '/app/playground/jupyter'
+      path: '/jupyter'
+      fullPath: '/app/playground/jupyter'
+      preLoaderRoute: typeof AppPlaygroundJupyterRouteImport
+      parentRoute: typeof AppPlaygroundRoute
+    }
+    '/app/playground/code': {
+      id: '/app/playground/code'
+      path: '/code'
+      fullPath: '/app/playground/code'
+      preLoaderRoute: typeof AppPlaygroundCodeRouteImport
+      parentRoute: typeof AppPlaygroundRoute
+    }
   }
 }
 
+interface AppPlaygroundRouteChildren {
+  AppPlaygroundCodeRoute: typeof AppPlaygroundCodeRoute
+  AppPlaygroundJupyterRoute: typeof AppPlaygroundJupyterRoute
+  AppPlaygroundMlflowRoute: typeof AppPlaygroundMlflowRoute
+  AppPlaygroundSandboxRoute: typeof AppPlaygroundSandboxRoute
+  AppPlaygroundSupersetRoute: typeof AppPlaygroundSupersetRoute
+  AppPlaygroundIndexRoute: typeof AppPlaygroundIndexRoute
+}
+
+const AppPlaygroundRouteChildren: AppPlaygroundRouteChildren = {
+  AppPlaygroundCodeRoute: AppPlaygroundCodeRoute,
+  AppPlaygroundJupyterRoute: AppPlaygroundJupyterRoute,
+  AppPlaygroundMlflowRoute: AppPlaygroundMlflowRoute,
+  AppPlaygroundSandboxRoute: AppPlaygroundSandboxRoute,
+  AppPlaygroundSupersetRoute: AppPlaygroundSupersetRoute,
+  AppPlaygroundIndexRoute: AppPlaygroundIndexRoute,
+}
+
+const AppPlaygroundRouteWithChildren = AppPlaygroundRoute._addFileChildren(
+  AppPlaygroundRouteChildren,
+)
+
 interface AppRouteChildren {
+  AppAiAnalystRoute: typeof AppAiAnalystRoute
   AppAuditRoute: typeof AppAuditRoute
   AppCentresRoute: typeof AppCentresRoute
   AppContributionsRoute: typeof AppContributionsRoute
@@ -701,6 +874,7 @@ interface AppRouteChildren {
   AppMlExperimentsRoute: typeof AppMlExperimentsRoute
   AppMyDashboardsRoute: typeof AppMyDashboardsRoute
   AppNotebooksRoute: typeof AppNotebooksRoute
+  AppPlaygroundRoute: typeof AppPlaygroundRouteWithChildren
   AppProfileRoute: typeof AppProfileRoute
   AppPrototypeRoute: typeof AppPrototypeRoute
   AppQualityRoute: typeof AppQualityRoute
@@ -717,6 +891,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAiAnalystRoute: AppAiAnalystRoute,
   AppAuditRoute: AppAuditRoute,
   AppCentresRoute: AppCentresRoute,
   AppContributionsRoute: AppContributionsRoute,
@@ -735,6 +910,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMlExperimentsRoute: AppMlExperimentsRoute,
   AppMyDashboardsRoute: AppMyDashboardsRoute,
   AppNotebooksRoute: AppNotebooksRoute,
+  AppPlaygroundRoute: AppPlaygroundRouteWithChildren,
   AppProfileRoute: AppProfileRoute,
   AppPrototypeRoute: AppPrototypeRoute,
   AppQualityRoute: AppQualityRoute,
