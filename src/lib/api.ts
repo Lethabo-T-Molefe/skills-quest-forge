@@ -59,6 +59,12 @@ export type Dataset = {
   columns: DatasetColumn[];
 };
 
+export async function listDatasets(): Promise<Dataset[]> {
+  const res = await fetch(`${API_BASE_URL}/datasets`);
+  if (!res.ok) throw new Error(`GET /datasets failed: ${res.status}`);
+  return res.json();
+}
+
 export async function uploadDataset(file: File, name: string): Promise<Dataset> {
   const body = new FormData();
   body.append("file", file);

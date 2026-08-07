@@ -17,6 +17,7 @@ import { Route as AppUsersRouteImport } from './routes/app.users'
 import { Route as AppUploadRouteImport } from './routes/app.upload'
 import { Route as AppTasksRouteImport } from './routes/app.tasks'
 import { Route as AppSupersetDashboardsRouteImport } from './routes/app.superset-dashboards'
+import { Route as AppStatisticsRouteImport } from './routes/app.statistics'
 import { Route as AppSqlRouteImport } from './routes/app.sql'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppScheduledRouteImport } from './routes/app.scheduled'
@@ -90,6 +91,11 @@ const AppTasksRoute = AppTasksRouteImport.update({
 const AppSupersetDashboardsRoute = AppSupersetDashboardsRouteImport.update({
   id: '/superset-dashboards',
   path: '/superset-dashboards',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStatisticsRoute = AppStatisticsRouteImport.update({
+  id: '/statistics',
+  path: '/statistics',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSqlRoute = AppSqlRouteImport.update({
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/app/scheduled': typeof AppScheduledRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/sql': typeof AppSqlRoute
+  '/app/statistics': typeof AppStatisticsRoute
   '/app/superset-dashboards': typeof AppSupersetDashboardsRoute
   '/app/tasks': typeof AppTasksRoute
   '/app/upload': typeof AppUploadRoute
@@ -337,6 +344,7 @@ export interface FileRoutesByTo {
   '/app/scheduled': typeof AppScheduledRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/sql': typeof AppSqlRoute
+  '/app/statistics': typeof AppStatisticsRoute
   '/app/superset-dashboards': typeof AppSupersetDashboardsRoute
   '/app/tasks': typeof AppTasksRoute
   '/app/upload': typeof AppUploadRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/app/scheduled': typeof AppScheduledRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/sql': typeof AppSqlRoute
+  '/app/statistics': typeof AppStatisticsRoute
   '/app/superset-dashboards': typeof AppSupersetDashboardsRoute
   '/app/tasks': typeof AppTasksRoute
   '/app/upload': typeof AppUploadRoute
@@ -428,6 +437,7 @@ export interface FileRouteTypes {
     | '/app/scheduled'
     | '/app/settings'
     | '/app/sql'
+    | '/app/statistics'
     | '/app/superset-dashboards'
     | '/app/tasks'
     | '/app/upload'
@@ -470,6 +480,7 @@ export interface FileRouteTypes {
     | '/app/scheduled'
     | '/app/settings'
     | '/app/sql'
+    | '/app/statistics'
     | '/app/superset-dashboards'
     | '/app/tasks'
     | '/app/upload'
@@ -514,6 +525,7 @@ export interface FileRouteTypes {
     | '/app/scheduled'
     | '/app/settings'
     | '/app/sql'
+    | '/app/statistics'
     | '/app/superset-dashboards'
     | '/app/tasks'
     | '/app/upload'
@@ -589,6 +601,13 @@ declare module '@tanstack/react-router' {
       path: '/superset-dashboards'
       fullPath: '/app/superset-dashboards'
       preLoaderRoute: typeof AppSupersetDashboardsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/statistics': {
+      id: '/app/statistics'
+      path: '/statistics'
+      fullPath: '/app/statistics'
+      preLoaderRoute: typeof AppStatisticsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/sql': {
@@ -883,6 +902,7 @@ interface AppRouteChildren {
   AppScheduledRoute: typeof AppScheduledRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSqlRoute: typeof AppSqlRoute
+  AppStatisticsRoute: typeof AppStatisticsRoute
   AppSupersetDashboardsRoute: typeof AppSupersetDashboardsRoute
   AppTasksRoute: typeof AppTasksRoute
   AppUploadRoute: typeof AppUploadRoute
@@ -919,6 +939,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppScheduledRoute: AppScheduledRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSqlRoute: AppSqlRoute,
+  AppStatisticsRoute: AppStatisticsRoute,
   AppSupersetDashboardsRoute: AppSupersetDashboardsRoute,
   AppTasksRoute: AppTasksRoute,
   AppUploadRoute: AppUploadRoute,

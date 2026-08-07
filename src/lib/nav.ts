@@ -2,7 +2,7 @@ import {
   Home, Database, Upload, ShieldCheck, GitBranch, Terminal, Notebook, TableProperties,
   LayoutDashboard, Briefcase, GraduationCap, BadgeCheck, Building2, Star, Sparkles,
   FileText, Calendar, History, Users, Shield, ScrollText, Activity, Settings,
-  CheckSquare, Award, User, Lock, Scale, FlaskConical, Code2, Boxes, Bot,
+  CheckSquare, Award, User, Lock, Scale, FlaskConical, Code2, Boxes, Bot, SquareSigma,
 } from "lucide-react";
 import { ROLES, type Role } from "./roles";
 
@@ -45,6 +45,7 @@ export const NAV: NavGroup[] = [
   { title: "Analytics", items: [
     { label: "SQL Workspace", to: "/app/sql", icon: Terminal, roles: BUILDERS },
     { label: "AI Analyst", to: "/app/ai-analyst", icon: Bot, roles: BUILDERS },
+    { label: "Statistical Analysis", to: "/app/statistics", icon: SquareSigma, roles: BUILDERS },
     { label: "Notebooks", to: "/app/notebooks", icon: Notebook, roles: ["System Admin", "Data Engineer", "Data Analyst", "Data Scientist", "Student Dev"] },
     { label: "ML Experiments", to: "/app/ml-experiments", icon: FlaskConical, roles: ["System Admin", "Data Engineer", "Data Analyst", "Data Scientist", "Student Dev"] },
     { label: "Data Explorer", to: "/app/explorer", icon: TableProperties, roles: BUILDERS },
