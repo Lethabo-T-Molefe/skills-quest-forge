@@ -21,6 +21,7 @@ export type AnalysisSection = {
   formula: string;
   outputs: AnalysisOutput[];
   interpretation: string;
+  summary: string;
   status: "ok" | "error";
 };
 
