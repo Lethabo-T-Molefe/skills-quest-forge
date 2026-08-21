@@ -220,9 +220,33 @@ export function Page() {
 
       {runMutation.data && (
         <div className="flex flex-col gap-4">
+          {runMutation.data.overview && <ResultSection section={runMutation.data.overview} />}
+
           {runMutation.data.sections.map((s, i) => (
             <ResultSection key={i} section={s} />
           ))}
+
+          {runMutation.data.consolidated_script && (
+            <Panel
+              title="Consolidated Python Script"
+              subtitle="Reproduces this entire analysis end-to-end, standalone — the setup, overview, and every method above, in the order they actually ran"
+            >
+              <div className="rounded-lg border border-ink overflow-hidden">
+                <CodeEditor
+                  value={runMutation.data.consolidated_script}
+                  language="python"
+                  readOnly
+                  height="400px"
+                />
+              </div>
+            </Panel>
+          )}
+
+          {runMutation.data.final_findings && (
+            <Panel title="Final Findings & Limitations">
+              <pre className="text-sm whitespace-pre-wrap font-sans">{runMutation.data.final_findings}</pre>
+            </Panel>
+          )}
         </div>
       )}
     </>
