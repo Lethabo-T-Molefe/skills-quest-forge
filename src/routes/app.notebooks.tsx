@@ -13,12 +13,12 @@ function Page() {
     <>
       <PageHeader
         title="Notebooks"
-        subtitle={`${ROLE_IDENTITY[role].name}'s Python workspace — runs against a real kernel, no login form`}
+        subtitle={`${ROLE_IDENTITY[role].name}'s workspace — runs against a real kernel, no login form`}
       />
 
       <Panel
-        title="Python"
-        subtitle="Write and run Python cells against a real kernel — state persists across cells like a real notebook. Nothing here is saved yet; export/save-to-file is a follow-up."
+        title="Notebook"
+        subtitle="Write and run Python or R cells against a real kernel — state persists across cells like a real notebook. Save, open, and download as .ipynb."
       >
         <Notebook />
       </Panel>
