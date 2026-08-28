@@ -21,13 +21,17 @@ export type AnalysisSection = {
   formula: string;
   outputs: AnalysisOutput[];
   interpretation: string;
+  summary: string;
   status: "ok" | "error";
 };
 
 export type AnalysisResult = {
   category_id: string;
   dataset_table: string;
+  overview: AnalysisSection | null;
   sections: AnalysisSection[];
+  consolidated_script: string;
+  final_findings: string;
 };
 
 export async function getTaxonomy(): Promise<StatCategory[]> {

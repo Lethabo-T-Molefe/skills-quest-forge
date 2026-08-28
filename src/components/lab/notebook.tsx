@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { Play, Loader2, Plus, Trash2, CircleDot } from "lucide-react";
+import {
+  Play, Loader2, Plus, Trash2, CircleDot, Upload, Save, FilePlus, FolderOpen, Download, ChevronDown,
+} from "lucide-react";
 import { CodeEditor } from "./code-editor";
 import { Badge } from "./panel";
-import { UploadPanel } from "./upload-panel";
-import { startSession, executeCell, stopSession, type ExecutionOutput } from "@/lib/api/notebooks";
-import type { Dataset } from "@/lib/api";
+import {
+  startSession, executeCell, stopSession, uploadFileToSession, saveNotebook, getNotebook,
+  type ExecutionOutput, type SavedCell,
+} from "@/lib/api/notebooks";
+import { useLanguages, useNotebookList, useInvalidateNotebookList } from "@/lib/queries/notebooks";
+import { downloadIpynb } from "@/lib/ipynb";
 
 type Cell = {
   id: string;
@@ -15,10 +20,34 @@ type Cell = {
 };
 
 let nextCellId = 0;
-
 function newCell(code = ""): Cell {
   nextCellId += 1;
   return { id: String(nextCellId), code, outputs: [], status: "idle", executionCount: null };
+}
+
+function cellsFromSaved(saved: SavedCell[]): Cell[] {
+  if (saved.length === 0) return [newCell()];
+  return saved.map((c) => {
+    nextCellId += 1;
+    return { id: String(nextCellId), code: c.code, outputs: c.outputs, status: c.status, executionCount: c.execution_count };
+  });
+}
+
+// Extension-aware read snippet inserted after a notebook-native upload, so
+// the new cell "just works" whichever language/kernel is currently active —
+// mirrors how a real Jupyter user would open a file they just dropped in.
+function readCodeFor(language: string, filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+  if (language === "r") {
+    if (ext === "json") return `library(jsonlite)\n\ndf <- fromJSON("${filename}")\nhead(df)`;
+    if (ext === "xlsx" || ext === "xls") return `library(readxl)\n\ndf <- read_excel("${filename}")\nhead(df)`;
+    if (ext === "tsv") return `df <- read.csv("${filename}", sep = "\\t")\nhead(df)`;
+    return `df <- read.csv("${filename}")\nhead(df)`;
+  }
+  if (ext === "json") return `import pandas as pd\n\ndf = pd.read_json("${filename}")\ndf.head()`;
+  if (ext === "xlsx" || ext === "xls") return `import pandas as pd\n\ndf = pd.read_excel("${filename}")\ndf.head()`;
+  if (ext === "tsv") return `import pandas as pd\n\ndf = pd.read_csv("${filename}", sep="\\t")\ndf.head()`;
+  return `import pandas as pd\n\ndf = pd.read_csv("${filename}")\ndf.head()`;
 }
 
 function OutputBlock({ output }: { output: ExecutionOutput }) {
@@ -37,14 +66,27 @@ function OutputBlock({ output }: { output: ExecutionOutput }) {
   );
 }
 
-// Real Python execution against a genuine Jupyter kernel (see
+// Real execution against a genuine Jupyter kernel — Python or R (see
 // infrastructure/external/jupyter_code_executor.py on the backend) — never
 // JupyterLab's own web UI, only this system-styled cell editor.
 export function Notebook({ initialCode = "" }: { initialCode?: string }) {
   const [cells, setCells] = useState<Cell[]>([newCell(initialCode)]);
+  const [language, setLanguage] = useState("python");
+  const [notebookId, setNotebookId] = useState<number | null>(null);
+  const [notebookName, setNotebookName] = useState("Untitled notebook");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [openMenu, setOpenMenu] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
   const sessionRef = useRef<string | null>(null);
   const sessionStarting = useRef<Promise<string> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [kernelError, setKernelError] = useState<string | null>(null);
+
+  const { data: languages } = useLanguages();
+  const { data: notebookList } = useNotebookList();
+  const invalidateList = useInvalidateNotebookList();
 
   useEffect(() => {
     return () => {
@@ -52,10 +94,19 @@ export function Notebook({ initialCode = "" }: { initialCode?: string }) {
     };
   }, []);
 
+  async function killSession() {
+    if (sessionRef.current) {
+      const id = sessionRef.current;
+      sessionRef.current = null;
+      sessionStarting.current = null;
+      await stopSession(id);
+    }
+  }
+
   async function ensureSession(): Promise<string> {
     if (sessionRef.current) return sessionRef.current;
     if (!sessionStarting.current) {
-      sessionStarting.current = startSession();
+      sessionStarting.current = startSession(language);
     }
     const id = await sessionStarting.current;
     sessionRef.current = id;
@@ -80,7 +131,7 @@ export function Notebook({ initialCode = "" }: { initialCode?: string }) {
     } catch (e) {
       sessionRef.current = null;
       sessionStarting.current = null;
-      setKernelError(e instanceof Error ? e.message : "Couldn't reach the Python kernel");
+      setKernelError(e instanceof Error ? e.message : "Couldn't reach the kernel");
       updateCell(cell.id, { status: "error" });
     }
   }
@@ -93,34 +144,175 @@ export function Notebook({ initialCode = "" }: { initialCode?: string }) {
     setCells((cs) => (cs.length > 1 ? cs.filter((c) => c.id !== id) : cs));
   }
 
-  function handleUploaded(dataset: Dataset) {
-    addCell(
-      `import os\nimport pandas as pd\n\n` +
-      `df = pd.read_sql("SELECT * FROM bronze.${dataset.warehouse_table} LIMIT 1000", os.environ["CHIETA_WAREHOUSE_URL"])\n` +
-      `df.head()`
-    );
+  async function handleLanguageChange(next: string) {
+    if (next === language) return;
+    await killSession();
+    setLanguage(next);
+  }
+
+  async function handleUploadClick() {
+    fileInputRef.current?.click();
+  }
+
+  async function handleFileSelected(file: File) {
+    setUploading(true);
+    setKernelError(null);
+    try {
+      const sessionId = await ensureSession();
+      const filename = await uploadFileToSession(sessionId, file);
+      addCell(readCodeFor(language, filename));
+    } catch (e) {
+      setKernelError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  function handleNew() {
+    killSession();
+    nextCellId += 1;
+    setCells([newCell()]);
+    setLanguage("python");
+    setNotebookId(null);
+    setNotebookName("Untitled notebook");
+    setSaveError(null);
+    setOpenMenu(false);
+  }
+
+  async function handleOpen(id: number) {
+    setOpenMenu(false);
+    setSaveError(null);
+    try {
+      const notebook = await getNotebook(id);
+      await killSession();
+      setCells(cellsFromSaved(notebook.cells));
+      setLanguage(notebook.language);
+      setNotebookId(notebook.id);
+      setNotebookName(notebook.name);
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Couldn't open notebook");
+    }
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const savedCells: SavedCell[] = cells.map((c) => ({
+        code: c.code, outputs: c.outputs, execution_count: c.executionCount, status: c.status,
+      }));
+      const saved = await saveNotebook({ id: notebookId, name: notebookName, language, cells: savedCells });
+      setNotebookId(saved.id);
+      invalidateList();
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleDownload() {
+    downloadIpynb(cells, language, notebookName);
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <UploadPanel
-        onUploaded={handleUploaded}
-        subtitle="Upload CSV, TSV, JSON or Excel — a cell that loads it into a DataFrame is added below"
-      />
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <input
+            value={notebookName}
+            onChange={(e) => setNotebookName(e.target.value)}
+            className="text-xs px-2.5 py-1.5 rounded-md border border-border bg-background font-medium min-w-[10rem]"
+            aria-label="Notebook name"
+          />
+          <select
+            value={language}
+            onChange={(e) => handleLanguageChange(e.target.value)}
+            className="text-xs px-2.5 py-1.5 rounded-md border border-border bg-background font-medium capitalize"
+            aria-label="Kernel language"
+          >
+            {(languages ?? [{ id: "python", kernel_name: "chieta-python" }]).map((l) => (
+              <option key={l.id} value={l.id}>{l.id}</option>
+            ))}
+          </select>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <CircleDot className={`size-3 ${sessionRef.current ? "text-success" : "text-muted-foreground"}`} />
-          {sessionRef.current ? "Kernel running" : "Kernel starts on first run"}
+          <button onClick={handleNew} className="text-xs px-2.5 py-1.5 rounded-md border border-border inline-flex items-center gap-1.5">
+            <FilePlus className="size-3.5" /> New
+          </button>
+
+          <div className="relative">
+            <button
+              onClick={() => setOpenMenu((v) => !v)}
+              className="text-xs px-2.5 py-1.5 rounded-md border border-border inline-flex items-center gap-1.5"
+            >
+              <FolderOpen className="size-3.5" /> Open <ChevronDown className="size-3" />
+            </button>
+            {openMenu && (
+              <div className="absolute z-10 mt-1 w-64 rounded-md border border-border bg-card shadow-lg max-h-64 overflow-y-auto">
+                {(notebookList ?? []).length === 0 && (
+                  <div className="text-xs text-muted-foreground p-3">No saved notebooks yet</div>
+                )}
+                {(notebookList ?? []).map((n) => (
+                  <button
+                    key={n.id}
+                    onClick={() => handleOpen(n.id)}
+                    className="w-full text-left text-xs px-3 py-2 hover:bg-muted/50 flex items-center justify-between gap-2"
+                  >
+                    <span className="truncate">{n.name}</span>
+                    <span className="text-muted-foreground uppercase shrink-0">{n.language}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="text-xs px-2.5 py-1.5 rounded-md border border-border inline-flex items-center gap-1.5 disabled:opacity-40"
+          >
+            {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />} Save
+          </button>
+
+          <button onClick={handleDownload} className="text-xs px-2.5 py-1.5 rounded-md border border-border inline-flex items-center gap-1.5">
+            <Download className="size-3.5" /> Download
+          </button>
+
+          <button
+            onClick={handleUploadClick}
+            disabled={uploading}
+            className="text-xs px-2.5 py-1.5 rounded-md border border-border inline-flex items-center gap-1.5 disabled:opacity-40"
+          >
+            {uploading ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />} Upload file
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,.tsv,.json,.xlsx,.xls"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleFileSelected(f);
+            }}
+          />
         </div>
-        <button
-          onClick={() => addCell()}
-          className="text-xs px-3 py-1.5 rounded-md border border-border inline-flex items-center gap-1.5"
-        >
-          <Plus className="size-3.5" /> Add cell
-        </button>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <CircleDot className={`size-3 ${sessionRef.current ? "text-success" : "text-muted-foreground"}`} />
+            {sessionRef.current ? "Kernel running" : "Kernel starts on first run"}
+          </div>
+          <button
+            onClick={() => addCell()}
+            className="text-xs px-3 py-1.5 rounded-md border border-border inline-flex items-center gap-1.5"
+          >
+            <Plus className="size-3.5" /> Add cell
+          </button>
+        </div>
       </div>
 
+      {saveError && <div className="text-xs text-danger">{saveError}</div>}
       {kernelError && <div className="text-xs text-danger">{kernelError}</div>}
 
       {cells.map((cell, i) => (
@@ -154,7 +346,7 @@ export function Notebook({ initialCode = "" }: { initialCode?: string }) {
             <CodeEditor
               value={cell.code}
               onChange={(v) => updateCell(cell.id, { code: v })}
-              language="python"
+              language={language as "python" | "r"}
               height="auto"
             />
           </div>

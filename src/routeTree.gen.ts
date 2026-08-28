@@ -26,6 +26,7 @@ import { Route as AppReportsRouteImport } from './routes/app.reports'
 import { Route as AppQualityRouteImport } from './routes/app.quality'
 import { Route as AppPrototypeRouteImport } from './routes/app.prototype'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppPowerbiRouteImport } from './routes/app.powerbi'
 import { Route as AppPlaygroundRouteImport } from './routes/app.playground'
 import { Route as AppNotebooksRouteImport } from './routes/app.notebooks'
 import { Route as AppMyDashboardsRouteImport } from './routes/app.my-dashboards'
@@ -136,6 +137,11 @@ const AppPrototypeRoute = AppPrototypeRouteImport.update({
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPowerbiRoute = AppPowerbiRouteImport.update({
+  id: '/powerbi',
+  path: '/powerbi',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPlaygroundRoute = AppPlaygroundRouteImport.update({
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/app/my-dashboards': typeof AppMyDashboardsRoute
   '/app/notebooks': typeof AppNotebooksRoute
   '/app/playground': typeof AppPlaygroundRouteWithChildren
+  '/app/powerbi': typeof AppPowerbiRoute
   '/app/profile': typeof AppProfileRoute
   '/app/prototype': typeof AppPrototypeRoute
   '/app/quality': typeof AppQualityRoute
@@ -336,6 +343,7 @@ export interface FileRoutesByTo {
   '/app/ml-experiments': typeof AppMlExperimentsRoute
   '/app/my-dashboards': typeof AppMyDashboardsRoute
   '/app/notebooks': typeof AppNotebooksRoute
+  '/app/powerbi': typeof AppPowerbiRoute
   '/app/profile': typeof AppProfileRoute
   '/app/prototype': typeof AppPrototypeRoute
   '/app/quality': typeof AppQualityRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/app/my-dashboards': typeof AppMyDashboardsRoute
   '/app/notebooks': typeof AppNotebooksRoute
   '/app/playground': typeof AppPlaygroundRouteWithChildren
+  '/app/powerbi': typeof AppPowerbiRoute
   '/app/profile': typeof AppProfileRoute
   '/app/prototype': typeof AppPrototypeRoute
   '/app/quality': typeof AppQualityRoute
@@ -429,6 +438,7 @@ export interface FileRouteTypes {
     | '/app/my-dashboards'
     | '/app/notebooks'
     | '/app/playground'
+    | '/app/powerbi'
     | '/app/profile'
     | '/app/prototype'
     | '/app/quality'
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/app/ml-experiments'
     | '/app/my-dashboards'
     | '/app/notebooks'
+    | '/app/powerbi'
     | '/app/profile'
     | '/app/prototype'
     | '/app/quality'
@@ -517,6 +528,7 @@ export interface FileRouteTypes {
     | '/app/my-dashboards'
     | '/app/notebooks'
     | '/app/playground'
+    | '/app/powerbi'
     | '/app/profile'
     | '/app/prototype'
     | '/app/quality'
@@ -664,6 +676,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/app/profile'
       preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/powerbi': {
+      id: '/app/powerbi'
+      path: '/powerbi'
+      fullPath: '/app/powerbi'
+      preLoaderRoute: typeof AppPowerbiRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/playground': {
@@ -894,6 +913,7 @@ interface AppRouteChildren {
   AppMyDashboardsRoute: typeof AppMyDashboardsRoute
   AppNotebooksRoute: typeof AppNotebooksRoute
   AppPlaygroundRoute: typeof AppPlaygroundRouteWithChildren
+  AppPowerbiRoute: typeof AppPowerbiRoute
   AppProfileRoute: typeof AppProfileRoute
   AppPrototypeRoute: typeof AppPrototypeRoute
   AppQualityRoute: typeof AppQualityRoute
@@ -931,6 +951,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMyDashboardsRoute: AppMyDashboardsRoute,
   AppNotebooksRoute: AppNotebooksRoute,
   AppPlaygroundRoute: AppPlaygroundRouteWithChildren,
+  AppPowerbiRoute: AppPowerbiRoute,
   AppProfileRoute: AppProfileRoute,
   AppPrototypeRoute: AppPrototypeRoute,
   AppQualityRoute: AppQualityRoute,

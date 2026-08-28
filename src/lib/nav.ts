@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Briefcase, GraduationCap, BadgeCheck, Building2, Star, Sparkles,
   FileText, Calendar, History, Users, Shield, ScrollText, Activity, Settings,
   CheckSquare, Award, User, Lock, Scale, FlaskConical, Code2, Boxes, Bot, SquareSigma,
+  BarChart3,
 } from "lucide-react";
 import { ROLES, type Role } from "./roles";
 
@@ -58,6 +59,7 @@ export const NAV: NavGroup[] = [
     { label: "Smart Skills Centres", to: "/app/centres", icon: Building2, roles: ALL },
     { label: "My Dashboards", to: "/app/my-dashboards", icon: Star, roles: VIEWERS_TOO },
     { label: "Superset Dashboards", to: "/app/superset-dashboards", icon: LayoutDashboard, roles: VIEWERS_TOO },
+    { label: "Power BI Analytics", to: "/app/powerbi", icon: BarChart3, roles: VIEWERS_TOO },
   ]},
   { title: "Prototype", accent: true, items: [
     { label: "Skills Intelligence Platform", to: "/app/prototype", icon: Sparkles, roles: VIEWERS_TOO },
