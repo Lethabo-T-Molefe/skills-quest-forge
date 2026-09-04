@@ -1,6 +1,6 @@
-import { useMemo, useState, type ReactNode } from "react";
-import { MoreHorizontal } from "lucide-react";
+import { useMemo, useState } from "react";
 import { AreaTrend, VBar, Donut } from "./charts";
+import { PbiCard, PbiKpiCard } from "./powerbi-card";
 import { PBI_COLORS, PBI_FONT, PBI_TEXT, PBI_SUBTEXT, PBI_BORDER, PBI_CANVAS_BG } from "@/lib/powerbi-theme";
 import type { PowerBiDemoData } from "@/lib/api/powerbi";
 
@@ -9,40 +9,6 @@ import type { PowerBiDemoData } from "@/lib/api/powerbi";
 // shadow, Segoe UI, the default categorical palette), not the CHIETA brand
 // theme used everywhere else in the app. It slices/aggregates the flat demo
 // dataset client-side, the way a real embedded report queries its dataset.
-
-const VISUAL_SHADOW = "0 1.6px 3.6px rgba(0,0,0,.13), 0 0.3px 0.9px rgba(0,0,0,.11)";
-
-function PbiCard({ title, subtitle, children, className = "" }: {
-  title: string; subtitle?: string; children: ReactNode; className?: string;
-}) {
-  return (
-    <div
-      className={`bg-white rounded-[2px] flex flex-col ${className}`}
-      style={{ border: `1px solid ${PBI_BORDER}`, boxShadow: VISUAL_SHADOW, fontFamily: PBI_FONT }}
-    >
-      <div className="flex items-start justify-between gap-2 px-3 pt-2.5 pb-1">
-        <div>
-          <div className="text-[13px] font-semibold" style={{ color: PBI_TEXT }}>{title}</div>
-          {subtitle && <div className="text-[11px]" style={{ color: PBI_SUBTEXT }}>{subtitle}</div>}
-        </div>
-        <MoreHorizontal className="size-4 shrink-0" style={{ color: PBI_SUBTEXT }} />
-      </div>
-      <div className="flex-1 px-2 pb-2 min-h-0">{children}</div>
-    </div>
-  );
-}
-
-function PbiKpiCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div
-      className="bg-white rounded-[2px] px-4 py-3 flex flex-col gap-1"
-      style={{ border: `1px solid ${PBI_BORDER}`, boxShadow: VISUAL_SHADOW, fontFamily: PBI_FONT }}
-    >
-      <div className="text-[11px]" style={{ color: PBI_SUBTEXT }}>{label}</div>
-      <div className="text-[26px] font-semibold leading-none" style={{ color: PBI_TEXT }}>{value}</div>
-    </div>
-  );
-}
 
 function SlicerPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (

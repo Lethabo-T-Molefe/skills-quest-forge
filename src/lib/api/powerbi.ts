@@ -52,3 +52,78 @@ export async function getPowerBiEmbedConfig(): Promise<PowerBiEmbedConfig> {
   }
   return res.json();
 }
+
+// --- Report Builder — user-authored reports over the user's own uploaded
+// datasets (Dataset Catalogue / Upload Dataset). Visuals query the warehouse
+// live via /powerbi/datasets/:id/query — nothing here duplicates the data.
+
+export type PowerBiVisualType = "kpi" | "bar" | "line" | "donut" | "table";
+export type PowerBiAgg = "sum" | "avg" | "count" | "min" | "max";
+
+export type PowerBiVisual = {
+  type: PowerBiVisualType;
+  title: string;
+  value_column: string | null;
+  agg: PowerBiAgg | null;
+  group_by: string | null;
+  columns: string[];
+};
+
+export type PowerBiReport = {
+  id: number;
+  name: string;
+  dataset_id: number;
+  visuals: PowerBiVisual[];
+};
+
+export type PowerBiQueryResult = {
+  columns: string[];
+  rows: unknown[][];
+};
+
+async function handle<T>(res: Response, label: string): Promise<T> {
+  if (!res.ok) {
+    const detail = await res.json().catch(() => null);
+    throw new Error(detail?.detail ?? `${label} failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function listPowerBiReports(): Promise<PowerBiReport[]> {
+  const res = await apiFetch(`${API_BASE_URL}/powerbi/reports`);
+  return handle(res, "GET /powerbi/reports");
+}
+
+export async function createPowerBiReport(
+  input: { name: string; dataset_id: number; visuals: PowerBiVisual[] },
+): Promise<PowerBiReport> {
+  const res = await apiFetch(`${API_BASE_URL}/powerbi/reports`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return handle(res, "POST /powerbi/reports");
+}
+
+export async function getPowerBiReport(reportId: number): Promise<PowerBiReport> {
+  const res = await apiFetch(`${API_BASE_URL}/powerbi/reports/${reportId}`);
+  return handle(res, "GET /powerbi/reports/:id");
+}
+
+export async function deletePowerBiReport(reportId: number): Promise<void> {
+  const res = await apiFetch(`${API_BASE_URL}/powerbi/reports/${reportId}`, { method: "DELETE" });
+  await handle(res, "DELETE /powerbi/reports/:id");
+}
+
+export async function queryPowerBiDataset(
+  datasetId: number,
+  opts: { columns?: string[]; groupBy?: string | null; agg?: PowerBiAgg | null; limit?: number },
+): Promise<PowerBiQueryResult> {
+  const params = new URLSearchParams();
+  if (opts.columns?.length) params.set("columns", opts.columns.join(","));
+  if (opts.groupBy) params.set("group_by", opts.groupBy);
+  if (opts.agg) params.set("agg", opts.agg);
+  if (opts.limit) params.set("limit", String(opts.limit));
+  const res = await apiFetch(`${API_BASE_URL}/powerbi/datasets/${datasetId}/query?${params.toString()}`);
+  return handle(res, "GET /powerbi/datasets/:id/query");
+}

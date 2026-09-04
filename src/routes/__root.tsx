@@ -66,7 +66,11 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+      {/* suppressHydrationWarning: browser extensions (Grammarly, etc.) inject
+          attributes like data-gr-ext-installed onto <body> before React
+          hydrates — a false-positive mismatch, not a real one; scoped to this
+          one element so it won't hide a genuine mismatch elsewhere in the tree. */}
+      <body suppressHydrationWarning>{children}<Scripts /></body>
     </html>
   );
 }
