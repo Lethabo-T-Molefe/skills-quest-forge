@@ -28,14 +28,17 @@ export function PbiCard({ title, subtitle, action, children, className = "" }: {
   );
 }
 
-export function PbiKpiCard({ label, value }: { label: string; value: string }) {
+export function PbiKpiCard({ label, value, color, narrative }: {
+  label: string; value: string; color?: string; narrative?: string;
+}) {
   return (
     <div
       className="bg-white rounded-[2px] px-4 py-3 flex flex-col gap-1"
       style={{ border: `1px solid ${PBI_BORDER}`, boxShadow: PBI_VISUAL_SHADOW, fontFamily: PBI_FONT }}
     >
       <div className="text-[11px]" style={{ color: PBI_SUBTEXT }}>{label}</div>
-      <div className="text-[26px] font-semibold leading-none" style={{ color: PBI_TEXT }}>{value}</div>
+      <div className="text-[26px] font-semibold leading-none" style={{ color: color ?? PBI_TEXT }}>{value}</div>
+      {narrative && <div className="text-[11px] mt-0.5" style={{ color: PBI_SUBTEXT }}>{narrative}</div>}
     </div>
   );
 }

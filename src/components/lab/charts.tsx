@@ -1,6 +1,7 @@
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend,
+  ScatterChart, Scatter,
 } from "recharts";
 
 const grid = "color-mix(in oklab, var(--ink) 18%, transparent)";
@@ -55,7 +56,10 @@ export function HBar({ data, x, y, color = "var(--primary)" }: { data: any[]; x:
   );
 }
 
-export function VBar({ data, x, keys, colors }: { data: any[]; x: string; keys: string[]; colors?: string[] }) {
+export function VBar({ data, x, keys, colors, onSegmentClick }: {
+  data: any[]; x: string; keys: string[]; colors?: string[];
+  onSegmentClick?: (category: unknown) => void;
+}) {
   const cs = colors ?? ["var(--primary)", "var(--accent)", "var(--success)"];
   return (
     <ResponsiveContainer width="100%" height={260}>
@@ -65,7 +69,63 @@ export function VBar({ data, x, keys, colors }: { data: any[]; x: string; keys: 
         <YAxis stroke={axis} fontSize={11} />
         <Tooltip contentStyle={tooltipStyle} />
         <Legend wrapperStyle={{ fontSize: 11 }} />
-        {keys.map((k, i) => <Bar key={k} dataKey={k} fill={cs[i % cs.length]} radius={[4, 4, 0, 0]} />)}
+        {keys.map((k, i) => (
+          <Bar
+            key={k}
+            dataKey={k}
+            fill={cs[i % cs.length]}
+            radius={[4, 4, 0, 0]}
+            cursor={onSegmentClick ? "pointer" : undefined}
+            onClick={onSegmentClick ? (d) => onSegmentClick((d as { payload?: Record<string, unknown> })?.payload?.[x]) : undefined}
+          />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+export function ScatterXY({ data, xLabel, yLabel, color }: {
+  data: { x: number; y: number }[]; xLabel?: string; yLabel?: string; color?: string;
+}) {
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <ScatterChart margin={{ left: -10, right: 6, top: 6, bottom: 0 }}>
+        <CartesianGrid stroke={grid} strokeDasharray="3 3" />
+        <XAxis type="number" dataKey="x" name={xLabel} stroke={axis} fontSize={11} />
+        <YAxis type="number" dataKey="y" name={yLabel} stroke={axis} fontSize={11} />
+        <Tooltip contentStyle={tooltipStyle} cursor={{ strokeDasharray: "3 3" }} />
+        <Scatter data={data} fill={color ?? "var(--primary)"} />
+      </ScatterChart>
+    </ResponsiveContainer>
+  );
+}
+
+export function Waterfall({ data, colors }: {
+  data: { label: string; value: number }[]; colors?: [string, string];
+}) {
+  const [posColor, negColor] = colors ?? ["var(--success)", "var(--danger)"];
+  let running = 0;
+  const rows = data.map((d) => {
+    const start = running;
+    running += d.value;
+    return {
+      label: d.label,
+      base: Math.min(start, running),
+      value: Math.abs(d.value),
+      isPositive: d.value >= 0,
+    };
+  });
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <BarChart data={rows} margin={{ left: -10, right: 6 }}>
+        <CartesianGrid stroke={grid} strokeDasharray="3 3" />
+        <XAxis dataKey="label" stroke={axis} fontSize={11} />
+        <YAxis stroke={axis} fontSize={11} />
+        <Tooltip contentStyle={tooltipStyle} />
+        <Bar dataKey="base" stackId="wf" fill="transparent" />
+        <Bar dataKey="value" stackId="wf" radius={[3, 3, 0, 0]}>
+          {rows.map((r, i) => <Cell key={i} fill={r.isPositive ? posColor : negColor} />)}
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
@@ -90,12 +150,24 @@ export function LineTrend({ data, keys, colors, dashedLast }: { data: any[]; key
   );
 }
 
-export function Donut({ data, colors }: { data: { name: string; value: number }[]; colors?: string[] }) {
+export function Donut({ data, colors, onSegmentClick }: {
+  data: { name: string; value: number }[]; colors?: string[];
+  onSegmentClick?: (name: string) => void;
+}) {
   const cs = colors ?? ["var(--success)", "var(--accent)", "var(--danger)"];
   return (
     <ResponsiveContainer width="100%" height={240}>
       <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90} paddingAngle={3}>
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="name"
+          innerRadius={55}
+          outerRadius={90}
+          paddingAngle={3}
+          cursor={onSegmentClick ? "pointer" : undefined}
+          onClick={onSegmentClick ? (d) => onSegmentClick((d as { name?: string })?.name ?? "") : undefined}
+        >
           {data.map((_, i) => <Cell key={i} fill={cs[i % cs.length]} stroke="var(--card)" strokeWidth={2} />)}
         </Pie>
         <Tooltip contentStyle={tooltipStyle} />

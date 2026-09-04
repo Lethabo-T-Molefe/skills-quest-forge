@@ -48,6 +48,7 @@ import { Route as AppCentresRouteImport } from './routes/app.centres'
 import { Route as AppAuditRouteImport } from './routes/app.audit'
 import { Route as AppAiAnalystRouteImport } from './routes/app.ai-analyst'
 import { Route as AppPlaygroundIndexRouteImport } from './routes/app.playground.index'
+import { Route as SharedPowerbiTokenRouteImport } from './routes/shared.powerbi.$token'
 import { Route as AppPlaygroundSupersetRouteImport } from './routes/app.playground.superset'
 import { Route as AppPlaygroundSandboxRouteImport } from './routes/app.playground.sandbox'
 import { Route as AppPlaygroundMlflowRouteImport } from './routes/app.playground.mlflow'
@@ -249,6 +250,11 @@ const AppPlaygroundIndexRoute = AppPlaygroundIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppPlaygroundRoute,
 } as any)
+const SharedPowerbiTokenRoute = SharedPowerbiTokenRouteImport.update({
+  id: '/shared/powerbi/$token',
+  path: '/shared/powerbi/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppPlaygroundSupersetRoute = AppPlaygroundSupersetRouteImport.update({
   id: '/superset',
   path: '/superset',
@@ -319,6 +325,7 @@ export interface FileRoutesByFullPath {
   '/app/playground/mlflow': typeof AppPlaygroundMlflowRoute
   '/app/playground/sandbox': typeof AppPlaygroundSandboxRoute
   '/app/playground/superset': typeof AppPlaygroundSupersetRoute
+  '/shared/powerbi/$token': typeof SharedPowerbiTokenRoute
   '/app/playground/': typeof AppPlaygroundIndexRoute
 }
 export interface FileRoutesByTo {
@@ -363,6 +370,7 @@ export interface FileRoutesByTo {
   '/app/playground/mlflow': typeof AppPlaygroundMlflowRoute
   '/app/playground/sandbox': typeof AppPlaygroundSandboxRoute
   '/app/playground/superset': typeof AppPlaygroundSupersetRoute
+  '/shared/powerbi/$token': typeof SharedPowerbiTokenRoute
   '/app/playground': typeof AppPlaygroundIndexRoute
 }
 export interface FileRoutesById {
@@ -410,6 +418,7 @@ export interface FileRoutesById {
   '/app/playground/mlflow': typeof AppPlaygroundMlflowRoute
   '/app/playground/sandbox': typeof AppPlaygroundSandboxRoute
   '/app/playground/superset': typeof AppPlaygroundSupersetRoute
+  '/shared/powerbi/$token': typeof SharedPowerbiTokenRoute
   '/app/playground/': typeof AppPlaygroundIndexRoute
 }
 export interface FileRouteTypes {
@@ -458,6 +467,7 @@ export interface FileRouteTypes {
     | '/app/playground/mlflow'
     | '/app/playground/sandbox'
     | '/app/playground/superset'
+    | '/shared/powerbi/$token'
     | '/app/playground/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -502,6 +512,7 @@ export interface FileRouteTypes {
     | '/app/playground/mlflow'
     | '/app/playground/sandbox'
     | '/app/playground/superset'
+    | '/shared/powerbi/$token'
     | '/app/playground'
   id:
     | '__root__'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/app/playground/mlflow'
     | '/app/playground/sandbox'
     | '/app/playground/superset'
+    | '/shared/powerbi/$token'
     | '/app/playground/'
   fileRoutesById: FileRoutesById
 }
@@ -555,6 +567,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   SigninRoute: typeof SigninRoute
+  SharedPowerbiTokenRoute: typeof SharedPowerbiTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -832,6 +845,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPlaygroundIndexRouteImport
       parentRoute: typeof AppPlaygroundRoute
     }
+    '/shared/powerbi/$token': {
+      id: '/shared/powerbi/$token'
+      path: '/shared/powerbi/$token'
+      fullPath: '/shared/powerbi/$token'
+      preLoaderRoute: typeof SharedPowerbiTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/playground/superset': {
       id: '/app/playground/superset'
       path: '/superset'
@@ -974,6 +994,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   SigninRoute: SigninRoute,
+  SharedPowerbiTokenRoute: SharedPowerbiTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
