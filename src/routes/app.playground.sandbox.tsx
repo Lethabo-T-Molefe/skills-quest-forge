@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
 import { Notebook } from "@/components/lab/notebook";
+import { UploadPanel } from "@/components/lab/upload-panel";
 import { useRole } from "@/lib/role-context";
 import { ROLE_IDENTITY } from "@/lib/roles";
 
@@ -16,6 +17,12 @@ function Page() {
         subtitle={`Controlled Python workspace — ${ROLE_IDENTITY[role].name}`}
         actions={<Badge tone="info">Sandbox</Badge>}
       />
+
+      <UploadPanel
+        onUploaded={() => {}}
+        subtitle="Upload CSV, TSV, JSON or Excel — query bronze.<table> from a cell below"
+      />
+
       <Panel
         title="Student co-development space"
         subtitle="Same real-kernel execution as the primary Python workspace, scoped for student contributors."

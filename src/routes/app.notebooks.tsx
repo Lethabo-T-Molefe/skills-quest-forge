@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel } from "@/components/lab/panel";
 import { Notebook } from "@/components/lab/notebook";
+import { UploadPanel } from "@/components/lab/upload-panel";
 import { useRole } from "@/lib/role-context";
 import { ROLE_IDENTITY } from "@/lib/roles";
 
@@ -14,6 +15,11 @@ function Page() {
       <PageHeader
         title="Notebooks"
         subtitle={`${ROLE_IDENTITY[role].name}'s workspace — runs against a real kernel, no login form`}
+      />
+
+      <UploadPanel
+        onUploaded={() => {}}
+        subtitle="Upload CSV, TSV, JSON or Excel — query bronze.<table> from a cell below"
       />
 
       <Panel

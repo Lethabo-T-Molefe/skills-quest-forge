@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel } from "@/components/lab/panel";
 import { ServiceEmbed } from "@/components/lab/service-embed";
+import { UploadPanel } from "@/components/lab/upload-panel";
 import { usePlaygroundLinks } from "@/lib/use-playground-links";
 
 export const Route = createFileRoute("/app/ml-experiments")({ component: Page });
@@ -11,6 +12,11 @@ function Page() {
   return (
     <>
       <PageHeader title="ML Experiments" subtitle="MLflow tracking server & model registry" />
+
+      <UploadPanel
+        onUploaded={() => {}}
+        subtitle="Upload a training dataset — available immediately as bronze.<table>"
+      />
 
       <Panel
         title="MLflow"

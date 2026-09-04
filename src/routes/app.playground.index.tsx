@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
+import { UploadPanel } from "@/components/lab/upload-panel";
 import { usePlaygroundServices } from "@/lib/use-playground-services";
 import type { PlaygroundCatalogueService, PlaygroundServiceStatus } from "@/lib/api";
 import type { Role } from "@/lib/roles";
@@ -70,6 +71,11 @@ function PlaygroundLanding() {
             {isLoading ? "Checking…" : isLive ? "Live status" : "Offline defaults"}
           </Badge>
         }
+      />
+
+      <UploadPanel
+        onUploaded={() => {}}
+        subtitle="Upload CSV, TSV, JSON or Excel — available immediately in every tool below"
       />
 
       <Panel

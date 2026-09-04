@@ -1,13 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader, Panel } from "@/components/lab/panel";
+import { UploadPanel } from "@/components/lab/upload-panel";
 import { EXPLORABLE_TABLES } from "@/lib/api/analytics";
 import { useExploreTable } from "@/lib/queries/analytics";
+import type { Dataset } from "@/lib/api";
 
 export const Route = createFileRoute("/app/explorer")({ component: Page });
 
 function Page() {
   const [table, setTable] = useState<string>(EXPLORABLE_TABLES[0]);
+  const [uploaded, setUploaded] = useState<Dataset | null>(null);
   const { data, isLoading, isError } = useExploreTable(table);
   const columns = data?.columns ?? [];
   const rows = data?.rows ?? [];
@@ -29,6 +32,18 @@ function Page() {
           </select>
         }
       />
+
+      <UploadPanel
+        onUploaded={setUploaded}
+        subtitle="Upload CSV, TSV, JSON or Excel — browse it here via SQL Workspace or Notebooks"
+      />
+      {uploaded && (
+        <div className="text-xs text-muted-foreground -mt-2">
+          bronze.{uploaded.warehouse_table} isn't in this page's fixed table list yet — query it directly from{" "}
+          <Link to="/app/sql" className="underline">SQL Workspace</Link>.
+        </div>
+      )}
+
       <Panel
         title="Sample rows"
         subtitle={isLoading ? "Loading…" : isError ? "Query failed" : `${rows.length} rows shown`}

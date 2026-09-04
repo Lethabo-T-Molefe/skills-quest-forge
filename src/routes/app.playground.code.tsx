@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, Badge } from "@/components/lab/panel";
 import { ServiceEmbed } from "@/components/lab/service-embed";
+import { UploadPanel } from "@/components/lab/upload-panel";
 import { usePlaygroundLinks } from "@/lib/use-playground-links";
 
 export const Route = createFileRoute("/app/playground/code")({ component: Page });
@@ -14,6 +15,10 @@ function Page() {
         title="Developer Workspace"
         subtitle="code-server — restricted technical team only"
         actions={<Badge tone="warn">Restricted</Badge>}
+      />
+      <UploadPanel
+        onUploaded={() => {}}
+        subtitle="Upload CSV, TSV, JSON or Excel — reachable from any tool via bronze.<table>"
       />
       <Panel
         title="code-server"

@@ -1,15 +1,18 @@
-import { useMemo, useState } from "react";
-import { Plus, Trash2, Loader2, FolderOpen, Save } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Plus, Trash2, Loader2, FolderOpen, Save, UploadCloud } from "lucide-react";
 import { PbiCard, PbiKpiCard } from "./powerbi-card";
 import { AreaTrend, VBar, Donut } from "./charts";
 import {
   PBI_COLORS, PBI_FONT, PBI_TEXT, PBI_SUBTEXT, PBI_BORDER, PBI_CANVAS_BG,
 } from "@/lib/powerbi-theme";
 import { useDatasetsForAnalysis } from "@/lib/queries/statistics";
+import { useUploadDataset } from "@/lib/queries/datasets";
 import {
   usePowerBiReports, useCreatePowerBiReport, useDeletePowerBiReport, usePowerBiDatasetQuery,
 } from "@/lib/queries/powerbi";
 import type { PowerBiAgg, PowerBiVisual, PowerBiVisualType } from "@/lib/api/powerbi";
+
+const UPLOAD_ACCEPTED = ".csv,.tsv,.json,.xlsx";
 
 // The Report Builder — pick any of your own uploaded datasets (Dataset
 // Catalogue / Upload Dataset), drop fields into a visual, choose a visual
@@ -119,10 +122,27 @@ export function PowerBiBuilder() {
   const { data: reports = [] } = usePowerBiReports();
   const createReport = useCreatePowerBiReport();
   const deleteReport = useDeletePowerBiReport();
+  const uploadDataset = useUploadDataset();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const [datasetId, setDatasetId] = useState<number | null>(null);
   const [visuals, setVisuals] = useState<PowerBiVisual[]>([]);
   const [reportName, setReportName] = useState("");
+
+  async function handleUpload(file: File) {
+    setUploadError(null);
+    try {
+      const name = file.name.replace(/\.[^./]+$/, "");
+      const dataset = await uploadDataset.mutateAsync({ file, name });
+      setDatasetId(dataset.id);
+      setVisuals([]);
+    } catch (e) {
+      setUploadError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   const [newType, setNewType] = useState<PowerBiVisualType>("bar");
   const [newTitle, setNewTitle] = useState("");
@@ -182,9 +202,29 @@ export function PowerBiBuilder() {
               <option value="">Choose a dataset…</option>
               {datasets.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
-            <div className="text-[11px]" style={{ color: PBI_SUBTEXT }}>
-              Don't see your data? Upload a CSV/Excel file from Upload Dataset first.
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadDataset.isPending}
+                className="text-[11px] px-2.5 py-1.5 rounded-sm border flex items-center gap-1.5 font-medium disabled:opacity-50"
+                style={{ borderColor: PBI_BORDER, color: PBI_TEXT }}
+              >
+                {uploadDataset.isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <UploadCloud className="size-3.5" />
+                )}
+                {uploadDataset.isPending ? "Uploading…" : "Upload a dataset"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={UPLOAD_ACCEPTED}
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }}
+              />
             </div>
+            {uploadError && <div className="text-[11px] text-danger">{uploadError}</div>}
           </div>
         </PbiCard>
 
