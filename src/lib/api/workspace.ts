@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type Task = {
@@ -41,13 +42,13 @@ export async function getTasks(filters: TaskFilters = {}): Promise<Task[]> {
     if (value) params.set(key, value);
   }
   const qs = params.toString();
-  const res = await fetch(`${API_BASE_URL}/workspace/tasks${qs ? `?${qs}` : ""}`);
+  const res = await apiFetch(`${API_BASE_URL}/workspace/tasks${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error(`GET /workspace/tasks failed: ${res.status}`);
   return res.json();
 }
 
 export async function updateTaskStatus(id: number, status: string): Promise<Task> {
-  const res = await fetch(`${API_BASE_URL}/workspace/tasks/${id}`, {
+  const res = await apiFetch(`${API_BASE_URL}/workspace/tasks/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status }),
@@ -58,13 +59,13 @@ export async function updateTaskStatus(id: number, status: string): Promise<Task
 
 export async function getContributions(student?: string): Promise<Contribution[]> {
   const qs = student ? `?student=${encodeURIComponent(student)}` : "";
-  const res = await fetch(`${API_BASE_URL}/workspace/contributions${qs}`);
+  const res = await apiFetch(`${API_BASE_URL}/workspace/contributions${qs}`);
   if (!res.ok) throw new Error(`GET /workspace/contributions failed: ${res.status}`);
   return res.json();
 }
 
 export async function logContribution(input: LogContributionInput): Promise<Contribution> {
-  const res = await fetch(`${API_BASE_URL}/workspace/contributions`, {
+  const res = await apiFetch(`${API_BASE_URL}/workspace/contributions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

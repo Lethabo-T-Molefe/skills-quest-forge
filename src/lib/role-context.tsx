@@ -1,30 +1,36 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { ROLES, type Role } from "./roles";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import type { Role } from "./roles";
+import { clearSession, getStoredSession, type SessionUser } from "./auth";
 
-export const ROLE_STORAGE_KEY = "chieta-data-lab-role";
-const DEFAULT_ROLE: Role = "System Admin";
+/** Least-privilege fallback — used only if a corrupt/partial session slips past the route guard. */
+const DEFAULT_ROLE: Role = "Viewer / Exec";
 
-/** Persist the active role from outside the React tree (e.g. the sign-in page) before navigating to /app. */
-export function persistRole(role: Role) {
-  window.localStorage.setItem(ROLE_STORAGE_KEY, role);
-}
+type RoleContextValue = {
+  role: Role;
+  user: SessionUser | null;
+  token: string | null;
+  /** Clears the session and forces a re-render; callers still navigate to /signin themselves. */
+  signOut: () => void;
+};
 
-const RoleContext = createContext<{ role: Role; setRole: (r: Role) => void } | null>(null);
+const RoleContext = createContext<RoleContextValue | null>(null);
 
 export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<Role>(DEFAULT_ROLE);
+  const [session, setSession] = useState(() => getStoredSession());
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(ROLE_STORAGE_KEY);
-    if (stored && (ROLES as readonly string[]).includes(stored)) setRole(stored as Role);
-  }, []);
+  function signOut() {
+    clearSession();
+    setSession(null);
+  }
 
-  const update = (r: Role) => {
-    setRole(r);
-    persistRole(r);
+  const value: RoleContextValue = {
+    role: (session?.user.role as Role | undefined) ?? DEFAULT_ROLE,
+    user: session?.user ?? null,
+    token: session?.token ?? null,
+    signOut,
   };
 
-  return <RoleContext.Provider value={{ role, setRole: update }}>{children}</RoleContext.Provider>;
+  return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 }
 
 export function useRole() {

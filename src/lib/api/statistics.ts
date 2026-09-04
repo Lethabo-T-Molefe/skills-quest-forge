@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type StatCategory = {
@@ -35,7 +36,7 @@ export type AnalysisResult = {
 };
 
 export async function getTaxonomy(): Promise<StatCategory[]> {
-  const res = await fetch(`${API_BASE_URL}/statistics/taxonomy`);
+  const res = await apiFetch(`${API_BASE_URL}/statistics/taxonomy`);
   if (!res.ok) throw new Error(`GET /statistics/taxonomy failed: ${res.status}`);
   return res.json();
 }
@@ -45,7 +46,7 @@ export async function runAnalysis(
   table: string,
   methods: string[]
 ): Promise<AnalysisResult> {
-  const res = await fetch(`${API_BASE_URL}/statistics/analyze`, {
+  const res = await apiFetch(`${API_BASE_URL}/statistics/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ category_id: categoryId, table, methods }),

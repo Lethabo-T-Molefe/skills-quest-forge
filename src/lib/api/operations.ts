@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type PipelineRun = {
@@ -51,19 +52,19 @@ export type SystemHealth = {
 };
 
 export async function getPipelineRuns(): Promise<PipelineRun[]> {
-  const res = await fetch(`${API_BASE_URL}/operations/pipelines`);
+  const res = await apiFetch(`${API_BASE_URL}/operations/pipelines`);
   if (!res.ok) throw new Error(`GET /operations/pipelines failed: ${res.status}`);
   return res.json();
 }
 
 export async function getMlExperiments(): Promise<MlExperiment[]> {
-  const res = await fetch(`${API_BASE_URL}/operations/experiments`);
+  const res = await apiFetch(`${API_BASE_URL}/operations/experiments`);
   if (!res.ok) throw new Error(`GET /operations/experiments failed: ${res.status}`);
   return res.json();
 }
 
 export async function promoteModel(id: number, status: string): Promise<MlExperiment> {
-  const res = await fetch(`${API_BASE_URL}/operations/experiments/${id}/promote`, {
+  const res = await apiFetch(`${API_BASE_URL}/operations/experiments/${id}/promote`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status }),
@@ -73,7 +74,7 @@ export async function promoteModel(id: number, status: string): Promise<MlExperi
 }
 
 export async function getSystemHealth(): Promise<SystemHealth> {
-  const res = await fetch(`${API_BASE_URL}/operations/health`);
+  const res = await apiFetch(`${API_BASE_URL}/operations/health`);
   if (!res.ok) throw new Error(`GET /operations/health failed: ${res.status}`);
   return res.json();
 }

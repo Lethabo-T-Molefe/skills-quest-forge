@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type AuditLogEntry = {
@@ -23,7 +24,7 @@ export async function getAuditLog(filters: AuditLogFilters = {}): Promise<AuditL
     if (value) params.set(key, value);
   }
   const qs = params.toString();
-  const res = await fetch(`${API_BASE_URL}/audit${qs ? `?${qs}` : ""}`);
+  const res = await apiFetch(`${API_BASE_URL}/audit${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error(`GET /audit failed: ${res.status}`);
   return res.json();
 }

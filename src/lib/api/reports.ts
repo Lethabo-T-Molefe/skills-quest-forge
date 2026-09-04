@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type Report = {
@@ -36,7 +37,7 @@ export type ScheduleReportInput = {
 };
 
 export async function generateReport(input: GenerateReportInput): Promise<Report> {
-  const res = await fetch(`${API_BASE_URL}/reports/generate`, {
+  const res = await apiFetch(`${API_BASE_URL}/reports/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -46,19 +47,19 @@ export async function generateReport(input: GenerateReportInput): Promise<Report
 }
 
 export async function getReportHistory(): Promise<Report[]> {
-  const res = await fetch(`${API_BASE_URL}/reports/history`);
+  const res = await apiFetch(`${API_BASE_URL}/reports/history`);
   if (!res.ok) throw new Error(`GET /reports/history failed: ${res.status}`);
   return res.json();
 }
 
 export async function getScheduledReports(): Promise<ScheduledReport[]> {
-  const res = await fetch(`${API_BASE_URL}/reports/scheduled`);
+  const res = await apiFetch(`${API_BASE_URL}/reports/scheduled`);
   if (!res.ok) throw new Error(`GET /reports/scheduled failed: ${res.status}`);
   return res.json();
 }
 
 export async function createScheduledReport(input: ScheduleReportInput): Promise<ScheduledReport> {
-  const res = await fetch(`${API_BASE_URL}/reports/scheduled`, {
+  const res = await apiFetch(`${API_BASE_URL}/reports/scheduled`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -68,7 +69,7 @@ export async function createScheduledReport(input: ScheduleReportInput): Promise
 }
 
 export async function toggleScheduledReport(id: number, enabled: boolean): Promise<ScheduledReport> {
-  const res = await fetch(`${API_BASE_URL}/reports/scheduled/${id}`, {
+  const res = await apiFetch(`${API_BASE_URL}/reports/scheduled/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ enabled }),

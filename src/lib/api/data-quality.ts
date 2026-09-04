@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type QualityReport = {
@@ -13,7 +14,7 @@ export const QUALITY_TABLES = ["grants", "learners", "skills_centres", "etqa_ass
 export type QualityTable = (typeof QUALITY_TABLES)[number];
 
 export async function getQualityReport(tableName: string): Promise<QualityReport> {
-  const res = await fetch(`${API_BASE_URL}/datasets/quality/${tableName}`);
+  const res = await apiFetch(`${API_BASE_URL}/datasets/quality/${tableName}`);
   if (!res.ok) throw new Error(`GET /datasets/quality/${tableName} failed: ${res.status}`);
   return res.json();
 }

@@ -27,7 +27,7 @@ describe("getPlaygroundLinks", () => {
     const result = await getPlaygroundLinks();
 
     expect(result).toEqual(links);
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("/playground/links"));
+    expect(fetchMock.mock.calls[0][0]).toContain("/playground/links");
   });
 
   it("throws when the response is not ok", async () => {

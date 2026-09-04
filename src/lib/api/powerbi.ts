@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 // One row of monthly facts for one skills centre — the same shape a real
@@ -44,7 +45,7 @@ export type PowerBiEmbedConfig = {
 // own Power BI JavaScript SDK (powerbi-client / powerbi-client-react); the
 // Power BI web app itself is never shown to the user.
 export async function getPowerBiEmbedConfig(): Promise<PowerBiEmbedConfig> {
-  const res = await fetch(`${API_BASE_URL}/powerbi/embed-config`);
+  const res = await apiFetch(`${API_BASE_URL}/powerbi/embed-config`);
   if (!res.ok) {
     const detail = await res.json().catch(() => null);
     throw new Error(detail?.detail ?? `GET /powerbi/embed-config failed: ${res.status}`);

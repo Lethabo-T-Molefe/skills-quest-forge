@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type ChartSuggestion = {
@@ -26,7 +27,7 @@ export type HistoryItem = {
 };
 
 export async function askQuestion(question: string): Promise<AskResult> {
-  const res = await fetch(`${API_BASE_URL}/ai-analyst/ask`, {
+  const res = await apiFetch(`${API_BASE_URL}/ai-analyst/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ question }),
@@ -39,7 +40,7 @@ export async function askQuestion(question: string): Promise<AskResult> {
 }
 
 export async function getHistory(): Promise<HistoryItem[]> {
-  const res = await fetch(`${API_BASE_URL}/ai-analyst/history`);
+  const res = await apiFetch(`${API_BASE_URL}/ai-analyst/history`);
   if (!res.ok) throw new Error(`GET /ai-analyst/history failed: ${res.status}`);
   return res.json();
 }

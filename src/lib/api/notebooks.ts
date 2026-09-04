@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type ExecutionOutput = {
@@ -36,13 +37,13 @@ export type SavedNotebook = NotebookSummary & {
 };
 
 export async function getLanguages(): Promise<Language[]> {
-  const res = await fetch(`${API_BASE_URL}/notebooks/languages`);
+  const res = await apiFetch(`${API_BASE_URL}/notebooks/languages`);
   if (!res.ok) throw new Error(`GET /notebooks/languages failed: ${res.status}`);
   return res.json();
 }
 
 export async function startSession(language = "python"): Promise<string> {
-  const res = await fetch(`${API_BASE_URL}/notebooks/sessions`, {
+  const res = await apiFetch(`${API_BASE_URL}/notebooks/sessions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ language }),
@@ -56,7 +57,7 @@ export async function startSession(language = "python"): Promise<string> {
 }
 
 export async function executeCell(sessionId: string, code: string): Promise<ExecutionResult> {
-  const res = await fetch(`${API_BASE_URL}/notebooks/sessions/${sessionId}/execute`, {
+  const res = await apiFetch(`${API_BASE_URL}/notebooks/sessions/${sessionId}/execute`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ code }),
@@ -74,7 +75,7 @@ export async function executeCell(sessionId: string, code: string): Promise<Exec
 export async function uploadFileToSession(sessionId: string, file: File): Promise<string> {
   const body = new FormData();
   body.append("file", file);
-  const res = await fetch(`${API_BASE_URL}/notebooks/sessions/${sessionId}/files`, {
+  const res = await apiFetch(`${API_BASE_URL}/notebooks/sessions/${sessionId}/files`, {
     method: "POST",
     body,
   });
@@ -87,13 +88,13 @@ export async function uploadFileToSession(sessionId: string, file: File): Promis
 }
 
 export async function stopSession(sessionId: string): Promise<void> {
-  await fetch(`${API_BASE_URL}/notebooks/sessions/${sessionId}`, { method: "DELETE" });
+  await apiFetch(`${API_BASE_URL}/notebooks/sessions/${sessionId}`, { method: "DELETE" });
 }
 
 export async function saveNotebook(
   notebook: { id?: number | null; name: string; language: string; cells: SavedCell[] }
 ): Promise<SavedNotebook> {
-  const res = await fetch(`${API_BASE_URL}/notebooks/files`, {
+  const res = await apiFetch(`${API_BASE_URL}/notebooks/files`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(notebook),
@@ -106,17 +107,17 @@ export async function saveNotebook(
 }
 
 export async function listNotebooks(): Promise<NotebookSummary[]> {
-  const res = await fetch(`${API_BASE_URL}/notebooks/files`);
+  const res = await apiFetch(`${API_BASE_URL}/notebooks/files`);
   if (!res.ok) throw new Error(`GET /notebooks/files failed: ${res.status}`);
   return res.json();
 }
 
 export async function getNotebook(id: number): Promise<SavedNotebook> {
-  const res = await fetch(`${API_BASE_URL}/notebooks/files/${id}`);
+  const res = await apiFetch(`${API_BASE_URL}/notebooks/files/${id}`);
   if (!res.ok) throw new Error(`GET /notebooks/files/${id} failed: ${res.status}`);
   return res.json();
 }
 
 export async function deleteNotebook(id: number): Promise<void> {
-  await fetch(`${API_BASE_URL}/notebooks/files/${id}`, { method: "DELETE" });
+  await apiFetch(`${API_BASE_URL}/notebooks/files/${id}`, { method: "DELETE" });
 }

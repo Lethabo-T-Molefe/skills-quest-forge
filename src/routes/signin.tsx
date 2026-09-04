@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, Lock, Mail } from "lucide-react";
+import { ArrowUpRight, Lock, Mail, Loader2, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { ROLES, ROLE_IDENTITY, ROLE_BLURB, type Role } from "@/lib/roles";
-import { persistRole } from "@/lib/role-context";
+import { persistSession } from "@/lib/auth";
+import { login } from "@/lib/api/auth";
 import { RingCluster, RingArcs } from "@/components/lab/circle-decor";
 
 export const Route = createFileRoute("/signin")({
@@ -15,15 +16,38 @@ export const Route = createFileRoute("/signin")({
   component: SignIn,
 });
 
-function SignIn() {
+// Every demo identity was seeded with this password (scripts/seed_parts/users_roles_lineage.py).
+// Pre-filling it here is a demo convenience, not a security control — the password is still
+// verified for real against a bcrypt hash on every submit.
+const DEMO_PASSWORD = "chieta";
+
+export function SignIn() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>("System Admin");
   const [email, setEmail] = useState(ROLE_IDENTITY["System Admin"].email);
-  const [password, setPassword] = useState("••••••••••");
+  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   function selectRole(r: Role) {
     setRole(r);
     setEmail(ROLE_IDENTITY[r].email);
+    setError(null);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      const session = await login(email, password);
+      persistSession(session);
+      navigate({ to: "/app" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign-in failed");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -42,10 +66,7 @@ function SignIn() {
       <main className="relative min-h-screen flex items-center justify-center px-6 py-32">
         <RingArcs className="hidden lg:block absolute -top-16 -left-16 w-80 -z-10 pointer-events-none" />
         <RingCluster className="hidden lg:block absolute -bottom-20 -right-20 w-96 -z-10 pointer-events-none" />
-        <form
-          onSubmit={(e) => { e.preventDefault(); persistRole(role); navigate({ to: "/app" }); }}
-          className="sw-card p-7 md:p-10 bg-white w-full max-w-lg"
-        >
+        <form onSubmit={handleSubmit} className="sw-card p-7 md:p-10 bg-white w-full max-w-lg">
           <div className="flex items-center gap-3 mb-6">
             <div className="size-9 grid place-items-center rounded-full bg-lime border border-ink">
               <Lock className="size-4" />
@@ -80,7 +101,7 @@ function SignIn() {
             <div className="mt-2 flex items-center gap-2 border border-ink rounded-xl px-4 py-3 bg-white focus-within:shadow-[0_4px_0_0_var(--ink)] transition-shadow">
               <Mail className="size-4 text-ink/60" />
               <input value={email} onChange={e => setEmail(e.target.value)}
-                     className="flex-1 bg-transparent outline-none text-sm" type="email" />
+                     className="flex-1 bg-transparent outline-none text-sm" type="email" required />
             </div>
           </label>
 
@@ -89,19 +110,33 @@ function SignIn() {
             <div className="mt-2 flex items-center gap-2 border border-ink rounded-xl px-4 py-3 bg-white focus-within:shadow-[0_4px_0_0_var(--ink)] transition-shadow">
               <Lock className="size-4 text-ink/60" />
               <input value={password} onChange={e => setPassword(e.target.value)}
-                     className="flex-1 bg-transparent outline-none text-sm" type="password" />
+                     className="flex-1 bg-transparent outline-none text-sm" type="password" required />
             </div>
           </label>
 
+          {error && (
+            <div className="flex items-center gap-2 mt-4 text-xs text-danger">
+              <AlertCircle className="size-4 shrink-0" />
+              {error}
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-4 text-xs">
             <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="accent-ink" /> Remember device</label>
-            <a className="underline underline-offset-2" href="#">Forgot password?</a>
+            <button
+              type="button"
+              disabled
+              title="Not available in this playground build — accounts use the shared demo password"
+              className="underline underline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Forgot password?
+            </button>
           </div>
 
-          <button type="submit" className="sw-pill mt-8 w-full !py-4 text-base">
-            Enter as {role}
+          <button type="submit" disabled={submitting} className="sw-pill mt-8 w-full !py-4 text-base disabled:opacity-50">
+            {submitting ? "Signing in…" : `Enter as ${role}`}
             <span className="size-7 grid place-items-center rounded-full bg-yellow border border-ink">
-              <ArrowUpRight className="size-4" />
+              {submitting ? <Loader2 className="size-4 animate-spin" /> : <ArrowUpRight className="size-4" />}
             </span>
           </button>
 

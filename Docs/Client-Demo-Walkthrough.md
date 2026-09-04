@@ -1,15 +1,39 @@
 # CHIETA Data Lab — Client Presentation Walkthrough
 
+> **STATUS UPDATE (2026-09-04):** this script was originally written when the system
+> was a front-end-only prototype on mock data, before the backend existed. **That is no
+> longer true and this document had not been corrected until now.** A real FastAPI +
+> PostgreSQL backend has since been built, with real bcrypt+JWT authentication actually
+> wired to the sign-in screen (not a client-side role picker), real role-based access
+> control enforced on every backend endpoint (not just a nav-menu filter), real PII
+> masking applied at upload time, real dataset versioning/search/lineage, real PDF/
+> Excel/PNG report export, and a real APScheduler-backed job for Scheduled Reports. See
+> `CHIETA_DATA_LAB_COMPLETION_GAP_ANALYSIS.md` at the repo root for the full,
+> line-by-line evidence behind every claim in this update, and its progress addendum for
+> what has changed since that report was first written. The step-by-step tour below
+> (which screens to show, in what order) is still broadly usable, but do **not** use the
+> "mock data / next phase" framing in the original opening line, the D4/D6/D7 rows in
+> the closing table (§10), or the "Is this connected to real data?" FAQ answer (§11) —
+> those specific claims are now wrong and are corrected inline below. What is still
+> genuinely true: the Prototype's predictions remain heuristic arithmetic, not trained
+> ML (§8 below is accurate as written), and D7 (formal testing report) / D8 (training
+> materials) are still in progress, not complete.
+
 A presenter's script for walking CHIETA stakeholders through the system. Each section
 names what to click and what to say, and ties it back to the specific Scope of Work /
 Handbook language so the client sees this isn't generic software — it's a direct
 response to their own brief.
 
-**Say this up front, plainly:** this is a fully-built front-end prototype on
-representative mock data — every screen, role, and workflow in the brief is here and
-clickable. The FastAPI + PostgreSQL + real CHIETA data backend is the next phase. Be
-honest about that line; it's the difference between "here's our UX/IA proposal,
-validated" and overstating what's connected to live data today.
+**Say this up front, plainly:** this is a working system with a real FastAPI +
+PostgreSQL backend behind it — sign-in performs a real login, role-based access is
+enforced by the backend (not just hidden in the UI), and most of what you click through
+below moves real data, not fixtures. A few areas are still honest exceptions worth
+naming precisely rather than glossing over: the Prototype's "predictions" are
+transparently-labelled heuristic formulas, not trained ML (§8); a handful of secondary
+dashboard charts are still illustrative placeholders (ask before presenting a page if
+unsure — the code comments say so explicitly where this applies); and formal D7/D8
+sign-off documentation is still being assembled. Naming these precisely is what makes
+the rest of the demo credible.
 
 ---
 
@@ -41,11 +65,17 @@ Before touching the platform, show the marketing homepage.
 
 - Click through the **"Sign in as"** grid — point out the 8 roles: System Admin, Data
   Steward, Data Engineer, Data Analyst, Data Scientist, Student Dev, Viewer/Exec,
-  Auditor.
+  Auditor. Selecting a role fills in that identity's email and the shared demo
+  password.
+- Submit the form. **This is a real login** — it calls the backend, checks a bcrypt
+  password hash, and issues a signed JWT that every subsequent screen and API call
+  actually depends on (not a cosmetic step). Worth saying out loud: *"If I typed the
+  wrong password here, this would reject me — try it."*
 - **Tie to scope:** Section 3.6 — *"Role-based access: different user types (admin,
   analyst, viewer) see different things."* The Handbook's User Roles and Permissions
   table (§7.2/§3.3) names exactly these roles — this isn't a generic RBAC demo, it's
-  built from their own permission matrix.
+  built from their own permission matrix, and it's enforced by the backend on every
+  request, not just hidden in the nav.
 - Sign in as **System Admin** to start the walkthrough.
 
 ---
@@ -57,17 +87,20 @@ prove the *same login screen* produces a materially different app per role.
 
 1. **System Admin** dashboard: platform health, pending dataset approvals, risk
    alerts, recent activity, full sidebar.
-2. Open the topbar role switcher (top-right avatar) and flip to **Auditor** live, in
-   front of them: nav collapses to Audit Logs, Governance, Ethics & Bias, Lineage,
-   Dashboards, Reports — no Upload, no SQL Lab, no Admin. Say: *"Nothing was hidden
-   with CSS — the navigation and dashboard content are computed per role."*
-3. Flip to **Student Dev**: show the sprint task board, badges, onboarding/mentorship
-   checklist. **Tie to scope:** Section 5 — *"Students are not observers — they are
-   contributors"* and the D1 requirement for a *"Student Onboarding & Mentorship
-   Plan."*
-4. Flip to **Viewer / Exec**: show how sparse and consumption-only it is — KPIs, risk
-   alerts, AI recommendations, a single CTA into the prototype. No admin tools, no
-   data management. This is the leadership-safe view.
+2. Sign out (topbar, top-right — shows the real signed-in identity, not a role
+   picker) and sign back in as **Auditor**, live, in front of them: nav collapses to
+   Audit Logs, Governance, Ethics & Bias, Lineage, Dashboards, Reports — no Upload, no
+   SQL Lab, no Admin. Say: *"Nothing was hidden with CSS — this is a different login,
+   and the backend itself refuses Upload/Admin requests for this role even if you typed
+   the URL directly."* (There is no in-app role switcher any more, by design — role is
+   now a property of who you signed in as, the same as it would be for a real user.)
+3. Sign out, sign back in as **Student Dev**: show the sprint task board, badges,
+   onboarding/mentorship checklist. **Tie to scope:** Section 5 — *"Students are not
+   observers — they are contributors"* and the D1 requirement for a *"Student
+   Onboarding & Mentorship Plan."*
+4. Sign out, sign back in as **Viewer / Exec**: show how sparse and consumption-only
+   it is — KPIs, risk alerts, AI recommendations, a single CTA into the prototype. No
+   admin tools, no data management. This is the leadership-safe view.
 
 ---
 
@@ -180,25 +213,29 @@ Script** describes almost exactly this flow — follow it:
 |---|---|---|
 | D1 — Requirements Spec | Role matrix, prototype topic alignment, student plan all reflected in the build | Demonstrated in UX |
 | D2 — System Design | Architecture implied by the role/nav model; Data Governance Addendum content live | Demonstrated in UX |
-| D3 — Functional Data Lab | Every Section 3 capability has a working screen | Demonstrated, mock data |
-| D4 — Integrated Datasets | Lineage, quality, classification all shown per dataset | Mock data, real pipeline = next phase |
-| D5 — Dashboards & Reports | 5 dashboards (vs. 2 required), full export UI | Demonstrated in UX |
-| D6 — Working Prototype | Skills Intelligence Platform, all 5 tabs | Demonstrated, mock data |
-| D7 — Testing & Validation | Out of scope for a front-end prototype | Next phase |
-| D8 — Training & User Guides | Role-based UX itself is the training scaffold | Next phase for formal guides |
-| D9 — Source Code & Docs | This repository | Ready to hand over today |
+| D3 — Functional Data Lab | Every Section 3 capability has a working screen, most backed by a real endpoint | Demonstrated, real backend |
+| D4 — Integrated Datasets | Upload writes real lineage and PII-masking records per dataset; quality scoring works for any uploaded table | Demonstrated, real backend |
+| D5 — Dashboards & Reports | 5 dashboards (vs. 2 required), real PDF/Excel/PNG export | Demonstrated in UX |
+| D6 — Working Prototype | Skills Intelligence Platform, all 5 tabs, real network calls | Demonstrated — predictions are heuristic, not trained ML (§8) |
+| D7 — Testing & Validation | Real automated test suite exists (see repo `tests/`) | Formal sign-off report still in progress |
+| D8 — Training & User Guides | Role-based UX itself is the training scaffold | Formal guides still in progress |
+| D9 — Source Code & Docs | This repository, backend + frontend READMEs | Ready to hand over today |
 
-**Closing line:** *"What's left is wiring this UX to real CHIETA data through the
-FastAPI backend — the interface, the access model, and the governance story are
-already built and validated with you, today."*
+**Closing line:** *"The interface, the access model, real authentication, and the
+governance story are built, backend-connected, and validated with you, today. What's
+left is the formal D7/D8 sign-off paperwork and, if a hard requirement, replacing the
+Prototype's heuristic formulas with trained ML models."*
 
 ---
 
 ## Anticipated questions
 
-- **"Is this connected to real data?"** No — mock/representative data demonstrating the
-  full UX and information architecture. Backend (FastAPI, PostgreSQL, real datasets)
-  is the next phase per D3/D4.
+- **"Is this connected to real data?"** Mostly yes — sign-in, RBAC, dataset upload/
+  search/versioning, PII masking, lineage, report export, and most dashboards' headline
+  numbers hit a real FastAPI + PostgreSQL backend. A few secondary chart series on
+  dashboard pages are still explicitly-labelled illustrative placeholders (see the
+  page's own code comments), and the Home landing page is still a static mock — name
+  these precisely rather than letting the "yes" stand unqualified.
 - **"Why these 8 roles specifically?"** Pulled directly from the Handbook's
   Role-Permission Matrix (§7.2/§3.3), not invented.
 - **"Can students really only do what I just saw?"** Yes — Student Dev's nav and

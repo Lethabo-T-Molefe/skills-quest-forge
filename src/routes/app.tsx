@@ -1,9 +1,15 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { LabSidebar } from "@/components/lab/sidebar";
 import { LabTopbar } from "@/components/lab/topbar";
 import { RoleProvider } from "@/lib/role-context";
+import { getStoredSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/app")({
+  beforeLoad: () => {
+    if (typeof window !== "undefined" && !getStoredSession()) {
+      throw redirect({ to: "/signin" });
+    }
+  },
   component: AppLayout,
 });
 

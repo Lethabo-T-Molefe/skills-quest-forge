@@ -1,15 +1,22 @@
-import { Bell, Search, LogOut, ChevronDown } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Bell, Search, LogOut } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { useRole } from "@/lib/role-context";
-import { ROLES, ROLE_IDENTITY } from "@/lib/roles";
-import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel,
-  DropdownMenuSeparator, DropdownMenuRadioGroup, DropdownMenuRadioItem,
-} from "@/components/ui/dropdown-menu";
+import { logout as logoutRequest } from "@/lib/api/auth";
 
 export function LabTopbar() {
-  const { role, setRole } = useRole();
-  const identity = ROLE_IDENTITY[role];
+  const { role, user, token, signOut } = useRole();
+  const navigate = useNavigate();
+
+  async function handleSignOut() {
+    if (token) await logoutRequest(token);
+    signOut();
+    navigate({ to: "/signin" });
+  }
+
+  const initials = user
+    ? user.name.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()
+    : "?";
+
   return (
     <header className="sticky top-0 z-30 h-16 bg-background/80 backdrop-blur border-b-2 border-ink flex items-center gap-4 px-6">
       <div className="flex items-center gap-2 flex-1 max-w-xl">
@@ -29,28 +36,16 @@ export function LabTopbar() {
       </button>
 
       <div className="flex items-center gap-3 pl-3 border-l-2 border-ink">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 rounded-full pl-1 pr-2 py-1 hover:bg-muted" title="Switch role (demo)">
-              <div className="size-9 rounded-full bg-ink text-background border border-ink grid place-items-center font-bold text-sm shrink-0">{identity.initials}</div>
-              <div className="text-right leading-tight hidden sm:block">
-                <div className="text-sm font-medium">{identity.name}</div>
-                <div className="text-[10px] uppercase tracking-wider text-ink/60">{role}</div>
-              </div>
-              <ChevronDown className="size-3.5 text-ink/50 hidden sm:block" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">View as role (demo)</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={role} onValueChange={v => setRole(v as typeof role)}>
-              {ROLES.map(r => <DropdownMenuRadioItem key={r} value={r}>{r}</DropdownMenuRadioItem>)}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Link to="/" className="p-2 rounded-full border border-ink hover:bg-muted" title="Sign out">
+        <div className="flex items-center gap-3 rounded-full pl-1 pr-2 py-1" title={user?.email ?? ""}>
+          <div className="size-9 rounded-full bg-ink text-background border border-ink grid place-items-center font-bold text-sm shrink-0">{initials}</div>
+          <div className="text-right leading-tight hidden sm:block">
+            <div className="text-sm font-medium">{user?.name ?? "Unknown"}</div>
+            <div className="text-[10px] uppercase tracking-wider text-ink/60">{role}</div>
+          </div>
+        </div>
+        <button onClick={handleSignOut} className="p-2 rounded-full border border-ink hover:bg-muted" title="Sign out">
           <LogOut className="size-4 text-ink/60" />
-        </Link>
+        </button>
       </div>
     </header>
   );

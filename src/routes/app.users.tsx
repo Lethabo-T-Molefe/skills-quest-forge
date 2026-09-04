@@ -66,7 +66,7 @@ function Page() {
                     <select
                       className="bg-muted border border-border rounded-md h-8 px-2 text-xs"
                       defaultValue={u.role}
-                      autoFocus
+                      ref={(el) => el?.focus()}
                       disabled={assignRole.isPending}
                       onChange={(e) => {
                         assignRole.mutate({ id: u.id, role: e.target.value });

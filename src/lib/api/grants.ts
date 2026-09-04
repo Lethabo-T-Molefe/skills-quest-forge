@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type Grant = {
@@ -34,13 +35,13 @@ export async function getGrants(filters: GrantFilters = {}): Promise<Grant[]> {
     if (value) params.set(key, value);
   }
   const qs = params.toString();
-  const res = await fetch(`${API_BASE_URL}/grants${qs ? `?${qs}` : ""}`);
+  const res = await apiFetch(`${API_BASE_URL}/grants${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error(`GET /grants failed: ${res.status}`);
   return res.json();
 }
 
 export async function getGrantUtilisationByProvince(): Promise<ProvinceUtilisation[]> {
-  const res = await fetch(`${API_BASE_URL}/grants/utilisation`);
+  const res = await apiFetch(`${API_BASE_URL}/grants/utilisation`);
   if (!res.ok) throw new Error(`GET /grants/utilisation failed: ${res.status}`);
   return res.json();
 }

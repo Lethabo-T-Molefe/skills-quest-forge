@@ -41,12 +41,21 @@ describe("useJupyterUserPath", () => {
 
   it("builds an auto-login path keyed to the current identity's slug", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("no backend in tests")));
+    // A signed-in System Admin session — role now comes from a real stored
+    // session (§ auth rewrite), not an implicit "default role".
+    window.localStorage.setItem(
+      "chieta-data-lab-session",
+      JSON.stringify({
+        token: "test-token",
+        user: { id: 1, name: "T. Mokoena", email: "t.mokoena@chieta.org.za", role: "System Admin", is_active: true },
+      })
+    );
 
     const { result } = renderHook(() => useJupyterUserPath(), { wrapper });
 
     await waitFor(() => expect(result.current.isLive).toBe(false));
 
-    // Default role is System Admin -> T. Mokoena -> t-mokoena
+    // Signed in as System Admin -> T. Mokoena -> t-mokoena
     expect(result.current.username).toBe("t-mokoena");
     // next must be /hub/spawn/<user>, not /user/<user>/lab directly — the
     // latter 424s on first visit since JupyterHub requires spawns to go

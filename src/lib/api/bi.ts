@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type BiChart = {
@@ -18,13 +19,13 @@ export type BiChartData = {
 };
 
 export async function listDashboards(): Promise<BiDashboard[]> {
-  const res = await fetch(`${API_BASE_URL}/bi/dashboards`);
+  const res = await apiFetch(`${API_BASE_URL}/bi/dashboards`);
   if (!res.ok) throw new Error(`GET /bi/dashboards failed: ${res.status}`);
   return res.json();
 }
 
 export async function getChartData(chartId: number): Promise<BiChartData> {
-  const res = await fetch(`${API_BASE_URL}/bi/charts/${chartId}/data`);
+  const res = await apiFetch(`${API_BASE_URL}/bi/charts/${chartId}/data`);
   if (!res.ok) {
     const detail = await res.json().catch(() => null);
     throw new Error(detail?.detail ?? `GET /bi/charts/${chartId}/data failed: ${res.status}`);
@@ -35,7 +36,7 @@ export async function getChartData(chartId: number): Promise<BiChartData> {
 // Runs ad-hoc SQL through Superset's SQL Lab (the SQL Workspace's execution
 // engine) — Superset's own SQL editor UI is never shown to the user.
 export async function executeSql(sql: string): Promise<BiChartData> {
-  const res = await fetch(`${API_BASE_URL}/bi/sql`, {
+  const res = await apiFetch(`${API_BASE_URL}/bi/sql`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sql }),

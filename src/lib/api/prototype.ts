@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type PredictionFactor = { name: string; pct: number };
@@ -43,7 +44,7 @@ export type Recommendation = {
 };
 
 async function postJson<TReq, TRes>(path: string, body: TReq): Promise<TRes> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await apiFetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -65,13 +66,13 @@ export const runScenarioSimulation = (body: ScenarioRequest) =>
   postJson<ScenarioRequest, ScenarioResult>("/prototype/simulate", body);
 
 export async function getPrototypeRecommendations(): Promise<Recommendation[]> {
-  const res = await fetch(`${API_BASE_URL}/prototype/recommendations`);
+  const res = await apiFetch(`${API_BASE_URL}/prototype/recommendations`);
   if (!res.ok) throw new Error(`GET /prototype/recommendations failed: ${res.status}`);
   return res.json();
 }
 
 export async function acceptPrototypeRecommendation(id: number): Promise<Recommendation> {
-  const res = await fetch(`${API_BASE_URL}/prototype/recommendations/${id}/accept`, {
+  const res = await apiFetch(`${API_BASE_URL}/prototype/recommendations/${id}/accept`, {
     method: "POST",
   });
   if (!res.ok) throw new Error(`POST /prototype/recommendations/${id}/accept failed: ${res.status}`);
@@ -79,7 +80,7 @@ export async function acceptPrototypeRecommendation(id: number): Promise<Recomme
 }
 
 export async function dismissPrototypeRecommendation(id: number): Promise<Recommendation> {
-  const res = await fetch(`${API_BASE_URL}/prototype/recommendations/${id}/dismiss`, {
+  const res = await apiFetch(`${API_BASE_URL}/prototype/recommendations/${id}/dismiss`, {
     method: "POST",
   });
   if (!res.ok) {

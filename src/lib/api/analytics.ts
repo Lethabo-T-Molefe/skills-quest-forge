@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type QueryResult = {
@@ -17,7 +18,7 @@ export const EXPLORABLE_TABLES = [
 export type ExplorableTable = (typeof EXPLORABLE_TABLES)[number];
 
 export async function runSql(sql: string): Promise<QueryResult> {
-  const res = await fetch(`${API_BASE_URL}/analytics/sql`, {
+  const res = await apiFetch(`${API_BASE_URL}/analytics/sql`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sql }),
@@ -27,7 +28,7 @@ export async function runSql(sql: string): Promise<QueryResult> {
 }
 
 export async function exploreTable(table: string): Promise<QueryResult> {
-  const res = await fetch(`${API_BASE_URL}/analytics/explore/${table}`);
+  const res = await apiFetch(`${API_BASE_URL}/analytics/explore/${table}`);
   if (!res.ok) throw new Error(`GET /analytics/explore/${table} failed: ${res.status}`);
   return res.json();
 }

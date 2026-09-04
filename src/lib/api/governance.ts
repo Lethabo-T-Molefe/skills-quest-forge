@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type PopiaControl = {
@@ -33,31 +34,31 @@ export type DatasetApproval = {
 };
 
 export async function getPopiaScorecard(): Promise<PopiaControl[]> {
-  const res = await fetch(`${API_BASE_URL}/governance/popia-scorecard`);
+  const res = await apiFetch(`${API_BASE_URL}/governance/popia-scorecard`);
   if (!res.ok) throw new Error(`GET /governance/popia-scorecard failed: ${res.status}`);
   return res.json();
 }
 
 export async function getPiiRegister(): Promise<PiiRegisterEntry[]> {
-  const res = await fetch(`${API_BASE_URL}/governance/pii-register`);
+  const res = await apiFetch(`${API_BASE_URL}/governance/pii-register`);
   if (!res.ok) throw new Error(`GET /governance/pii-register failed: ${res.status}`);
   return res.json();
 }
 
 export async function getRetentionPolicies(): Promise<RetentionPolicy[]> {
-  const res = await fetch(`${API_BASE_URL}/governance/retention`);
+  const res = await apiFetch(`${API_BASE_URL}/governance/retention`);
   if (!res.ok) throw new Error(`GET /governance/retention failed: ${res.status}`);
   return res.json();
 }
 
 export async function getDatasetApprovals(): Promise<DatasetApproval[]> {
-  const res = await fetch(`${API_BASE_URL}/governance/approvals`);
+  const res = await apiFetch(`${API_BASE_URL}/governance/approvals`);
   if (!res.ok) throw new Error(`GET /governance/approvals failed: ${res.status}`);
   return res.json();
 }
 
 export async function reviewDatasetApproval(id: number, status: string): Promise<DatasetApproval> {
-  const res = await fetch(`${API_BASE_URL}/governance/approvals/${id}`, {
+  const res = await apiFetch(`${API_BASE_URL}/governance/approvals/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status }),

@@ -50,6 +50,13 @@ describe("Upload Dataset wizard", () => {
         { name: "grant_id", data_type: "TEXT" },
         { name: "allocated", data_type: "BIGINT" },
       ],
+      owner: null,
+      description: "",
+      tags: [],
+      classification: "INTERNAL–General",
+      version: 1,
+      previous_version_id: null,
+      masked_columns: [],
     });
     const user = userEvent.setup();
     render(<Page />);
@@ -90,6 +97,13 @@ describe("Upload Dataset wizard", () => {
       warehouse_schema: "bronze",
       warehouse_table: "learners",
       columns: [{ name: "learner_id", data_type: "TEXT" }],
+      owner: null,
+      description: "",
+      tags: [],
+      classification: "INTERNAL–General",
+      version: 1,
+      previous_version_id: null,
+      masked_columns: [],
     });
     const user = userEvent.setup();
     render(<Page />);

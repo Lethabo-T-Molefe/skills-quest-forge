@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type SkillsCentre = {
@@ -30,13 +31,13 @@ export async function getSkillsCentres(
     if (value) params.set(key, value);
   }
   const qs = params.toString();
-  const res = await fetch(`${API_BASE_URL}/centres${qs ? `?${qs}` : ""}`);
+  const res = await apiFetch(`${API_BASE_URL}/centres${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error(`GET /centres failed: ${res.status}`);
   return res.json();
 }
 
 export async function getCentreUtilisationHeatmap(): Promise<ProvinceCentreUtilisation[]> {
-  const res = await fetch(`${API_BASE_URL}/centres/utilisation`);
+  const res = await apiFetch(`${API_BASE_URL}/centres/utilisation`);
   if (!res.ok) throw new Error(`GET /centres/utilisation failed: ${res.status}`);
   return res.json();
 }

@@ -7,7 +7,7 @@ export function useStatTaxonomy() {
 }
 
 export function useDatasetsForAnalysis() {
-  return useQuery({ queryKey: ["datasets"], queryFn: listDatasets, staleTime: 30 * 1000 });
+  return useQuery({ queryKey: ["datasets", null], queryFn: () => listDatasets(), staleTime: 30 * 1000 });
 }
 
 export function useRunAnalysis() {

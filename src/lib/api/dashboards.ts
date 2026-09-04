@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 import type { InfoContent } from "@/components/lab/info-hint";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
@@ -36,13 +37,13 @@ export type AiRecommendation = {
 };
 
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`);
+  const res = await apiFetch(`${API_BASE_URL}${path}`);
   if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
   return res.json();
 }
 
 async function postJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, { method: "POST" });
+  const res = await apiFetch(`${API_BASE_URL}${path}`, { method: "POST" });
   if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);
   return res.json();
 }

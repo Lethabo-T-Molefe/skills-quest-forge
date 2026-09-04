@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/http";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export type LineageNode = {
@@ -19,7 +20,7 @@ export type LineageGraph = {
 };
 
 export async function getLineageGraph(pipeline: string): Promise<LineageGraph> {
-  const res = await fetch(`${API_BASE_URL}/lineage/${encodeURIComponent(pipeline)}`);
+  const res = await apiFetch(`${API_BASE_URL}/lineage/${encodeURIComponent(pipeline)}`);
   if (!res.ok) throw new Error(`GET /lineage/${pipeline} failed: ${res.status}`);
   return res.json();
 }
