@@ -5,5 +5,6 @@ export interface AssistantTurn {
   explanation: string;
   sql: string;
   refused?: boolean;
+  groundedIn?: string[];
   table?: { columns: string[]; rows: (string | number)[][] };
 }

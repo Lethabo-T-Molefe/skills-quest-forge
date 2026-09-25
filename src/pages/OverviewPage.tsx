@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles, Upload } from "lucide-react";
-import { QuietButton, SignalButton } from "@/components";
+import { LayerStrip, quietButtonClass, signalButtonClass } from "@/components";
 import { useCurrentUser } from "@/features/auth";
 import { RecentActivityPanel } from "@/features/audit";
 import { RecentDatasetsPanel } from "@/features/datasets";
@@ -18,20 +18,22 @@ export function OverviewPage() {
       intro="Everything you run here is sandboxed, permission-checked and written to the audit trail. Start with a file, a question or a dataset someone has already cleaned."
       actions={
         <>
-          <SignalButton>
+          <Link to="/datasets/upload" className={signalButtonClass}>
             <Upload className="size-4" strokeWidth={1.75} />
             Upload data
-          </SignalButton>
-          <Link to="/assistant">
-            <QuietButton>
-              <Sparkles className="size-4" strokeWidth={1.5} />
-              Ask a question
-            </QuietButton>
+          </Link>
+          <Link to="/assistant" className={quietButtonClass}>
+            <Sparkles className="size-4" strokeWidth={1.5} />
+            Ask a question
           </Link>
         </>
       }
     >
-      <MetricTiles />
+      <LayerStrip />
+
+      <div className="mt-10">
+        <MetricTiles />
+      </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[7fr_5fr]">
         <RecentDatasetsPanel />

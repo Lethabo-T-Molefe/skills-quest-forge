@@ -20,7 +20,8 @@ export function AlertsPanel() {
               <p className="text-sm font-medium">{a.metric}</p>
               <p className="text-sm text-muted-foreground">{a.message}</p>
               <Link
-                to="/monitors"
+                to="/monitors/$alertId"
+                params={{ alertId: a.id }}
                 className="mt-1 inline-block text-xs text-signal-strong underline-offset-4 hover:underline"
               >
                 Explain why

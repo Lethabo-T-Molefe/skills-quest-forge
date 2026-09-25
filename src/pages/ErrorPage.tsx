@@ -1,31 +1,31 @@
 import { useRouter, type ErrorComponentProps } from "@tanstack/react-router";
+import { MediaFrame, QuietButton, SignalButton } from "@/components";
+import { media } from "@/config/media";
 
 export function ErrorPage({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+    <div className="flex min-h-screen items-center justify-center bg-background px-6">
+      <div className="max-w-md">
+        <MediaFrame {...media.empty} ratio="16 / 9" className="mb-8" />
+        <p className="label-paren">(something went wrong)</p>
+        <h1 className="heading-1 mt-1">This page didn't load</h1>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Something failed on our end. You can try again, or go back to your workspace.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
+        <div className="mt-6 flex flex-wrap gap-2">
+          <SignalButton
             onClick={() => {
-              router.invalidate();
+              void router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Try again
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
+          </SignalButton>
+          <a href="/">
+            <QuietButton>Go home</QuietButton>
           </a>
         </div>
       </div>

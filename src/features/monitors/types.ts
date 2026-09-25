@@ -13,6 +13,17 @@ export interface Alert {
   rootCause: RootCauseFactor[];
 }
 
+export interface Monitor {
+  id: string;
+  name: string;
+  metric: string;
+  threshold: string;
+  cadence: string;
+  owner: string;
+  status: "watching" | "paused";
+  lastChecked: string;
+}
+
 export interface PredictionFactor {
   name: string;
   weight: number;

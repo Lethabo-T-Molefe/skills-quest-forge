@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Plug, Upload } from "lucide-react";
-import { QuietButton, SignalButton } from "@/components";
+import { LayerStrip, QuietButton, quietButtonClass, signalButtonClass } from "@/components";
 import { DatasetCard, layerFilters, useDatasets, type LayerFilter } from "@/features/datasets";
 import { MainLayout } from "@/layouts/MainLayout";
 
@@ -16,18 +17,19 @@ export function DatasetsPage() {
       intro="Every dataset is classified, profiled and masked before it can be used. Raw data sits in bronze, cleaned data in silver, and analytics-ready data in gold."
       actions={
         <>
-          <SignalButton>
+          <Link to="/datasets/upload" className={signalButtonClass}>
             <Upload className="size-4" strokeWidth={1.75} />
             Upload a file
-          </SignalButton>
-          <QuietButton>
+          </Link>
+          <Link to="/datasets/connect" className={quietButtonClass}>
             <Plug className="size-4" strokeWidth={1.5} />
             Connect a source
-          </QuietButton>
+          </Link>
         </>
       }
     >
-      <div className="flex flex-wrap gap-2">
+      <LayerStrip />
+      <div className="mt-8 flex flex-wrap gap-2">
         {layerFilters.map((f) => (
           <QuietButton key={f} active={filter === f} onClick={() => setFilter(f)}>
             {f === "All" ? "All layers" : f}

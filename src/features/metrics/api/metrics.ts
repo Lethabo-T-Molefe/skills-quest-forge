@@ -10,9 +10,46 @@ const metricSummaries: MetricSummary[] = [
 ];
 
 const metricDefinitions: MetricDefinition[] = [
-  { name: "Active learners", owner: "Data Stewardship", expression: "COUNT(DISTINCT learner_id) WHERE last_session >= today - 30", usedBy: 14 },
-  { name: "Completion rate", owner: "Data Stewardship", expression: "completions / NULLIF(enrolments, 0)", usedBy: 9 },
-  { name: "Average fee paid", owner: "Sipho Dlamini", expression: "AVG(fee_paid) WHERE status = 'approved'", usedBy: 6 },
+  {
+    id: "active-learners",
+    name: "Active learners",
+    owner: "Data Stewardship",
+    expression: "COUNT(DISTINCT learner_id) WHERE last_session >= today - 30",
+    description: "A learner with at least one session in the last 30 days. Used by the assistant, dashboards and monitors.",
+    usedBy: 14,
+    grain: "learner / day",
+    status: "published",
+  },
+  {
+    id: "completion-rate",
+    name: "Completion rate",
+    owner: "Data Stewardship",
+    expression: "completions / NULLIF(enrolments, 0)",
+    description: "Share of enrolments that produced a completion in the same period.",
+    usedBy: 9,
+    grain: "course / month",
+    status: "published",
+  },
+  {
+    id: "average-fee",
+    name: "Average fee paid",
+    owner: "Sipho Dlamini",
+    expression: "AVG(fee_paid) WHERE status = 'approved'",
+    description: "Mean fee across approved enrolments. Refunds are excluded.",
+    usedBy: 6,
+    grain: "enrolment",
+    status: "published",
+  },
+  {
+    id: "open-issues",
+    name: "Open data issues",
+    owner: "Naledi Khumalo",
+    expression: "COUNT(*) FROM quality_flags WHERE status = 'open'",
+    description: "Quality flags still open on datasets the member can see.",
+    usedBy: 3,
+    grain: "dataset",
+    status: "draft",
+  },
 ];
 
 export function fetchMetricSummaries() {

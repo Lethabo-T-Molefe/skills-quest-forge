@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { mockResponse } from "@/lib/mock-api";
-import type { Alert, Prediction } from "../types";
+import type { Alert, Monitor, Prediction } from "../types";
 
 const alerts: Alert[] = [
   {
@@ -28,6 +28,39 @@ const alerts: Alert[] = [
   },
 ];
 
+const monitors: Monitor[] = [
+  {
+    id: "m1",
+    name: "Free State revenue band",
+    metric: "Regional revenue",
+    threshold: "Alert if month-on-month change exceeds 15%",
+    cadence: "Daily",
+    owner: "Lerato Naidoo",
+    status: "watching",
+    lastChecked: "2 hours ago",
+  },
+  {
+    id: "m2",
+    name: "SQL basics completion",
+    metric: "Completion rate",
+    threshold: "Alert if the rate crosses 70%",
+    cadence: "Weekly",
+    owner: "Thandi Mokoena",
+    status: "watching",
+    lastChecked: "Yesterday",
+  },
+  {
+    id: "m3",
+    name: "Open data issues",
+    metric: "Open data issues",
+    threshold: "Alert if open flags exceed 10",
+    cadence: "Daily",
+    owner: "Naledi Khumalo",
+    status: "paused",
+    lastChecked: "Last week",
+  },
+];
+
 const prediction: Prediction = {
   subject: "Learner cohort · March intake",
   outcome: "Likelihood to complete within 60 days",
@@ -47,11 +80,24 @@ export function fetchAlerts() {
   return mockResponse(alerts);
 }
 
+export function fetchAlert(id: string) {
+  return mockResponse(alerts.find((item) => item.id === id) ?? null);
+}
+
+export function fetchMonitors() {
+  return mockResponse(monitors);
+}
+
 export function fetchPrediction() {
   return mockResponse(prediction);
 }
 
 export const alertsQuery = () => queryOptions({ queryKey: ["monitors", "alerts"], queryFn: fetchAlerts });
+
+export const alertQuery = (id: string) =>
+  queryOptions({ queryKey: ["monitors", "alerts", id], queryFn: () => fetchAlert(id) });
+
+export const monitorsQuery = () => queryOptions({ queryKey: ["monitors", "list"], queryFn: fetchMonitors });
 
 export const predictionQuery = () =>
   queryOptions({ queryKey: ["monitors", "prediction"], queryFn: fetchPrediction });

@@ -7,8 +7,12 @@ export interface MetricSummary {
 }
 
 export interface MetricDefinition {
+  id: string;
   name: string;
   owner: string;
   expression: string;
+  description: string;
   usedBy: number;
+  grain: string;
+  status: "published" | "draft";
 }

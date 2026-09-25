@@ -1,2 +1,2 @@
 export type { AssistantTurn } from "./types";
-export { assistantExamplesQuery } from "./api/assistant";
+export { askAssistant, assistantExamplesQuery } from "./api/assistant";

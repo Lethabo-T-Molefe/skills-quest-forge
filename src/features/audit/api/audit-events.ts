@@ -11,6 +11,10 @@ const auditEvents: AuditEvent[] = [
   { id: "e6", when: "09:55", actor: "Sipho Dlamini", action: "Approved dataset", resource: "Course completions", detail: "Quality profile reviewed, classification internal-confidential" },
   { id: "e7", when: "09:31", actor: "Naledi Khumalo", action: "Connected source", resource: "PostgreSQL · servicedesk.tickets", detail: "Read-only connector, credentials from secrets service" },
   { id: "e8", when: "08:12", actor: "Thandi Mokoena", action: "Signed in", resource: "Identity provider", detail: "Multi-factor authentication passed" },
+  { id: "e9", when: "Yesterday", actor: "Lerato Naidoo", action: "Opened dashboard", resource: "Executive overview", detail: "Read-only organisation share" },
+  { id: "e10", when: "Yesterday", actor: "System", action: "Raised alert", resource: "Revenue · Free State", detail: "23% below expected band" },
+  { id: "e11", when: "2 days ago", actor: "Sipho Dlamini", action: "Opened generated SQL", resource: "Workbench", detail: "Average fee by region, last quarter" },
+  { id: "e12", when: "3 days ago", actor: "Zola Nkosi", action: "Reviewed model", resource: "completion-heuristic v1.4", detail: "Factor weights sum to 1.00" },
 ];
 
 export function fetchAuditEvents() {
