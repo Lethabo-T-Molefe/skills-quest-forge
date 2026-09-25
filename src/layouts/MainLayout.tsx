@@ -1,12 +1,22 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
-import { CircleHelp, Globe, LogOut, Settings, Shield, Sparkles, Users } from "lucide-react";
-import { Drawer, ScrollPane, SearchField } from "@/components";
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  CircleHelp,
+  Globe,
+  LogOut,
+  Settings,
+  Shield,
+  Sparkles,
+  Users,
+} from "lucide-react";
+import { Drawer, Logo, ScrollPane, SearchField } from "@/components";
 import { mainNav } from "@/config/navigation";
-import { siteConfig } from "@/config/site";
 import { clearSession, useCurrentUser } from "@/features/auth";
 import { pageHelp } from "@/features/help";
+import { toggleSidebar, useSidebarCollapsed } from "@/stores/sidebar-store";
 
 /** App chrome: sidebar navigation, top bar and the page heading block. */
 export function MainLayout({
@@ -29,31 +39,56 @@ export function MainLayout({
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const collapsed = useSidebarCollapsed();
   const helpKey = pathname.includes("/clean") ? "/clean" : pathname;
   const help = pageHelp[helpKey] ?? pageHelp["/workspace"];
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex w-full max-w-[1600px]">
-        <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-surface-alt px-5 py-6 lg:flex">
-          <Link to="/workspace" className="flex items-baseline gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-signal" aria-hidden />
-            <span className="font-display text-xl font-medium tracking-tight">{siteConfig.name}</span>
+        <aside
+          className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-surface-alt py-6 transition-[width] duration-200 lg:flex ${
+            collapsed ? "w-[76px] px-3" : "w-60 px-5"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            className="absolute top-[94px] -right-3.5 z-10 flex size-7 items-center justify-center rounded-full border border-line-strong bg-surface-raised text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+          >
+            {collapsed ? (
+              <ChevronsRight className="size-4" strokeWidth={1.75} />
+            ) : (
+              <ChevronsLeft className="size-4" strokeWidth={1.75} />
+            )}
+          </button>
+
+          <Link to="/workspace" className="block">
+            {collapsed ? (
+              <Logo variant="submark" className="mx-auto size-11" />
+            ) : (
+              <Logo variant="secondary" className="w-full" />
+            )}
           </Link>
-          <p className="label-paren mt-1">({siteConfig.tagline})</p>
 
           <nav className="mt-8 flex flex-col gap-0.5">
             {mainNav.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
+                title={collapsed ? item.label : undefined}
                 activeOptions={{ exact: item.to === "/workspace" }}
                 activeProps={{ className: "bg-surface-raised text-foreground" }}
                 inactiveProps={{ className: "text-muted-foreground hover:bg-accent/60" }}
-                className="flex items-center gap-3 rounded-[999px] px-3 py-2 text-sm transition-colors"
+                className={`flex items-center gap-3 rounded-[999px] py-2 text-sm transition-colors ${
+                  collapsed ? "justify-center px-0 py-2.5" : "px-3"
+                }`}
               >
-                <item.icon className="size-[18px]" strokeWidth={1.5} />
-                {item.label}
+                <item.icon className="size-[18px] shrink-0" strokeWidth={1.5} />
+                <span className={collapsed ? "sr-only" : ""}>{item.label}</span>
               </Link>
             ))}
           </nav>
@@ -62,18 +97,25 @@ export function MainLayout({
             <button
               type="button"
               onClick={() => setMenuOpen((value) => !value)}
-              className="flex w-full items-center gap-3 rounded-[14px] p-1 text-left hover:bg-accent/50"
+              title={collapsed ? `${currentUser.name} · ${currentUser.role}` : undefined}
+              className={`flex w-full items-center gap-3 rounded-[14px] p-1 text-left hover:bg-accent/50 ${
+                collapsed ? "justify-center" : ""
+              }`}
             >
-              <span className="flex size-9 items-center justify-center rounded-full bg-surface-inverse text-xs font-semibold text-background">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-inverse text-xs font-semibold text-background">
                 {currentUser.initials}
               </span>
-              <div className="min-w-0">
+              <div className={collapsed ? "sr-only" : "min-w-0"}>
                 <p className="truncate text-sm font-medium">{currentUser.name}</p>
                 <p className="truncate text-xs text-muted-foreground">{currentUser.role}</p>
               </div>
             </button>
             {menuOpen ? (
-              <div className="absolute inset-x-0 bottom-14 border border-border bg-surface-raised p-2">
+              <div
+                className={`absolute z-20 border border-border bg-surface-raised p-2 ${
+                  collapsed ? "bottom-0 left-full ml-3 w-56 shadow-lg" : "inset-x-0 bottom-14"
+                }`}
+              >
                 <Link to="/" className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50" onClick={() => setMenuOpen(false)}>
                   <Globe className="size-4" strokeWidth={1.5} />
                   Public site
@@ -114,9 +156,8 @@ export function MainLayout({
         <div className="min-w-0 flex-1">
           <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
             <div className="flex items-center gap-4 px-6 py-3">
-              <Link to="/workspace" className="flex items-center gap-2 lg:hidden">
-                <span className="h-2.5 w-2.5 rounded-full bg-signal" aria-hidden />
-                <span className="font-display text-lg">{siteConfig.name}</span>
+              <Link to="/workspace" className="shrink-0 lg:hidden">
+                <Logo variant="submark" className="size-9" />
               </Link>
               <SearchField
                 id="catalogue-search"

@@ -7,6 +7,7 @@ export { EmptyState } from "./EmptyState";
 export { Field, inputClass, textareaClass } from "./Field";
 export { HelpTip } from "./HelpTip";
 export { LayerStrip } from "./LayerStrip";
+export { Logo, type LogoVariant } from "./Logo";
 export { MediaFrame } from "./MediaFrame";
 export { MiniChart } from "./MiniChart";
 export { Notice } from "./Notice";

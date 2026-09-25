@@ -1,9 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
-import { quietButtonClass, signalButtonClass } from "@/components";
+import { Logo, quietButtonClass, signalButtonClass } from "@/components";
 import { publicNav } from "@/config/public";
-import { siteConfig } from "@/config/site";
 import { getSession } from "@/features/auth";
 
 export function PublicLayout({ children }: { children: ReactNode }) {
@@ -15,9 +14,8 @@ export function PublicLayout({ children }: { children: ReactNode }) {
       <div className="page-grid" aria-hidden="true" />
       <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-[1600px] items-center gap-4 px-5 py-4 md:px-10">
-          <Link to="/" className="flex items-baseline gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-signal" aria-hidden />
-            <span className="font-display text-xl font-medium tracking-tight">{siteConfig.name}</span>
+          <Link to="/" className="block w-40 shrink-0 md:w-44">
+            <Logo variant="secondary" className="w-full" />
           </Link>
           <nav className="ml-8 hidden items-center gap-1 lg:flex">
             {publicNav.map((item) => (
@@ -88,8 +86,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
               alt=""
               className="mb-6 aspect-[16/9] w-full max-w-sm object-cover opacity-80"
             />
-            <p className="font-display text-2xl">{siteConfig.name}</p>
-            <p className="mt-1 text-sm text-white/55">({siteConfig.tagline})</p>
+            <Logo variant="primary" tone="reverse" className="w-48" />
             <p className="mt-6 max-w-[36ch] text-sm leading-relaxed text-white/70">
               A governed AI data analyst that a non-technical person can actually use. One organisation, one instance,
               self-hosted.
