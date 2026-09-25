@@ -1,24 +1,39 @@
-# Frontend First Build
+# DataForge
 
-I want you to go through the 2 documents and build this sysem. start with the core functionalities. i want you to do only the frontend with mockdata
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/7ff3b055-5059-4c97-9481-15d405e0e730).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Frontend prototype built with React, TanStack Router, TanStack Query and Tailwind CSS, using mock data.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+You need Node.js and npm.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Project structure
+
+```
+src/
+├── assets/        # Global styles
+├── components/    # Shared UI (Chip, Panel, buttons)
+│   └── ui/        # shadcn/ui design-system components
+├── features/      # Feature modules: auth, datasets, metrics, monitors, audit, ...
+│   └── <feature>/
+│       ├── api/         # Data access (currently mock data)
+│       ├── components/  # Feature-specific components
+│       ├── hooks/       # React Query hooks
+│       ├── types.ts
+│       └── index.ts     # Public API — import features only through this
+├── pages/         # Route-level pages that compose features
+├── layouts/       # MainLayout
+├── hooks/         # Shared hooks
+├── lib/           # Shared utilities
+├── stores/        # Global state
+├── types/         # Shared types
+├── config/        # Site settings and navigation
+├── App.tsx        # Router, routes and providers
+└── main.tsx       # Entry point
+```
+
+Routes are defined in `App.tsx`. Each route's loader preloads its data into the query cache, so pages read it with the feature hooks without loading states.
