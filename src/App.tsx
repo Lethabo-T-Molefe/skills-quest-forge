@@ -15,7 +15,7 @@ import { pageTitle, siteConfig } from "@/config/site";
 import { authPaths, currentUserQuery, getSession, orgMembersQuery } from "@/features/auth";
 import { auditEventsQuery } from "@/features/audit";
 import { assistantExamplesQuery } from "@/features/assistant";
-import { cleaningStepsQuery } from "@/features/cleaning";
+import { cleaningProfileQuery, cleaningStepsQuery } from "@/features/cleaning";
 import { connectorsQuery } from "@/features/connectors";
 import { dashboardQuery, dashboardsQuery } from "@/features/dashboards";
 import { datasetQuery, datasetsQuery } from "@/features/datasets";
@@ -242,6 +242,7 @@ const cleaningRoute = createRoute({
     const [dataset] = await Promise.all([
       context.queryClient.ensureQueryData(datasetQuery(params.datasetId)),
       context.queryClient.ensureQueryData(cleaningStepsQuery()),
+      context.queryClient.ensureQueryData(cleaningProfileQuery()),
     ]);
     if (!dataset) throw notFound();
     return { dataset };

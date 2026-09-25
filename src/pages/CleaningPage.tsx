@@ -1,47 +1,87 @@
 import { useMemo, useState } from "react";
 import { Link, notFound, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Chip, HelpTip, MediaFrame, Panel, QuietButton, quietButtonClass, SignalButton, signalButtonClass } from "@/components";
+import { Chip, Drawer, MediaFrame, QuietButton, quietButtonClass, SignalButton, signalButtonClass } from "@/components";
 import { media } from "@/config/media";
-import { useCleaningSteps, type RecipeStep } from "@/features/cleaning";
-import { DatasetQualityPanel, useDataset } from "@/features/datasets";
+import {
+  ChapterWorkbench,
+  MethodLibrary,
+  ProfilingBoard,
+  RecipePanel,
+  getMethod,
+  methodsFor,
+  useCleaningProfile,
+  useCleaningStudio,
+  workChapters,
+  type CleaningDepth,
+  type RecipeStep,
+} from "@/features/cleaning";
+import { useDataset } from "@/features/datasets";
 import { cleaningWalkthrough } from "@/features/help";
-import { isReadOnly } from "@/features/auth";
-import { useCurrentUser } from "@/features/auth";
+import { isReadOnly, useCurrentUser } from "@/features/auth";
 import { MainLayout } from "@/layouts/MainLayout";
 
 export function CleaningPage() {
   const { datasetId } = useParams({ from: "/datasets/$datasetId/clean" });
   const dataset = useDataset(datasetId);
-  const steps = useCleaningSteps();
+  const studio = useCleaningStudio();
+  const profile = useCleaningProfile();
   const user = useCurrentUser();
-  const [index, setIndex] = useState(0);
-  const [option, setOption] = useState(0);
-  const [recipe, setRecipe] = useState<RecipeStep[]>([]);
-  const [finished, setFinished] = useState(false);
-  const [walkthrough, setWalkthrough] = useState(true);
-  const step = steps[index];
 
-  const preview = useMemo(() => {
-    if (!step) return { before: [], after: [] };
-    return step.preview;
-  }, [step]);
+  const [phase, setPhase] = useState<"profile" | "work" | "done">("profile");
+  const [depth, setDepth] = useState<CleaningDepth>("everyday");
+  const [index, setIndex] = useState(0);
+  const [choices, setChoices] = useState<Record<string, string>>(() =>
+    Object.fromEntries(studio.chapters.map((chapter) => [chapter.id, chapter.recommendedMethodId])),
+  );
+  const [recipe, setRecipe] = useState<RecipeStep[]>([]);
+  const [walkthrough, setWalkthrough] = useState(true);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+
+  const chapter = workChapters[index];
+  const chapterMethods = chapter ? methodsFor(chapter.id) : [];
+  const selected = useMemo(() => {
+    if (!chapter) return undefined;
+    return getMethod(choices[chapter.id] ?? chapter.recommendedMethodId) ?? chapterMethods[0];
+  }, [chapter, chapterMethods, choices]);
 
   if (!dataset) throw notFound();
-  if (!step && !finished) return null;
+  if (phase === "work" && (!chapter || !selected)) return null;
+
+  function choose(methodId: string) {
+    const method = getMethod(methodId);
+    if (!method) return;
+    setChoices((current) => ({ ...current, [method.chapterId]: method.id }));
+    const nextIndex = workChapters.findIndex((item) => item.id === method.chapterId);
+    if (nextIndex >= 0) {
+      setPhase("work");
+      setIndex(nextIndex);
+    }
+    setLibraryOpen(false);
+  }
 
   function append(status: RecipeStep["status"]) {
-    if (!step) return;
+    if (!chapter || !selected) return;
     setRecipe((current) => [
-      ...current.filter((item) => item.stepId !== step.id),
-      { stepId: step.id, title: step.title, option: step.options[option] ?? step.options[0] ?? "", status },
+      ...current.filter((item) => item.chapterId !== chapter.id),
+      { stepId: selected.id, chapterId: chapter.id, title: chapter.title, option: selected.name, status },
     ]);
-    if (index + 1 >= steps.length) {
-      setFinished(true);
+    if (index + 1 >= workChapters.length) {
+      setPhase("done");
       toast.success("Recipe saved and versioned. Lineage recorded from bronze to silver.");
     } else {
       setIndex(index + 1);
-      setOption(0);
+    }
+  }
+
+  function undo() {
+    if (phase === "work" && index === 0) {
+      setPhase("profile");
+      return;
+    }
+    if (phase === "work") {
+      setIndex((value) => Math.max(0, value - 1));
+      setRecipe((current) => current.slice(0, -1));
     }
   }
 
@@ -49,15 +89,24 @@ export function CleaningPage() {
     <MainLayout
       label="guided cleaning"
       title={`Clean ${dataset.name}`}
-      intro="Work one step at a time. Preview each operation on a sample, then accept, adjust or skip it. Accepted steps become a versioned recipe. Bronze data never changes."
+      intro="Start by reading the profile. Then work one family of problems at a time. Each step previews a sample, records the transform, and leaves bronze untouched. Switch to expert methods when you need the full catalogue."
       actions={
-        <QuietButton onClick={() => setWalkthrough((value) => !value)}>
-          {walkthrough ? "Hide walkthrough" : "Show walkthrough"}
-        </QuietButton>
+        <>
+          <QuietButton active={depth === "everyday"} onClick={() => setDepth("everyday")}>
+            Everyday
+          </QuietButton>
+          <QuietButton active={depth === "expert"} onClick={() => setDepth("expert")}>
+            Expert
+          </QuietButton>
+          <QuietButton onClick={() => setLibraryOpen(true)}>All methods</QuietButton>
+          <QuietButton onClick={() => setWalkthrough((value) => !value)}>
+            {walkthrough ? "Hide walkthrough" : "Show walkthrough"}
+          </QuietButton>
+        </>
       }
     >
       {walkthrough ? (
-        <Panel className="mb-6">
+        <div className="panel mb-6 p-6">
           <p className="label-paren">(first time here)</p>
           <h2 className="heading-2 mt-1">A short walkthrough</h2>
           <ol className="mt-4 grid gap-4 md:grid-cols-2">
@@ -68,126 +117,117 @@ export function CleaningPage() {
               </li>
             ))}
           </ol>
-        </Panel>
+        </div>
       ) : null}
 
-      {finished ? (
-        <Panel className="overflow-hidden p-0">
+      <ol className="mb-6 flex flex-wrap gap-2">
+        <li>
+          <Chip tone={phase === "profile" ? "signal" : "ok"}>01 Profile</Chip>
+        </li>
+        {workChapters.map((item, itemIndex) => (
+          <li key={item.id}>
+            <Chip
+              tone={
+                phase === "work" && itemIndex === index ? "signal" : recipe.some((step) => step.chapterId === item.id) ? "ok" : "neutral"
+              }
+            >
+              {item.number} {item.title}
+            </Chip>
+          </li>
+        ))}
+      </ol>
+
+      {phase === "done" ? (
+        <div className="panel overflow-hidden p-0">
           <MediaFrame {...media.cleaned} ratio="16 / 8" />
           <div className="p-6">
-          <p className="label-paren">(recipe v1 saved)</p>
-          <h2 className="heading-2 mt-1">Silver dataset is ready</h2>
-          <p className="mt-3 max-w-[68ch] text-sm text-muted-foreground">
-            The full recipe ran over all {dataset.rows.toLocaleString("en-ZA")} rows in the sandbox. A lineage edge was
-            recorded from bronze to silver. You can rerun this recipe on a new version of the same file.
-          </p>
-          <ol className="mt-5 space-y-2 text-sm">
-            {recipe.map((item, i) => (
-              <li key={item.stepId} className="flex gap-3">
-                <span className="num text-muted-foreground">{i + 1}</span>
-                <span>
-                  {item.title} · {item.status === "skipped" ? "skipped" : item.option}
-                </span>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Link to="/datasets/$datasetId" params={{ datasetId: dataset.id }} className={signalButtonClass}>
-              Back to the dataset
-            </Link>
-            <Link to="/explorer" search={{ dataset: dataset.id }} className={quietButtonClass}>
-              Explore the cleaned data
-            </Link>
-          </div>
-          </div>
-        </Panel>
-      ) : (
-        <div className="grid gap-6 lg:grid-cols-[7fr_5fr]">
-          <div className="space-y-6">
-            <DatasetQualityPanel dataset={dataset} />
-            <Panel>
-              <p className="label-paren">
-                (step {index + 1} of {steps.length})
-              </p>
-              <h2 className="heading-2 mt-1">{step?.title}</h2>
-              <p className="mt-3 text-sm">{step?.question}</p>
-              <p className="mt-2 text-xs text-muted-foreground">Affects {step?.affected}</p>
-              <div className="mt-4 flex flex-col gap-2">
-                {step?.options.map((item, i) => (
-                  <QuietButton key={item} active={option === i} onClick={() => setOption(i)}>
-                    {item}
-                  </QuietButton>
-                ))}
-              </div>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-xs text-muted-foreground">Before</p>
-                  <ul className="mt-2 space-y-1 font-mono text-sm">
-                    {preview.before.map((item, i) => (
-                      <li key={`before-${i}-${item}`}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">After</p>
-                  <ul className="mt-2 space-y-1 font-mono text-sm">
-                    {preview.after.map((item, i) => (
-                      <li key={`after-${i}-${item}`}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              <div className="mt-6 flex flex-wrap gap-2">
-                <SignalButton disabled={isReadOnly(user)} onClick={() => append("accepted")}>
-                  Accept this step
-                </SignalButton>
-                <QuietButton disabled={isReadOnly(user)} onClick={() => append("skipped")}>
-                  Skip
-                </QuietButton>
-                <QuietButton
-                  disabled={index === 0}
-                  onClick={() => {
-                    setIndex(Math.max(0, index - 1));
-                    setRecipe((current) => current.slice(0, -1));
-                  }}
-                >
-                  Undo
-                </QuietButton>
-              </div>
-            </Panel>
-          </div>
-
-          <div className="space-y-6">
-            <MediaFrame {...media.raw} ratio="4 / 3" />
-            <Panel>
-              <h2 className="heading-2">Recipe so far</h2>
-              {recipe.length === 0 ? (
-                <p className="mt-3 text-sm text-muted-foreground">No steps accepted yet.</p>
-              ) : (
-                <ol className="mt-4 space-y-3 text-sm">
-                  {recipe.map((item, i) => (
-                    <li key={item.stepId} className="flex items-start justify-between gap-3">
-                      <span>
-                        <span className="num text-muted-foreground">{i + 1}. </span>
-                        {item.title}
-                      </span>
-                      <Chip tone={item.status === "accepted" ? "ok" : "neutral"}>
-                        {item.status === "skipped" ? "skipped" : item.option}
-                      </Chip>
-                    </li>
-                  ))}
-                </ol>
-              )}
-              <div className="mt-4">
-                <HelpTip>
-                  The recipe is a first-class artefact. Share it, version it, or rerun it on a new upload of the same
-                  source.
-                </HelpTip>
-              </div>
-            </Panel>
+            <p className="label-paren">(recipe v1 saved)</p>
+            <h2 className="heading-2 mt-1">Silver dataset is ready</h2>
+            <p className="mt-3 max-w-[68ch] text-sm text-muted-foreground">
+              The full recipe ran over all {dataset.rows.toLocaleString("en-ZA")} rows in the sandbox. A lineage edge was
+              recorded from bronze to silver. You can rerun this recipe on a new version of the same file.
+            </p>
+            <ol className="mt-5 space-y-2 text-sm">
+              {recipe.map((item, itemIndex) => (
+                <li key={`${item.stepId}-${itemIndex}`} className="flex gap-3">
+                  <span className="num text-muted-foreground">{itemIndex + 1}</span>
+                  <span>
+                    {item.title} · {item.status === "skipped" ? "skipped" : item.option}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link to="/datasets/$datasetId" params={{ datasetId: dataset.id }} className={signalButtonClass}>
+                Back to the dataset
+              </Link>
+              <Link to="/explorer" search={{ dataset: dataset.id }} className={quietButtonClass}>
+                Explore the cleaned data
+              </Link>
+            </div>
           </div>
         </div>
-      )}
+      ) : null}
+
+      {phase === "profile" ? (
+        <div className="grid gap-6 lg:grid-cols-[7fr_5fr]">
+          <ProfilingBoard profile={profile} />
+          <div className="space-y-6">
+            <MediaFrame {...media.raw} ratio="4 / 3" />
+            <RecipePanel steps={recipe} />
+            <div className="flex flex-wrap gap-2">
+              <SignalButton
+                onClick={() => {
+                  setRecipe([
+                    {
+                      stepId: "profile-accept",
+                      chapterId: "profile",
+                      title: "See what is wrong",
+                      option: "Accepted the profile",
+                      status: "accepted",
+                    },
+                  ]);
+                  setPhase("work");
+                  setIndex(0);
+                }}
+              >
+                Continue to cleaning
+              </SignalButton>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {phase === "work" && chapter && selected ? (
+        <div className="grid gap-6 lg:grid-cols-[7fr_5fr]">
+          <div className="space-y-6">
+            <ChapterWorkbench
+              chapter={chapter}
+              methods={chapterMethods}
+              selected={selected}
+              depth={depth}
+              onSelect={choose}
+            />
+            <div className="flex flex-wrap gap-2">
+              <SignalButton disabled={isReadOnly(user)} onClick={() => append("accepted")}>
+                Accept this step
+              </SignalButton>
+              <QuietButton disabled={isReadOnly(user)} onClick={() => append("skipped")}>
+                Skip
+              </QuietButton>
+              <QuietButton onClick={undo}>Back</QuietButton>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <MediaFrame {...media.cleaned} ratio="4 / 3" />
+            <RecipePanel steps={recipe} />
+          </div>
+        </div>
+      ) : null}
+
+      <Drawer open={libraryOpen} title="Every cleaning method" onClose={() => setLibraryOpen(false)}>
+        <MethodLibrary chapters={studio.chapters} methods={studio.methods} onPick={choose} />
+      </Drawer>
     </MainLayout>
   );
 }

@@ -72,27 +72,35 @@ export const pageHelp: Record<string, HelpTopic[]> = {
   ],
   "/clean": [
     {
-      title: "One step at a time",
-      body: "Preview each cleaning step on a sample, then accept, adjust or skip it. Accepted steps become a versioned recipe you can rerun.",
+      title: "Profile first",
+      body: "Read emptiness, patterns, missingness (MCAR, MAR, MNAR), keys and orphans before you change a cell. The profile decides which methods are valid.",
+    },
+    {
+      title: "Everyday or expert",
+      body: "The everyday path offers one suggested method per problem, in plain language, with a before-and-after. Expert mode and All methods unlock imputation, linkage, isolation forests, constraint repair and the recorded transform.",
+    },
+    {
+      title: "The recipe is the artefact",
+      body: "Accepted steps are saved in order. You can undo, share or rerun the recipe. Bronze never changes.",
     },
   ],
 };
 
 export const cleaningWalkthrough: HelpTopic[] = [
   {
-    title: "Read the quality profile first",
-    body: "Missing values, mixed types, duplicates and outliers are shown before you touch anything.",
+    title: "Read the profile first",
+    body: "Emptiness, mixed types, duplicate keys, rare patterns and orphan IDs are shown before you touch anything. That measurement tells us why a blank is blank.",
   },
   {
-    title: "Preview on a sample",
-    body: "Each step runs on a sample inside the sandbox. You see before and after, then decide.",
+    title: "One family of problems at a time",
+    body: "Missing values, then repeats, then extremes, then formats, types, labels, shape, rules and privacy. Skip a family if it does not apply.",
   },
   {
-    title: "The recipe is the artefact",
-    body: "Accepted steps are saved in order. You can undo, reorder, share or rerun the recipe on a new version of the file.",
+    title: "Everyday first, expert when you need it",
+    body: "The suggested method is the safe default. Open Expert or All methods for MICE, linkage, Isolation Forest, fingerprints and constraint repair, with the recorded code.",
   },
   {
     title: "Bronze never changes",
-    body: "Cleaning writes a silver dataset. The raw upload stays immutable, so the work is always reversible.",
+    body: "Cleaning writes a silver dataset and a versioned recipe. The raw upload stays immutable, so the work is always reversible.",
   },
 ];
