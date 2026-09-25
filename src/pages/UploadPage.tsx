@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Upload } from "lucide-react";
-import { Chip, HelpTip, MediaFrame, Panel, QuietButton, SignalButton, signalButtonClass } from "@/components";
-import { media } from "@/config/media";
+import { Chip, HelpTip, Notice, Panel, QuietButton, signalButtonClass } from "@/components";
 import { MainLayout } from "@/layouts/MainLayout";
 
 const stages = [
@@ -34,7 +33,6 @@ export function UploadPage() {
     >
       <div className="grid gap-6 lg:grid-cols-[7fr_5fr]">
         <Panel>
-          <MediaFrame {...media.raw} ratio="16 / 9" className="mb-6" />
           <label className="flex cursor-pointer flex-col items-center justify-center border border-dashed border-line-strong px-6 py-16 text-center">
             <Upload className="size-8 text-muted-foreground" strokeWidth={1.5} />
             <p className="mt-4 font-medium">Drop a CSV here, or choose a file</p>
@@ -64,7 +62,11 @@ export function UploadPage() {
               </li>
             ))}
           </ol>
-          {fileName ? <p className="mt-4 text-sm text-muted-foreground">Source · {fileName}</p> : null}
+          {fileName ? (
+            <Notice tone="ok" title={fileName} className="mt-4">
+              Landed in the object-storage landing zone. Bronze stays immutable.
+            </Notice>
+          ) : null}
           {done ? (
             <Link to="/datasets/$datasetId/clean" params={{ datasetId: "learner-enrolments" }} className={`${signalButtonClass} mt-6 w-fit`}>
               Open the cleaning wizard

@@ -1,31 +1,21 @@
-import { layerMedia } from "@/config/media";
-
 const layers = [
-  { key: "bronze" as const, label: "Bronze", body: "Raw, immutable" },
-  { key: "silver" as const, label: "Silver", body: "Cleaned, masked" },
-  { key: "gold" as const, label: "Gold", body: "Ready to query" },
+  { key: "bronze" as const, label: "Bronze", body: "Raw, immutable", tone: "bg-[#8B6914]" },
+  { key: "silver" as const, label: "Silver", body: "Cleaned, masked", tone: "bg-[#8A8F93]" },
+  { key: "gold" as const, label: "Gold", body: "Ready to query", tone: "bg-[#C4A15A]" },
 ];
 
 export function LayerStrip({ current }: { current?: "bronze" | "silver" | "gold" }) {
+  const order = { bronze: 0, silver: 1, gold: 2 };
+
   return (
     <ol className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
       {layers.map((layer, index) => {
-        const image = layerMedia[layer.key];
-        const order = { bronze: 0, silver: 1, gold: 2 };
         const reached = current ? index <= order[current] : true;
         return (
-          <li key={layer.key} className="bg-surface-raised">
-            <div className="aspect-[16/10] overflow-hidden">
-              <img
-                src={image.src}
-                alt={image.alt}
-                className={`h-full w-full object-cover ${reached ? "" : "opacity-35"}`}
-              />
-            </div>
-            <div className="p-3">
-              <p className="text-xs text-muted-foreground">({layer.label.toLowerCase()})</p>
-              <p className="mt-0.5 text-sm font-medium">{layer.body}</p>
-            </div>
+          <li key={layer.key} className="bg-surface-raised p-4">
+            <span className={`block h-1.5 w-10 ${layer.tone} ${reached ? "" : "opacity-30"}`} aria-hidden />
+            <p className="mt-3 text-xs text-muted-foreground">({layer.label.toLowerCase()})</p>
+            <p className="mt-0.5 text-sm font-medium">{layer.body}</p>
           </li>
         );
       })}

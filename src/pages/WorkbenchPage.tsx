@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSearch } from "@tanstack/react-router";
-import { CodeBlock, HelpTip, MediaFrame, Panel, QuietButton, ResultTable, SignalButton, textareaClass } from "@/components";
-import { media } from "@/config/media";
+import { CodeBlock, HelpTip, Panel, QuietButton, ResultTable, SignalButton, TextArea } from "@/components";
 import { canWriteCode, isReadOnly, useCurrentUser } from "@/features/auth";
 import { runSql, starterSql, useNotebooks, type QueryResult } from "@/features/workbench";
 import { MainLayout } from "@/layouts/MainLayout";
@@ -42,8 +41,8 @@ export function WorkbenchPage() {
       {tab === "sql" ? (
         <div className="mt-6 grid gap-6 lg:grid-cols-[7fr_5fr]">
           <div>
-            <textarea
-              className={`${textareaClass} min-h-64`}
+            <TextArea
+              className="min-h-64"
               value={sql}
               onChange={(event) => setSql(event.target.value)}
               spellCheck={false}
@@ -73,9 +72,7 @@ export function WorkbenchPage() {
               </div>
             ) : null}
           </div>
-          <Panel className="overflow-hidden p-0">
-            <MediaFrame {...media.sandbox} ratio="4 / 3" />
-            <div className="p-6">
+          <Panel>
             <h2 className="heading-2">Sandbox rules</h2>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li>One ephemeral sandbox per session, with CPU, memory and time caps.</li>
@@ -88,7 +85,6 @@ export function WorkbenchPage() {
                 Generated code from the assistant lands here unchanged. An expert can add a join or change a grouping
                 without redoing the everyday member's work.
               </HelpTip>
-            </div>
             </div>
           </Panel>
         </div>

@@ -1,8 +1,8 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent, type ReactNode } from "react";
-import { CircleHelp, Globe, LogOut, Search, Settings, Shield, Sparkles, Users } from "lucide-react";
-import { Drawer } from "@/components";
+import { useState, type ReactNode } from "react";
+import { CircleHelp, Globe, LogOut, Settings, Shield, Sparkles, Users } from "lucide-react";
+import { Drawer, ScrollPane, SearchField } from "@/components";
 import { mainNav } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { clearSession, useCurrentUser } from "@/features/auth";
@@ -31,11 +31,6 @@ export function MainLayout({
   const [helpOpen, setHelpOpen] = useState(false);
   const helpKey = pathname.includes("/clean") ? "/clean" : pathname;
   const help = pageHelp[helpKey] ?? pageHelp["/workspace"];
-
-  function onSearch(event: FormEvent) {
-    event.preventDefault();
-    void navigate({ to: "/search", search: { q: query } });
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -123,19 +118,14 @@ export function MainLayout({
                 <span className="h-2.5 w-2.5 rounded-full bg-signal" aria-hidden />
                 <span className="font-display text-lg">{siteConfig.name}</span>
               </Link>
-              <form onSubmit={onSearch} className="relative hidden flex-1 items-center md:flex">
-                <Search className="absolute left-4 size-4 text-muted-foreground" strokeWidth={1.5} />
-                <label className="sr-only" htmlFor="catalogue-search">
-                  Search the catalogue
-                </label>
-                <input
-                  id="catalogue-search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search datasets, metrics and dashboards"
-                  className="w-full max-w-md rounded-[999px] border border-border bg-surface-raised py-2 pr-4 pl-10 text-sm placeholder:text-muted-foreground"
-                />
-              </form>
+              <SearchField
+                id="catalogue-search"
+                className="hidden flex-1 md:block"
+                value={query}
+                onChange={setQuery}
+                placeholder="Search datasets, metrics and dashboards"
+                onSubmit={() => void navigate({ to: "/search", search: { q: query } })}
+              />
               <button
                 type="button"
                 onClick={() => setHelpOpen(true)}
@@ -146,20 +136,22 @@ export function MainLayout({
               </button>
               <span className="hidden text-xs text-muted-foreground sm:inline">{currentUser.workspace}</span>
             </div>
-            <nav className="flex gap-1 overflow-x-auto px-4 pb-2 lg:hidden">
-              {mainNav.map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  activeOptions={{ exact: item.to === "/workspace" }}
-                  activeProps={{ className: "bg-surface-inverse text-background" }}
-                  inactiveProps={{ className: "text-muted-foreground" }}
-                  className="shrink-0 rounded-[999px] px-3 py-1.5 text-xs"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <ScrollPane className="lg:hidden" orientation="horizontal">
+              <nav className="flex gap-1 px-4 pb-2">
+                {mainNav.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    activeOptions={{ exact: item.to === "/workspace" }}
+                    activeProps={{ className: "bg-surface-inverse text-background" }}
+                    inactiveProps={{ className: "text-muted-foreground" }}
+                    className="shrink-0 rounded-[999px] px-3 py-1.5 text-xs"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </ScrollPane>
           </header>
 
           <main className="px-6 py-10">

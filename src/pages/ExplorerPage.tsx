@@ -1,8 +1,20 @@
 import { useMemo, useState } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { CodeBlock, HelpTip, MediaFrame, MiniChart, Panel, QuietButton, quietButtonClass, ResultTable, SignalButton } from "@/components";
-import { media } from "@/config/media";
+import {
+  CodeBlock,
+  DatePicker,
+  HelpTip,
+  MiniChart,
+  Notice,
+  Panel,
+  QuietButton,
+  quietButtonClass,
+  ResultTable,
+  SelectMenu,
+  SignalButton,
+  TextInput,
+} from "@/components";
 import { useDatasets } from "@/features/datasets";
 import { buildExploreResult, defaultExploreDefinition, type ChartType } from "@/features/explorer";
 import { MainLayout } from "@/layouts/MainLayout";
@@ -16,6 +28,7 @@ export function ExplorerPage() {
   const [definition, setDefinition] = useState(() =>
     defaultExploreDefinition(initial?.id ?? "regional-revenue", initial?.name ?? "Regional revenue"),
   );
+  const [fromDate, setFromDate] = useState<Date | undefined>();
 
   const result = useMemo(() => buildExploreResult(definition), [definition]);
 
@@ -39,77 +52,65 @@ export function ExplorerPage() {
         </>
       }
     >
-      <MediaFrame {...media.plot} ratio="16 / 7" className="mb-8" />
-      <div className="grid gap-6 lg:grid-cols-[5fr_7fr]">
+      <Notice tone="info" title="Pending datasets stay out of this list">
+        A Steward must approve a file before it can be explored.
+      </Notice>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[5fr_7fr]">
         <Panel>
           <h2 className="heading-2">Build a view</h2>
-          <div className="mt-5 space-y-4 text-sm">
-            <label className="block">
-              <span className="font-medium">Dataset</span>
-              <select
-                className="mt-1.5 w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5"
-                value={definition.datasetId}
-                onChange={(event) => {
-                  const next = datasets.find((item) => item.id === event.target.value);
-                  setDefinition((current) => ({
-                    ...current,
-                    datasetId: event.target.value,
-                    datasetName: next?.name ?? current.datasetName,
-                  }));
-                }}
-              >
-                {approved.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="font-medium">Group by</span>
-              <select
-                className="mt-1.5 w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5"
-                value={definition.xField}
-                onChange={(event) => setDefinition((current) => ({ ...current, xField: event.target.value }))}
-              >
-                <option value="region">region</option>
-                <option value="course">course</option>
-                <option value="month">month</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="font-medium">Measure</span>
-              <select
-                className="mt-1.5 w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5"
-                value={definition.yField}
-                onChange={(event) => setDefinition((current) => ({ ...current, yField: event.target.value }))}
-              >
-                <option value="enrolments">enrolments</option>
-                <option value="completions">completions</option>
-                <option value="revenue">revenue</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="font-medium">Aggregation</span>
-              <select
-                className="mt-1.5 w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5"
-                value={definition.aggregation}
-                onChange={(event) =>
-                  setDefinition((current) => ({
-                    ...current,
-                    aggregation: event.target.value as typeof current.aggregation,
-                  }))
-                }
-              >
-                <option value="sum">Sum</option>
-                <option value="avg">Average</option>
-                <option value="count">Count</option>
-              </select>
-            </label>
-            <label className="block">
+          <div className="mt-5 space-y-4">
+            <SelectMenu
+              label="Dataset"
+              value={definition.datasetId}
+              onValueChange={(value) => {
+                const next = datasets.find((item) => item.id === value);
+                setDefinition((current) => ({
+                  ...current,
+                  datasetId: value,
+                  datasetName: next?.name ?? current.datasetName,
+                }));
+              }}
+              options={approved.map((item) => ({ value: item.id, label: item.name }))}
+            />
+            <SelectMenu
+              label="Group by"
+              value={definition.xField}
+              onValueChange={(value) => setDefinition((current) => ({ ...current, xField: value }))}
+              options={[
+                { value: "region", label: "region" },
+                { value: "course", label: "course" },
+                { value: "month", label: "month" },
+              ]}
+            />
+            <SelectMenu
+              label="Measure"
+              value={definition.yField}
+              onValueChange={(value) => setDefinition((current) => ({ ...current, yField: value }))}
+              options={[
+                { value: "enrolments", label: "enrolments" },
+                { value: "completions", label: "completions" },
+                { value: "revenue", label: "revenue" },
+              ]}
+            />
+            <SelectMenu
+              label="Aggregation"
+              value={definition.aggregation}
+              onValueChange={(value) =>
+                setDefinition((current) => ({
+                  ...current,
+                  aggregation: value as typeof current.aggregation,
+                }))
+              }
+              options={[
+                { value: "sum", label: "Sum" },
+                { value: "avg", label: "Average" },
+                { value: "count", label: "Count" },
+              ]}
+            />
+            <label className="block text-sm">
               <span className="font-medium">Filter region</span>
-              <input
-                className="mt-1.5 w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5"
+              <TextInput
+                className="mt-1.5"
                 value={definition.filterValue}
                 placeholder="Leave blank for all"
                 onChange={(event) =>
@@ -121,8 +122,9 @@ export function ExplorerPage() {
                 }
               />
             </label>
+            <DatePicker label="From date" value={fromDate} onChange={setFromDate} />
             <div>
-              <p className="font-medium">Chart</p>
+              <p className="text-sm font-medium">Chart</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {(["bar", "line", "table"] as ChartType[]).map((type) => (
                   <QuietButton

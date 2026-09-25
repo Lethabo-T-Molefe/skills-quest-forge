@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Link, notFound, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { BarChart3, Share2, Sparkles, Wand2 } from "lucide-react";
-import { Drawer, MediaFrame, QuietButton, quietButtonClass, signalButtonClass } from "@/components";
-import { layerMedia } from "@/config/media";
+import { Drawer, QuietButton, quietButtonClass, signalButtonClass } from "@/components";
 import { canApprove, canClean, useCurrentUser } from "@/features/auth";
 import {
   DatasetInsightsPanel,
@@ -50,7 +49,6 @@ export function DatasetDetailPage() {
         </>
       }
     >
-      <MediaFrame {...layerMedia[dataset.layer]} ratio="16 / 7" className="mb-8" />
       <DatasetTags dataset={dataset} />
 
       {dataset.status === "pending" && canApprove(user) ? (

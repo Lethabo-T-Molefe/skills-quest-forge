@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Field, inputClass, SignalButton } from "@/components";
+import { Field, SignalButton, TextInput } from "@/components";
 import { demoUser, initialsFromName, setSession } from "@/features/auth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 
@@ -35,8 +35,8 @@ export function MfaPage() {
         }}
       >
         <Field label="Authenticator code" error={error} hint="Use 123456 in this prototype.">
-          <input
-            className={`${inputClass} num tracking-[0.4em]`}
+          <TextInput
+            className="num tracking-[0.4em]"
             inputMode="numeric"
             maxLength={6}
             value={code}

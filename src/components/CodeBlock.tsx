@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { ScrollPane } from "./ScrollPane";
 
 export function CodeBlock({ code, label = "Generated SQL" }: { code: string; label?: string }) {
   const [copied, setCopied] = useState(false);
@@ -23,7 +24,9 @@ export function CodeBlock({ code, label = "Generated SQL" }: { code: string; lab
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed">{code}</pre>
+      <ScrollPane orientation="horizontal">
+        <pre className="p-4 font-mono text-[13px] leading-relaxed">{code}</pre>
+      </ScrollPane>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { Link, notFound, useParams } from "@tanstack/react-router";
-import { Chip, HelpTip, MediaFrame, Panel, quietButtonClass } from "@/components";
-import { media } from "@/config/media";
+import { Chip, HelpTip, Notice, Panel, quietButtonClass } from "@/components";
 import { useAlert } from "@/features/monitors";
 import { MainLayout } from "@/layouts/MainLayout";
 
@@ -20,8 +19,10 @@ export function AlertDetailPage() {
         </Link>
       }
     >
-      <MediaFrame {...media.waiting} ratio="16 / 7" className="mb-8" />
-      <div className="flex flex-wrap gap-2">
+      <Notice tone={alert.severity === "high" ? "signal" : "warn"} title={alert.metric}>
+        {alert.message}
+      </Notice>
+      <div className="mt-6 flex flex-wrap gap-2">
         <Chip tone={alert.severity === "high" ? "signal" : "ok"}>{alert.severity}</Chip>
         <Chip>{alert.when}</Chip>
       </div>

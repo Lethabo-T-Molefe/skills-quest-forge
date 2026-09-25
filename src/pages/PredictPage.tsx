@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Chip, HelpTip, MediaFrame, Panel, QuietButton, SignalButton } from "@/components";
-import { media } from "@/config/media";
+import { Chip, HelpTip, Panel, QuietButton, SelectMenu, SignalButton } from "@/components";
 import { usePrediction } from "@/features/monitors";
 import { MainLayout } from "@/layouts/MainLayout";
 
 export function PredictPage() {
   const prediction = usePrediction();
   const [outcome, setOutcome] = useState(prediction.outcome);
+  const [subject, setSubject] = useState("Learner cohort · March intake");
   const [ran, setRan] = useState(true);
 
   return (
@@ -17,30 +17,30 @@ export function PredictPage() {
       intro="Select an outcome. The system produces a score in a fixed range, a ranked factor breakdown, and a plain-language reading of the top factors. You do not need to understand machine learning."
     >
       <div className="grid gap-6 lg:grid-cols-[5fr_7fr]">
-        <Panel className="overflow-hidden p-0">
-          <MediaFrame {...media.plot} ratio="16 / 10" />
-          <div className="p-6">
+        <Panel>
           <h2 className="heading-2">What should we predict?</h2>
-          <label className="mt-4 block text-sm">
-            <span className="font-medium">Outcome</span>
-            <select
-              className="mt-1.5 w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5"
+          <div className="mt-4 space-y-4">
+            <SelectMenu
+              label="Outcome"
               value={outcome}
-              onChange={(event) => setOutcome(event.target.value)}
-            >
-              <option>Likelihood to complete within 60 days</option>
-              <option>Likelihood to enrol in a second course</option>
-              <option>Likelihood of a late payment</option>
-            </select>
-          </label>
-          <label className="mt-4 block text-sm">
-            <span className="font-medium">Subject</span>
-            <select className="mt-1.5 w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5">
-              <option>Learner cohort · March intake</option>
-              <option>Learner cohort · February intake</option>
-              <option>Course · SQL basics</option>
-            </select>
-          </label>
+              onValueChange={setOutcome}
+              options={[
+                { value: "Likelihood to complete within 60 days", label: "Likelihood to complete within 60 days" },
+                { value: "Likelihood to enrol in a second course", label: "Likelihood to enrol in a second course" },
+                { value: "Likelihood of a late payment", label: "Likelihood of a late payment" },
+              ]}
+            />
+            <SelectMenu
+              label="Subject"
+              value={subject}
+              onValueChange={setSubject}
+              options={[
+                { value: "Learner cohort · March intake", label: "Learner cohort · March intake" },
+                { value: "Learner cohort · February intake", label: "Learner cohort · February intake" },
+                { value: "Course · SQL basics", label: "Course · SQL basics" },
+              ]}
+            />
+          </div>
           <SignalButton className="mt-5" onClick={() => setRan(true)}>
             Score this cohort
           </SignalButton>
@@ -49,7 +49,6 @@ export function PredictPage() {
               The first release uses documented, deterministic heuristics. A trained model can later replace a heuristic
               behind the same contract, without changing anything you see.
             </HelpTip>
-          </div>
           </div>
         </Panel>
 

@@ -1,4 +1,4 @@
-import { Chip, HelpTip, Panel } from "@/components";
+import { Chip, HelpTip, Panel, ScrollPane } from "@/components";
 import { formatNumber } from "@/lib/format";
 import type { CleaningProfile } from "../types";
 
@@ -29,7 +29,7 @@ export function ProfilingBoard({ profile }: { profile: CleaningProfile }) {
           Type, emptiness, distinct count, and the centre of numeric columns. Measured on{" "}
           <span className="num">{formatNumber(profile.rows)}</span> rows.
         </p>
-        <div className="mt-4 overflow-x-auto">
+        <ScrollPane className="mt-4" orientation="horizontal">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line-strong text-left text-xs text-muted-foreground">
@@ -66,7 +66,7 @@ export function ProfilingBoard({ profile }: { profile: CleaningProfile }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollPane>
       </Panel>
 
       <Panel>

@@ -28,8 +28,4 @@ export function Field({
   );
 }
 
-export const inputClass =
-  "w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5 text-sm placeholder:text-muted-foreground disabled:opacity-50";
-
-export const textareaClass =
-  "w-full rounded-none border border-line-strong bg-surface-raised px-4 py-3 font-mono text-sm placeholder:text-muted-foreground disabled:opacity-50";
+export { inputClass, textareaClass, TextArea, TextInput } from "./TextInput";

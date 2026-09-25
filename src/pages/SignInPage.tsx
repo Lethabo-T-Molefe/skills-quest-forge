@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Field, inputClass, QuietButton, SignalButton } from "@/components";
+import { Field, QuietButton, SignalButton, TextInput } from "@/components";
 import { demoUser, signInDemo } from "@/features/auth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 
@@ -25,8 +25,7 @@ export function SignInPage() {
         }}
       >
         <Field label="Work email" error={error}>
-          <input
-            className={inputClass}
+          <TextInput
             type="email"
             autoComplete="email"
             value={email}
@@ -37,8 +36,7 @@ export function SignInPage() {
           />
         </Field>
         <Field label="Password">
-          <input
-            className={inputClass}
+          <TextInput
             type="password"
             autoComplete="current-password"
             value={password}

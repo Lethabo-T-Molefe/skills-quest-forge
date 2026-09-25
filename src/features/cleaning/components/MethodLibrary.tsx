@@ -1,4 +1,5 @@
-import { Chip, CodeBlock, HelpTip } from "@/components";
+import { useMemo, useState } from "react";
+import { Chip, CodeBlock, HelpTip, SearchField } from "@/components";
 import { methodFamilies } from "../data/catalogue";
 import type { CleaningChapter, CleaningMethod } from "../types";
 
@@ -11,8 +12,23 @@ export function MethodLibrary({
   methods: CleaningMethod[];
   onPick: (methodId: string) => void;
 }) {
+  const [query, setQuery] = useState("");
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return methods;
+    return methods.filter((item) =>
+      `${item.name} ${item.plain} ${item.audience}`.toLowerCase().includes(needle),
+    );
+  }, [methods, query]);
+
   return (
     <div className="space-y-8">
+      <SearchField
+        className="max-w-none"
+        value={query}
+        onChange={setQuery}
+        placeholder="Search methods"
+      />
       <p className="text-sm text-muted-foreground">
         Every family from profiling through governance. Pick a method to add it to the recipe at the matching chapter.
         Everyday methods are marked. Expert methods stay available so a practitioner does not leave the wizard.
@@ -46,7 +62,8 @@ export function MethodLibrary({
       {chapters
         .filter((chapter) => chapter.kind === "transform")
         .map((chapter) => {
-          const items = methods.filter((item) => item.chapterId === chapter.id);
+          const items = filtered.filter((item) => item.chapterId === chapter.id);
+          if (items.length === 0) return null;
           return (
             <section key={chapter.id}>
               <p className="label-paren">({chapter.number})</p>

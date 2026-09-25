@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Chip, Drawer, Field, inputClass, MediaFrame, Panel, QuietButton, SignalButton, textareaClass } from "@/components";
-import { media } from "@/config/media";
+import { Chip, Drawer, Field, Panel, QuietButton, ScrollPane, SignalButton, TextArea, TextInput } from "@/components";
 import { canDefineMetrics, useCurrentUser } from "@/features/auth";
 import { useMetricDefinitions } from "@/features/metrics";
 import { MainLayout } from "@/layouts/MainLayout";
@@ -24,7 +23,6 @@ export function SemanticPage() {
         )
       }
     >
-      <MediaFrame {...media.hands} ratio="16 / 7" className="mb-8" />
       <div className="space-y-3">
         {metrics.map((metric) => (
           <Panel key={metric.id}>
@@ -36,9 +34,9 @@ export function SemanticPage() {
               <Chip tone={metric.status === "published" ? "ok" : "warn"}>{metric.status}</Chip>
             </div>
             <p className="mt-3 max-w-[68ch] text-sm text-muted-foreground">{metric.description}</p>
-            <pre className="mt-4 overflow-x-auto bg-surface-inverse p-4 font-mono text-[13px] text-background">
-              {metric.expression}
-            </pre>
+            <ScrollPane className="mt-4 bg-surface-inverse" orientation="horizontal">
+              <pre className="p-4 font-mono text-[13px] text-background">{metric.expression}</pre>
+            </ScrollPane>
             <div className="mt-4 flex flex-wrap gap-2">
               <Chip>Owner · {metric.owner}</Chip>
               <Chip>Used by {metric.usedBy} answers</Chip>
@@ -57,13 +55,13 @@ export function SemanticPage() {
           }}
         >
           <Field label="Name">
-            <input className={inputClass} placeholder="Active facilitators" />
+            <TextInput placeholder="Active facilitators" />
           </Field>
           <Field label="Plain-language definition">
-            <textarea className={textareaClass} rows={3} placeholder="A facilitator with a session in the last 14 days" />
+            <TextArea rows={3} placeholder="A facilitator with a session in the last 14 days" />
           </Field>
           <Field label="Expression">
-            <textarea className={textareaClass} rows={3} placeholder="COUNT(DISTINCT facilitator_id) WHERE ..." />
+            <TextArea rows={3} placeholder="COUNT(DISTINCT facilitator_id) WHERE ..." />
           </Field>
           <SignalButton type="submit">Save as draft</SignalButton>
         </form>

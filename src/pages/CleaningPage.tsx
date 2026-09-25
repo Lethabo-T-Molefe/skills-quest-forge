@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, notFound, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Chip, Drawer, MediaFrame, QuietButton, quietButtonClass, SignalButton, signalButtonClass } from "@/components";
-import { media } from "@/config/media";
+import { Chip, Drawer, QuietButton, quietButtonClass, SignalButton, signalButtonClass } from "@/components";
 import {
   ChapterWorkbench,
   MethodLibrary,
@@ -138,9 +137,7 @@ export function CleaningPage() {
       </ol>
 
       {phase === "done" ? (
-        <div className="panel overflow-hidden p-0">
-          <MediaFrame {...media.cleaned} ratio="16 / 8" />
-          <div className="p-6">
+        <div className="panel p-6">
             <p className="label-paren">(recipe v1 saved)</p>
             <h2 className="heading-2 mt-1">Silver dataset is ready</h2>
             <p className="mt-3 max-w-[68ch] text-sm text-muted-foreground">
@@ -165,7 +162,6 @@ export function CleaningPage() {
                 Explore the cleaned data
               </Link>
             </div>
-          </div>
         </div>
       ) : null}
 
@@ -173,7 +169,6 @@ export function CleaningPage() {
         <div className="grid gap-6 lg:grid-cols-[7fr_5fr]">
           <ProfilingBoard profile={profile} />
           <div className="space-y-6">
-            <MediaFrame {...media.raw} ratio="4 / 3" />
             <RecipePanel steps={recipe} />
             <div className="flex flex-wrap gap-2">
               <SignalButton
@@ -219,7 +214,6 @@ export function CleaningPage() {
             </div>
           </div>
           <div className="space-y-6">
-            <MediaFrame {...media.cleaned} ratio="4 / 3" />
             <RecipePanel steps={recipe} />
           </div>
         </div>

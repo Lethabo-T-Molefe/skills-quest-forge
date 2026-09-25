@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Field, inputClass, SignalButton } from "@/components";
+import { Field, SignalButton, TextInput } from "@/components";
 import { AuthLayout } from "@/layouts/AuthLayout";
 
 export function RegisterPage() {
@@ -26,11 +26,10 @@ export function RegisterPage() {
         }}
       >
         <Field label="Full name" error={error}>
-          <input className={inputClass} value={name} onChange={(event) => setName(event.target.value)} />
+          <TextInput value={name} onChange={(event) => setName(event.target.value)} />
         </Field>
         <Field label="Work email">
-          <input
-            className={inputClass}
+          <TextInput
             type="email"
             autoComplete="email"
             value={email}
@@ -38,8 +37,7 @@ export function RegisterPage() {
           />
         </Field>
         <Field label="Password" hint="At least 8 characters. Hashed with a modern adaptive algorithm in production.">
-          <input
-            className={inputClass}
+          <TextInput
             type="password"
             autoComplete="new-password"
             value={password}

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
-import { CodeBlock, HelpTip, MediaFrame, Panel, quietButtonClass, ResultTable, SignalButton, signalButtonClass } from "@/components";
-import { media } from "@/config/media";
+import { CodeBlock, HelpTip, Panel, quietButtonClass, ResultTable, SearchField, SignalButton, signalButtonClass } from "@/components";
 import { askAssistant, type AssistantTurn } from "@/features/assistant";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { assistantExamplesQuery } from "@/features/assistant";
@@ -33,9 +32,7 @@ export function AssistantPage() {
       <div className="grid gap-6 lg:grid-cols-[7fr_5fr]">
         <div className="space-y-4">
           {turns.length === 0 && !busy ? (
-            <Panel className="overflow-hidden p-0">
-              <MediaFrame {...media.hero} ratio="16 / 9" />
-              <div className="p-6">
+            <Panel>
               <p className="label-paren">(try one of these)</p>
               <h2 className="heading-2 mt-1">The assistant only answers what it can ground</h2>
               <ul className="mt-4 space-y-3">
@@ -51,7 +48,6 @@ export function AssistantPage() {
                   </li>
                 ))}
               </ul>
-              </div>
             </Panel>
           ) : null}
 
@@ -92,28 +88,20 @@ export function AssistantPage() {
             </Panel>
           ) : null}
 
-          <form
-            className="flex flex-col gap-3 sm:flex-row"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void submit(question);
-            }}
-          >
-            <label className="sr-only" htmlFor="assistant-q">
-              Ask a question
-            </label>
-            <input
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchField
               id="assistant-q"
+              className="max-w-none flex-1"
               value={question}
-              onChange={(event) => setQuestion(event.target.value)}
+              onChange={setQuestion}
               placeholder="Ask about a defined metric or a dataset you can see"
-              className="min-w-0 flex-1 rounded-[999px] border border-line-strong bg-surface-raised px-4 py-3 text-sm"
+              onSubmit={() => void submit(question)}
             />
-            <SignalButton type="submit" disabled={busy}>
+            <SignalButton disabled={busy} onClick={() => void submit(question)}>
               <Sparkles className="size-4" strokeWidth={1.75} />
               Ask
             </SignalButton>
-          </form>
+          </div>
         </div>
 
         <div className="space-y-6">

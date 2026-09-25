@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
-import { Chip, HelpTip, MediaFrame, QuietButton } from "@/components";
-import { media } from "@/config/media";
+import { toast } from "sonner";
+import { Chip, ConfirmDialog, DatePicker, HelpTip, QuietButton, ScrollPane, SearchField } from "@/components";
 import { useAuditEvents } from "@/features/audit";
 import { MainLayout } from "@/layouts/MainLayout";
 
 export function AuditPage() {
   const events = useAuditEvents();
   const [query, setQuery] = useState("");
+  const [fromDate, setFromDate] = useState<Date | undefined>();
+  const [exportOpen, setExportOpen] = useState(false);
   const shown = useMemo(
     () =>
       events.filter((event) =>
@@ -21,25 +23,19 @@ export function AuditPage() {
       title="Audit trail"
       intro="Every security-relevant and data-relevant action is written here, tagged with the member and the resource. No role can alter an existing entry."
     >
-      <MediaFrame {...media.audit} ratio="16 / 7" className="mb-8" />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <input
+      <div className="flex flex-wrap items-end gap-3">
+        <SearchField
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={setQuery}
           placeholder="Filter by person, action or resource"
-          className="w-full max-w-md rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5 text-sm"
         />
-        <QuietButton
-          onClick={() => {
-            window.alert("Export is recorded as its own audit event. The log itself cannot be edited.");
-          }}
-        >
-          Export for an auditor
-        </QuietButton>
+        <div className="w-full max-w-xs">
+          <DatePicker label="From" value={fromDate} onChange={setFromDate} />
+        </div>
+        <QuietButton onClick={() => setExportOpen(true)}>Export for an auditor</QuietButton>
       </div>
 
-      <div className="mt-6 overflow-x-auto border border-border">
+      <ScrollPane className="mt-6 h-[28rem] border border-border" orientation="both">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line-strong bg-surface-alt text-left text-xs text-muted-foreground">
@@ -64,13 +60,23 @@ export function AuditPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollPane>
       <div className="mt-6">
         <HelpTip>
           Sign-in, upload, profiling, cleaning, queries, AI actions, predictions, exports, sharing and role changes are
           all recorded. An auditor can reconstruct how any figure was produced.
         </HelpTip>
       </div>
+
+      <ConfirmDialog
+        open={exportOpen}
+        title="Export the audit trail"
+        confirmLabel="Export"
+        onConfirm={() => toast.success("Audit export recorded as its own event.")}
+        onClose={() => setExportOpen(false)}
+      >
+        Export is recorded as its own audit event. The log itself cannot be edited.
+      </ConfirmDialog>
     </MainLayout>
   );
 }

@@ -1,6 +1,5 @@
 import { toast } from "sonner";
-import { Chip, HelpTip, MediaFrame, Panel, QuietButton, SignalButton } from "@/components";
-import { media } from "@/config/media";
+import { Chip, HelpTip, Notice, Panel, QuietButton, SignalButton } from "@/components";
 import { canApprove, useCurrentUser } from "@/features/auth";
 import { classificationLabel, useDatasets } from "@/features/datasets";
 import { MainLayout } from "@/layouts/MainLayout";
@@ -16,7 +15,12 @@ export function GovernancePage() {
       title="Approvals and classification"
       intro="A dataset moves through pending, approved or rejected. Until a Steward approves it, it is not queryable in the cleaned or analytics layers. The decision, the deciding member and the reason are recorded."
     >
-      <MediaFrame {...media.masked} ratio="16 / 7" className="mb-8" />
+      {pending.length > 0 ? (
+        <Notice tone="warn" title={`${pending.length} dataset${pending.length === 1 ? "" : "s"} waiting`}>
+          Until a Steward approves a file, it stays out of explorer, the assistant and gold dashboards.
+        </Notice>
+      ) : null}
+      <div className={pending.length > 0 ? "mt-6" : ""}>
       {pending.length === 0 ? (
         <Panel>
           <p className="text-sm">Nothing is waiting for a decision.</p>
@@ -56,6 +60,7 @@ export function GovernancePage() {
           ))}
         </div>
       )}
+      </div>
       <div className="mt-6">
         <HelpTip>
           Classification is mandatory and drives how the data may be used. Restricted-personal columns stay masked

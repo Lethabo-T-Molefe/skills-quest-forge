@@ -1,4 +1,5 @@
 import { formatNumber } from "@/lib/format";
+import { ScrollPane } from "./ScrollPane";
 
 export function ResultTable({
   columns,
@@ -8,7 +9,7 @@ export function ResultTable({
   rows: (string | number)[][];
 }) {
   return (
-    <div className="overflow-x-auto border border-border">
+    <ScrollPane className="border border-border" orientation="horizontal">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-line-strong bg-surface-alt text-left text-xs text-muted-foreground">
@@ -31,6 +32,6 @@ export function ResultTable({
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollPane>
   );
 }

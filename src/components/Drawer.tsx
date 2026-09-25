@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
+import { ScrollPane } from "./ScrollPane";
 
 export function Drawer({
   open,
@@ -25,7 +26,9 @@ export function Drawer({
             <span className="sr-only">Close</span>
           </button>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">{children}</div>
+        <ScrollPane className="min-h-0 flex-1 px-6 py-5" orientation="vertical">
+          {children}
+        </ScrollPane>
       </aside>
     </div>
   );

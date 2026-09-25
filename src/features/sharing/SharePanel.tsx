@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { QuietButton, SignalButton } from "@/components";
+import { QuietButton, SearchField, SignalButton } from "@/components";
 
 export function SharePanel({
   resourceName,
@@ -25,11 +25,11 @@ export function SharePanel({
         ))}
       </div>
       {visibility === "Team" ? (
-        <input
+        <SearchField
+          className="max-w-none"
           value={people}
-          onChange={(event) => setPeople(event.target.value)}
+          onChange={setPeople}
           placeholder="Add members by name or email"
-          className="w-full rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5 text-sm"
         />
       ) : null}
       <SignalButton

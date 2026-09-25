@@ -1,10 +1,13 @@
-import { Link, useSearch } from "@tanstack/react-router";
-import { Chip, EmptyState } from "@/components";
+import { useState } from "react";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { Chip, EmptyState, SearchField } from "@/components";
 import { searchCatalogue } from "@/features/search";
 import { MainLayout } from "@/layouts/MainLayout";
 
 export function SearchPage() {
   const { q } = useSearch({ from: "/search" });
+  const navigate = useNavigate();
+  const [query, setQuery] = useState(q ?? "");
   const hits = searchCatalogue(q);
 
   return (
@@ -13,6 +16,13 @@ export function SearchPage() {
       title={q ? `Results for “${q}”` : "Search"}
       intro="The catalogue is a searchable inventory of tables, columns, definitions and lineage, indexed so the assistant can find the right objects."
     >
+      <SearchField
+        className="mb-6 max-w-xl"
+        value={query}
+        onChange={setQuery}
+        placeholder="Search datasets, metrics and dashboards"
+        onSubmit={() => void navigate({ to: "/search", search: { q: query } })}
+      />
       {hits.length === 0 ? (
         <EmptyState
           title={q ? "Nothing matched" : "Search the catalogue"}

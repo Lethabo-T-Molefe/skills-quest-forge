@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Field, inputClass, SignalButton } from "@/components";
+import { Field, SignalButton, TextInput } from "@/components";
 import { AuthLayout } from "@/layouts/AuthLayout";
 
 export function VerifyPage() {
@@ -26,8 +26,8 @@ export function VerifyPage() {
         }}
       >
         <Field label="Verification code" error={error} hint="Any six digits works in this prototype.">
-          <input
-            className={`${inputClass} num tracking-[0.4em]`}
+          <TextInput
+            className="num tracking-[0.4em]"
             inputMode="numeric"
             maxLength={6}
             value={code}

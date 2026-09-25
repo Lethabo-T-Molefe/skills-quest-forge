@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { Field, inputClass, MediaFrame, SignalButton, textareaClass } from "@/components";
+import { Field, MediaFrame, SignalButton, TextArea, TextInput } from "@/components";
 import { media } from "@/config/media";
 import { PublicLayout } from "@/layouts/PublicLayout";
 
@@ -57,30 +57,16 @@ export function ContactPage() {
 
           <form className="space-y-4 lg:col-span-6 lg:col-start-7" onSubmit={onSubmit}>
             <Field label="Your name">
-              <input className={inputClass} value={name} onChange={(event) => setName(event.target.value)} />
+              <TextInput value={name} onChange={(event) => setName(event.target.value)} />
             </Field>
             <Field label="Work email">
-              <input
-                className={inputClass}
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
+              <TextInput type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
             </Field>
             <Field label="Organisation">
-              <input
-                className={inputClass}
-                value={organisation}
-                onChange={(event) => setOrganisation(event.target.value)}
-              />
+              <TextInput value={organisation} onChange={(event) => setOrganisation(event.target.value)} />
             </Field>
             <Field label="Message">
-              <textarea
-                className={textareaClass}
-                rows={5}
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-              />
+              <TextArea rows={5} value={message} onChange={(event) => setMessage(event.target.value)} />
             </Field>
             <SignalButton type="submit">Send the message</SignalButton>
           </form>

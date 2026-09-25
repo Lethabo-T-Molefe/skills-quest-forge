@@ -1,10 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Chip, EmptyState, MediaFrame, Panel } from "@/components";
-import { media } from "@/config/media";
+import { Chip, EmptyState, Panel } from "@/components";
 import { useDashboards } from "@/features/dashboards";
 import { MainLayout } from "@/layouts/MainLayout";
-
-const dashboardCovers = [media.plot, media.cleaned, media.hero, media.hands] as const;
 
 export function DashboardsPage() {
   const dashboards = useDashboards();
@@ -22,17 +19,13 @@ export function DashboardsPage() {
         />
       ) : (
         <div className="grid gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
-          {dashboards.map((board, index) => {
-            const cover = dashboardCovers[index % dashboardCovers.length] ?? media.plates;
-            return (
+          {dashboards.map((board) => (
               <Link
                 key={board.id}
                 to="/dashboards/$dashboardId"
                 params={{ dashboardId: board.id }}
-                className="group bg-surface-raised hover:bg-surface-alt"
+                className="bg-surface-raised p-6 hover:bg-surface-alt"
               >
-                <MediaFrame {...cover} ratio="16 / 9" />
-                <div className="p-6">
                   <p className="label-paren">({board.visibility.toLowerCase()})</p>
                   <h2 className="heading-2 mt-1">{board.name}</h2>
                   <p className="mt-3 max-w-[60ch] text-sm text-muted-foreground">{board.description}</p>
@@ -41,10 +34,8 @@ export function DashboardsPage() {
                     <Chip>Owner · {board.owner}</Chip>
                     <Chip>{board.updated}</Chip>
                   </div>
-                </div>
               </Link>
-            );
-          })}
+          ))}
         </div>
       )}
       <Panel className="mt-6">

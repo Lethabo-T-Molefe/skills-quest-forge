@@ -1,6 +1,5 @@
 import { toast } from "sonner";
-import { Chip, HelpTip, MediaFrame, Panel, QuietButton } from "@/components";
-import { media } from "@/config/media";
+import { Chip, HelpTip, Panel, QuietButton, ScrollPane } from "@/components";
 import { canAdmin, useCurrentUser, useOrgMembers } from "@/features/auth";
 import { MainLayout } from "@/layouts/MainLayout";
 
@@ -14,7 +13,6 @@ export function AdminPage() {
       title="Users, roles and quotas"
       intro="A role bundles the permissions that decide what a member can see and do, and the quotas that decide how much compute, storage and AI usage they may consume."
     >
-      <MediaFrame {...media.hands} ratio="16 / 7" className="mb-8" />
       {!canAdmin(user) ? (
         <Panel>
           <p className="text-sm">
@@ -24,7 +22,7 @@ export function AdminPage() {
         </Panel>
       ) : null}
 
-      <div className="mt-6 overflow-x-auto border border-border">
+      <ScrollPane className="mt-6 h-[32rem] border border-border" orientation="both">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line-strong bg-surface-alt text-left text-xs text-muted-foreground">
@@ -63,7 +61,7 @@ export function AdminPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollPane>
       <div className="mt-6">
         <HelpTip>
           There is no tenant separation. One organisation runs one DataForge instance. Row-level and column-level

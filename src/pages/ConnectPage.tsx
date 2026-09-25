@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Chip, Field, HelpTip, inputClass, MediaFrame, Panel, SignalButton } from "@/components";
-import { media } from "@/config/media";
+import { Chip, Field, HelpTip, Panel, SignalButton, TextInput } from "@/components";
 import { useConnectors } from "@/features/connectors";
 import { MainLayout } from "@/layouts/MainLayout";
 
@@ -48,20 +47,20 @@ export function ConnectPage() {
               ))}
             </div>
             <Field label="Display name">
-              <input className={inputClass} placeholder="Finance warehouse" />
+              <TextInput placeholder="Finance warehouse" />
             </Field>
             {kind !== "spreadsheet" ? (
               <>
                 <Field label="Host">
-                  <input className={inputClass} placeholder="warehouse.internal" />
+                  <TextInput placeholder="warehouse.internal" />
                 </Field>
                 <Field label="Database">
-                  <input className={inputClass} placeholder="analytics" />
+                  <TextInput placeholder="analytics" />
                 </Field>
               </>
             ) : (
               <Field label="Spreadsheet path">
-                <input className={inputClass} placeholder="shared/fee_schedule.xlsx" />
+                <TextInput placeholder="shared/fee_schedule.xlsx" />
               </Field>
             )}
             <p className="text-xs text-muted-foreground">
@@ -73,7 +72,6 @@ export function ConnectPage() {
         </Panel>
 
         <div className="space-y-3">
-          <MediaFrame {...media.waiting} ratio="16 / 10" />
           {connectors.map((connector) => (
             <Panel key={connector.id}>
               <div className="flex items-start justify-between gap-3">

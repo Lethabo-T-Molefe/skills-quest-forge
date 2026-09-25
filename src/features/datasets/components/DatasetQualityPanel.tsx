@@ -1,5 +1,5 @@
 import { Lock } from "lucide-react";
-import { Panel } from "@/components";
+import { Panel, ScrollPane } from "@/components";
 import { formatNumber } from "@/lib/format";
 import type { Dataset } from "../types";
 
@@ -28,7 +28,7 @@ export function DatasetQualityPanel({ dataset }: { dataset: Dataset }) {
       </div>
 
       <h3 className="mt-8 text-sm font-semibold">Columns</h3>
-      <div className="mt-3 overflow-x-auto">
+      <ScrollPane className="mt-3" orientation="horizontal">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line-strong text-left text-xs text-muted-foreground">
@@ -58,7 +58,7 @@ export function DatasetQualityPanel({ dataset }: { dataset: Dataset }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollPane>
       <p className="mt-3 text-xs text-muted-foreground">
         Columns marked with a lock were detected as personal information and masked before this data became
         readable.
