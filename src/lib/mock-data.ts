@@ -1,202 +1,397 @@
-// Mock data for CHIETA Data Lab
-export const PROVINCES = [
-  "Gauteng", "KwaZulu-Natal", "Western Cape", "Eastern Cape",
-  "Limpopo", "Mpumalanga", "North West", "Free State", "Northern Cape",
+/** Mock data for the DataForge frontend prototype. No backend is wired up. */
+
+export type Classification = "restricted-personal" | "internal-confidential" | "internal-general";
+export type DatasetStatus = "pending" | "approved" | "rejected";
+export type Layer = "bronze" | "silver" | "gold";
+
+export interface ColumnProfile {
+  name: string;
+  type: string;
+  missingPct: number;
+  distinct: number;
+  masked?: boolean;
+  sample: string;
+}
+
+export interface Dataset {
+  id: string;
+  name: string;
+  description: string;
+  owner: string;
+  source: "upload" | "connector";
+  sourceName: string;
+  layer: Layer;
+  classification: Classification;
+  status: DatasetStatus;
+  rows: number;
+  updated: string;
+  quality: { completeness: number; conformance: number; duplicates: number; outliers: number };
+  columns: ColumnProfile[];
+  insights: { title: string; body: string; suggestion: string; kind: "pattern" | "quality" | "anomaly" }[];
+}
+
+export const currentUser = {
+  name: "Thandi Mokoena",
+  role: "Everyday Analyst",
+  workspace: "Thandi's workspace",
+  initials: "TM",
+};
+
+export const datasets: Dataset[] = [
+  {
+    id: "learner-enrolments",
+    name: "Learner enrolments 2026",
+    description: "Raw enrolment export from the training portal, one row per enrolment.",
+    owner: "Thandi Mokoena",
+    source: "upload",
+    sourceName: "enrolments_q3.csv",
+    layer: "bronze",
+    classification: "restricted-personal",
+    status: "pending",
+    rows: 48213,
+    updated: "2 hours ago",
+    quality: { completeness: 87, conformance: 74, duplicates: 312, outliers: 45 },
+    columns: [
+      { name: "learner_id", type: "string", missingPct: 0, distinct: 47901, sample: "LR-100238" },
+      { name: "full_name", type: "string", missingPct: 1, distinct: 47120, masked: true, sample: "T••••• M•••••" },
+      { name: "id_number", type: "string", missingPct: 3, distinct: 47880, masked: true, sample: "••••••••••123" },
+      { name: "enrolled_on", type: "mixed", missingPct: 6, distinct: 268, sample: "2026/03/14" },
+      { name: "course", type: "string", missingPct: 0, distinct: 42, sample: "Data literacy" },
+      { name: "region", type: "string", missingPct: 12, distinct: 9, sample: "Gauteng" },
+      { name: "fee_paid", type: "string", missingPct: 4, distinct: 1904, sample: "R 1 250.00" },
+    ],
+    insights: [
+      {
+        kind: "quality",
+        title: "Enrolment dates use three different formats",
+        body: "6% of enrolled_on values are missing and the rest mix 2026/03/14, 14-03-2026 and March 14 2026.",
+        suggestion: "Standardise the date format",
+      },
+      {
+        kind: "pattern",
+        title: "Gauteng accounts for 41% of enrolments",
+        body: "Region is heavily concentrated, and 12% of rows have no region at all.",
+        suggestion: "Chart enrolments by region",
+      },
+      {
+        kind: "anomaly",
+        title: "312 duplicate learner records",
+        body: "The same learner_id appears more than once with identical course and date.",
+        suggestion: "Remove duplicate rows",
+      },
+    ],
+  },
+  {
+    id: "course-completions",
+    name: "Course completions",
+    description: "Cleaned completions with outcome and elapsed days, ready for analysis.",
+    owner: "Sipho Dlamini",
+    source: "connector",
+    sourceName: "Warehouse · analytics.completions",
+    layer: "silver",
+    classification: "internal-confidential",
+    status: "approved",
+    rows: 31980,
+    updated: "Yesterday",
+    quality: { completeness: 99, conformance: 100, duplicates: 0, outliers: 8 },
+    columns: [
+      { name: "learner_id", type: "string", missingPct: 0, distinct: 31980, sample: "LR-100238" },
+      { name: "course", type: "string", missingPct: 0, distinct: 42, sample: "Data literacy" },
+      { name: "completed_on", type: "date", missingPct: 0, distinct: 301, sample: "2026-03-14" },
+      { name: "outcome", type: "string", missingPct: 0, distinct: 3, sample: "passed" },
+      { name: "days_to_complete", type: "integer", missingPct: 0, distinct: 180, sample: "27" },
+    ],
+    insights: [
+      {
+        kind: "pattern",
+        title: "Completion time fell by 11 days since January",
+        body: "Median days_to_complete dropped from 38 to 27 across the period.",
+        suggestion: "Track this as a monitored metric",
+      },
+    ],
+  },
+  {
+    id: "regional-revenue",
+    name: "Regional revenue",
+    description: "Analytics-ready revenue by region and month, governed by the semantic layer.",
+    owner: "Data Stewardship",
+    source: "connector",
+    sourceName: "Warehouse · gold.revenue_by_region",
+    layer: "gold",
+    classification: "internal-general",
+    status: "approved",
+    rows: 1080,
+    updated: "3 days ago",
+    quality: { completeness: 100, conformance: 100, duplicates: 0, outliers: 2 },
+    columns: [
+      { name: "region", type: "string", missingPct: 0, distinct: 9, sample: "Western Cape" },
+      { name: "month", type: "date", missingPct: 0, distinct: 12, sample: "2026-03-01" },
+      { name: "revenue", type: "decimal", missingPct: 0, distinct: 1080, sample: "482300.00" },
+      { name: "active_learners", type: "integer", missingPct: 0, distinct: 940, sample: "1284" },
+    ],
+    insights: [
+      {
+        kind: "anomaly",
+        title: "Free State revenue dropped 23% in March",
+        body: "The drop is outside the expected band for the last six months.",
+        suggestion: "Ask for a root-cause explanation",
+      },
+    ],
+  },
+  {
+    id: "support-tickets",
+    name: "Support tickets",
+    description: "Ticket log from the service desk connector, awaiting steward approval.",
+    owner: "Naledi Khumalo",
+    source: "connector",
+    sourceName: "PostgreSQL · servicedesk.tickets",
+    layer: "bronze",
+    classification: "internal-confidential",
+    status: "pending",
+    rows: 12440,
+    updated: "5 days ago",
+    quality: { completeness: 92, conformance: 88, duplicates: 41, outliers: 17 },
+    columns: [
+      { name: "ticket_id", type: "string", missingPct: 0, distinct: 12440, sample: "TCK-8821" },
+      { name: "opened_at", type: "timestamp", missingPct: 0, distinct: 11902, sample: "2026-03-14 09:12" },
+      { name: "category", type: "string", missingPct: 8, distinct: 14, sample: "Access" },
+      { name: "resolution_hours", type: "float", missingPct: 11, distinct: 2201, sample: "6.4" },
+    ],
+    insights: [
+      {
+        kind: "quality",
+        title: "11% of tickets have no resolution time",
+        body: "These are mostly still-open tickets, which will skew any average.",
+        suggestion: "Filter out open tickets",
+      },
+    ],
+  },
 ];
 
-export const PROGRAMMES = ["Learnerships", "Skills Programmes", "Internships", "Bursaries", "Apprenticeships"];
+export const classificationLabel: Record<Classification, string> = {
+  "restricted-personal": "Restricted · personal",
+  "internal-confidential": "Internal · confidential",
+  "internal-general": "Internal · general",
+};
 
-export const homeKpis = [
-  { label: "Total Learners Enrolled", value: 84230, suffix: "", trend: 6.4, spark: [40,42,45,48,50,55,60,62,68,72,78,84],
-    info: { what: "Count of learners with an active or completed enrolment record across all CHIETA programmes (learnerships, skills programmes, internships, bursaries, apprenticeships) in the current financial year.",
-      calculation: "COUNT(DISTINCT learner_id) WHERE enrolment_date in current FY, deduplicated by hashed learner ID.",
-      source: "mart.learner_completion_summary ← clean.learners", updated: "Refreshes daily at 02:00 from the Learner pipeline." } },
-  { label: "Overall Completion Rate", value: 67.4, suffix: "%", trend: 2.1, spark: [55,57,60,61,63,62,64,65,66,67,67,67],
-    info: { what: "Share of enrolled learners who reached a 'Completed' status, across all active programmes.",
-      calculation: "completions ÷ enrolments × 100, for learners whose enrolment window has elapsed. Excludes learners still mid-programme.",
-      source: "mart.completion_rates", updated: "Refreshes daily." } },
-  { label: "Active Grants", value: 1248, suffix: "", trend: -1.2, spark: [1300,1290,1280,1270,1265,1260,1255,1252,1250,1249,1248,1248],
-    info: { what: "Number of Discretionary (DG) and Mandatory (MG) grants currently in 'Active' status — approved, disbursing, or under implementation.",
-      calculation: "COUNT(grant_id) WHERE status = 'Active'. A grant moves out of this count when closed, fully spent, or terminated.",
-      source: "mart.grant_utilisation ← clean.grants", updated: "Refreshes daily." } },
-  { label: "Grant Utilisation", value: 81.6, suffix: "%", trend: 4.8, spark: [70,72,73,75,76,77,78,79,80,80,81,81],
-    info: { what: "Proportion of allocated grant budget that has actually been spent/disbursed to date, across all active grants.",
-      calculation: "SUM(spent) ÷ SUM(allocated) × 100 across active grants for the current financial year.",
-      source: "mart.grant_utilisation", updated: "Refreshes daily." } },
-  { label: "Active Smart Skills Centres", value: 47, suffix: "", trend: 11.9, spark: [38,40,41,42,43,44,45,45,46,46,47,47],
-    info: { what: "Number of Smart Skills Centres currently operational and reporting utilisation data.",
-      calculation: "COUNT(centre_id) WHERE operational_status = 'Active'.",
-      source: "mart.centre_utilisation_summary", updated: "Refreshes weekly." } },
-  { label: "APP Achievement Rate", value: 89.2, suffix: "%", trend: 3.4, spark: [80,82,83,84,85,86,87,87,88,88,89,89],
-    info: { what: "Average performance against Annual Performance Plan (APP) targets submitted to DHET, blended across all tracked APP KPIs (enrolments, completions, certifications, bursaries).",
-      calculation: "AVG(current ÷ prorated year-to-date target × 100) across all APP KPIs.",
-      source: "mart.etqa_app_target_summary", updated: "Refreshes daily · alerts if any KPI < 70% of YTD target." } },
+export interface CleaningStepDef {
+  id: string;
+  title: string;
+  question: string;
+  options: string[];
+  preview: { before: string[]; after: string[] };
+  affected: string;
+}
+
+export const cleaningSteps: CleaningStepDef[] = [
+  {
+    id: "types",
+    title: "Fix column types",
+    question: "enrolled_on is stored as text. How should it be read?",
+    options: ["Date (day first)", "Date (month first)", "Leave as text"],
+    affected: "enrolled_on, fee_paid",
+    preview: {
+      before: ["2026/03/14", "14-03-2026", "March 14 2026", "—"],
+      after: ["2026-03-14", "2026-03-14", "2026-03-14", "null"],
+    },
+  },
+  {
+    id: "missing",
+    title: "Handle missing values",
+    question: "region is empty in 12% of rows. What should happen to them?",
+    options: ["Fill with 'Unknown'", "Drop those rows", "Leave blank"],
+    affected: "region, fee_paid",
+    preview: {
+      before: ["Gauteng", "", "Limpopo", ""],
+      after: ["Gauteng", "Unknown", "Limpopo", "Unknown"],
+    },
+  },
+  {
+    id: "duplicates",
+    title: "Remove duplicates",
+    question: "312 rows repeat the same learner, course and date. Remove them?",
+    options: ["Keep the first row", "Keep the most recent row", "Keep all rows"],
+    affected: "whole table",
+    preview: {
+      before: ["LR-100238 · Data literacy", "LR-100238 · Data literacy", "LR-100412 · SQL basics"],
+      after: ["LR-100238 · Data literacy", "LR-100412 · SQL basics"],
+    },
+  },
+  {
+    id: "formats",
+    title: "Standardise formats",
+    question: "fee_paid mixes currency symbols and spacing. Normalise to a number?",
+    options: ["Number, 2 decimals", "Keep formatted text"],
+    affected: "fee_paid",
+    preview: {
+      before: ["R 1 250.00", "1250", "R1,250.00"],
+      after: ["1250.00", "1250.00", "1250.00"],
+    },
+  },
+  {
+    id: "outliers",
+    title: "Handle outliers",
+    question: "45 fee values sit far outside the normal range. What should happen?",
+    options: ["Flag only", "Cap at the 99th percentile", "Drop those rows"],
+    affected: "fee_paid",
+    preview: {
+      before: ["1250.00", "980000.00", "1400.00"],
+      after: ["1250.00", "1250.00 (flagged)", "1400.00"],
+    },
+  },
+  {
+    id: "columns",
+    title: "Rename or drop columns",
+    question: "id_number is masked personal information. Drop it from the clean table?",
+    options: ["Drop the column", "Keep it masked"],
+    affected: "id_number",
+    preview: {
+      before: ["learner_id, full_name, id_number, …"],
+      after: ["learner_id, full_name, …"],
+    },
+  },
 ];
 
-export const enrolmentTrend = Array.from({ length: 24 }).map((_, i) => {
-  const m = i + 1;
-  return {
-    month: `M${m}`,
-    Enrolled: Math.round(4000 + Math.sin(i/3)*800 + i*120),
-    Completed: Math.round(2500 + Math.sin(i/3)*600 + i*90),
-  };
-});
-
-export const grantByProvince = PROVINCES.map((p, i) => ({
-  province: p,
-  spend: Math.round(80 + i*22 + Math.random()*40),
-  utilisation: Math.round(60 + Math.random()*35),
-}));
-
-export const riskAlerts = [
-  { severity: "High", title: "Limpopo: Completion rate dropped 12% this quarter", detail: "Q3 vs Q2 trend reversal across 3 providers" },
-  { severity: "High", title: "Grant ID 4421: 0 drawdown in 90 days", detail: "Provider not responding to compliance queries" },
-  { severity: "Medium", title: "KZN ETQA backlog: 1,240 assessments outstanding", detail: "Capacity recommendation pending" },
-  { severity: "Medium", title: "Northern Cape: 3 centres below 40% utilisation", detail: "Demand forecast suggests consolidation" },
-  { severity: "Low", title: "Bursary fund Q4: 7% surplus forecast", detail: "Reallocation opportunity to apprenticeships" },
+export const exploreRows = [
+  { region: "Gauteng", enrolments: 19740, completions: 13418, revenue: 2410500 },
+  { region: "Western Cape", enrolments: 9120, completions: 6870, revenue: 1284000 },
+  { region: "KwaZulu-Natal", enrolments: 7480, completions: 4920, revenue: 964300 },
+  { region: "Eastern Cape", enrolments: 4310, completions: 2611, revenue: 512800 },
+  { region: "Limpopo", enrolments: 3180, completions: 1944, revenue: 388400 },
+  { region: "Free State", enrolments: 2390, completions: 1402, revenue: 248900 },
+  { region: "Mpumalanga", enrolments: 1993, completions: 1215, revenue: 214600 },
 ];
 
-export const recentActivity = [
-  { who: "T. Mokoena", what: "uploaded Q3_Grants_Master.csv", when: "2 min ago" },
-  { who: "S. Naidoo", what: "approved dataset Learner_Records_2026", when: "18 min ago" },
-  { who: "K. Botha", what: "published dashboard ETQA Performance v4", when: "1 hr ago" },
-  { who: "Admin", what: "added new user M. Dlamini (Data Analyst)", when: "3 hr ago" },
-  { who: "L. Patel", what: "ran ML experiment Completion-Predictor-v12", when: "Today, 09:14" },
+export const trendRows = [
+  { month: "Oct", value: 412 },
+  { month: "Nov", value: 448 },
+  { month: "Dec", value: 391 },
+  { month: "Jan", value: 503 },
+  { month: "Feb", value: 561 },
+  { month: "Mar", value: 432 },
 ];
 
-export const aiRecommendations = [
-  { title: "Increase DG allocation to KwaZulu-Natal", rationale: "Province is 23% below target with 14% YoY enrolment growth.", impact: "+4,200 learners", priority: "High" },
-  { title: "Consolidate underused centres in Northern Cape", rationale: "3 centres operating below 40% utilisation for 9 months.", impact: "R 8.4M saving", priority: "Medium" },
-  { title: "Fast-track apprenticeship rollout in Gauteng", rationale: "Labour market signals 18% skills shortage in trades.", impact: "+1,900 jobs", priority: "Critical" },
+export interface AssistantTurn {
+  id: string;
+  question: string;
+  answer: string;
+  explanation: string;
+  sql: string;
+  refused?: boolean;
+  table?: { columns: string[]; rows: (string | number)[][] };
+}
+
+export const assistantExamples: AssistantTurn[] = [
+  {
+    id: "a1",
+    question: "What was the average fee by region last quarter?",
+    answer: "Gauteng leads on average fee at R1 348, with Free State lowest at R982.",
+    explanation:
+      "I used the shared metric average fee paid, filtered course completions to the last quarter, grouped by region and averaged the fee. Rows you are not permitted to see were excluded before the average was taken.",
+    sql: `SELECT region,
+       ROUND(AVG(fee_paid), 2) AS avg_fee
+FROM   gold.enrolments_clean
+WHERE  enrolled_on >= DATE '2026-01-01'
+  AND  enrolled_on <  DATE '2026-04-01'
+GROUP  BY region
+ORDER  BY avg_fee DESC;`,
+    table: {
+      columns: ["Region", "Average fee", "Enrolments"],
+      rows: [
+        ["Gauteng", "R1 348", 19740],
+        ["Western Cape", "R1 291", 9120],
+        ["KwaZulu-Natal", "R1 154", 7480],
+        ["Eastern Cape", "R1 043", 4310],
+        ["Free State", "R982", 2390],
+      ],
+    },
+  },
+  {
+    id: "a2",
+    question: "Which learners are most likely to drop out next month?",
+    answer:
+      "I can't answer that from the data you are permitted to see. Drop-out risk is not a defined metric in the semantic layer, and learner-level personal data is masked for your role.",
+    explanation:
+      "I refused rather than guessing. Ask a Steward to define a drop-out risk metric, or try: how has completion rate changed by course this year?",
+    sql: "",
+    refused: true,
+  },
 ];
 
-export const datasets = [
-  { name: "Learner_Records_2026", owner: "Learner Records", classification: "RESTRICTED–Personal", quality: "Validated", rows: 84230, cols: 42, date: "14 Jun 2026", score: 94 },
-  { name: "Grants_Master_Q3", owner: "Grants", classification: "INTERNAL–Confidential", quality: "Validated", rows: 1248, cols: 28, date: "12 Jun 2026", score: 88 },
-  { name: "ETQA_Assessments_2026", owner: "ETQA", classification: "INTERNAL–Confidential", quality: "Pending", rows: 22115, cols: 18, date: "10 Jun 2026", score: 76 },
-  { name: "Smart_Centres_Utilisation", owner: "Skills Centres", classification: "INTERNAL–General", quality: "Validated", rows: 47, cols: 22, date: "08 Jun 2026", score: 91 },
-  { name: "Labour_Market_Signals_2026", owner: "Labour Market", classification: "INTERNAL–General", quality: "Failed", rows: 8920, cols: 36, date: "05 Jun 2026", score: 42 },
-  { name: "Provider_Accreditation_Master", owner: "ETQA", classification: "INTERNAL–Confidential", quality: "Validated", rows: 318, cols: 14, date: "03 Jun 2026", score: 96 },
-  { name: "Bursary_Awards_2026", owner: "Grants", classification: "RESTRICTED–Personal", quality: "Validated", rows: 4112, cols: 19, date: "01 Jun 2026", score: 89 },
-  { name: "Internship_Pipeline_Q3", owner: "Learner Records", classification: "INTERNAL–Confidential", quality: "Pending", rows: 2210, cols: 21, date: "30 May 2026", score: 71 },
+export const dashboards = [
+  {
+    id: "exec-overview",
+    name: "Executive overview",
+    owner: "Data Stewardship",
+    visibility: "Organisation",
+    charts: 6,
+    updated: "Today",
+  },
+  { id: "enrolment-health", name: "Enrolment health", owner: "Thandi Mokoena", visibility: "Team", charts: 4, updated: "Yesterday" },
+  { id: "my-scratch", name: "My scratch board", owner: "Thandi Mokoena", visibility: "Private", charts: 2, updated: "3 days ago" },
 ];
 
-export const grantRecords = Array.from({ length: 24 }).map((_, i) => ({
-  id: `DG-2026-${1000 + i}`,
-  provider: ["Skills Co.", "TechAcademy SA", "TradesFirst", "FutureWorks", "Workforce Now"][i % 5],
-  province: PROVINCES[i % PROVINCES.length],
-  programme: PROGRAMMES[i % PROGRAMMES.length],
-  allocated: 500000 + (i * 75000),
-  spent: Math.round((500000 + (i * 75000)) * (0.4 + Math.random() * 0.55)),
-  risk: ["Low", "Medium", "High"][i % 3],
-  status: ["Active", "Active", "Under review", "Active", "Closed"][i % 5],
-}));
-
-export const learnerCohorts = Array.from({ length: 12 }).map((_, i) => ({
-  cohort: `C-2026-${100 + i}`,
-  programme: PROGRAMMES[i % PROGRAMMES.length],
-  province: PROVINCES[i % PROVINCES.length],
-  enrolled: 200 + i * 40,
-  predicted: Math.round((200 + i * 40) * (0.45 + Math.random() * 0.4)),
-  risk: ["Low", "Medium", "High"][i % 3],
-  confidence: 70 + (i * 2) % 25,
-}));
-
-export const auditLog = Array.from({ length: 30 }).map((_, i) => ({
-  ts: `2026-06-${(18 - (i % 18)).toString().padStart(2,"0")} ${(9 + (i%9)).toString().padStart(2,"0")}:${(i*7%60).toString().padStart(2,"0")}`,
-  user: ["t.mokoena", "s.naidoo", "admin", "k.botha", "l.patel"][i % 5],
-  action: ["LOGIN", "UPLOAD", "VIEW", "DOWNLOAD", "DELETE", "ROLE_CHANGE", "EXPORT"][i % 7],
-  obj: ["Dataset", "Dashboard", "Report", "User"][i % 4],
-  name: ["Learner_Records_2026", "Executive Cockpit", "Q3 Grants Report", "m.dlamini"][i % 4],
-  ip: `196.${i%255}.${(i*7)%255}.${(i*3)%255}`,
-  status: i % 9 === 0 ? "Failed" : "Success",
-}));
-
-export const popiaScorecard = [
-  { control: "Encryption at rest (AES-256)", status: "Pass", note: "All PostgreSQL & object storage volumes encrypted" },
-  { control: "Encryption in transit (TLS 1.3)", status: "Pass", note: "No unencrypted endpoints exposed" },
-  { control: "Access control (RBAC)", status: "Pass", note: "8 roles enforced at API + UI layer" },
-  { control: "Audit logging", status: "Pass", note: "Immutable, 36-month retention" },
-  { control: "Data masking / pseudonymisation", status: "Pass", note: "PII hashed at Silver-zone ingestion" },
-  { control: "Data classification", status: "Pass", note: "100% of datasets classified" },
-  { control: "Retention policy enforcement", status: "Watch", note: "2 datasets exceed defined retention window" },
-  { control: "Data breach response plan", status: "Pass", note: "Documented · last tested 14 May 2026" },
+export const metrics = [
+  { name: "Active learners", value: "12 480", delta: "+4.2%", trend: "up" as const, definition: "Learners with at least one session in the last 30 days" },
+  { name: "Completion rate", value: "66.3%", delta: "+1.8%", trend: "up" as const, definition: "Completions divided by enrolments in the period" },
+  { name: "Average fee paid", value: "R1 214", delta: "-2.1%", trend: "down" as const, definition: "Mean fee across approved enrolments" },
+  { name: "Open data issues", value: "7", delta: "+3", trend: "down" as const, definition: "Quality flags raised on datasets you own" },
 ];
 
-export const piiRegister = [
-  { field: "Learner full name", dataset: "Learner_Records_2026", classification: "Direct identifier", action: "Pseudonymise (SHA-256 + salt)", status: "Applied" },
-  { field: "ID / passport number", dataset: "Learner_Records_2026", classification: "Direct identifier", action: "Mask (show last 4 digits)", status: "Applied" },
-  { field: "Phone number", dataset: "Learner_Records_2026", classification: "Direct identifier", action: "Mask", status: "Applied" },
-  { field: "Email address", dataset: "Bursary_Awards_2026", classification: "Direct identifier", action: "Mask unless approved", status: "Applied" },
-  { field: "Province + qualification", dataset: "ETQA_Assessments_2026", classification: "Quasi-identifier", action: "Aggregate for dashboards", status: "Applied" },
-  { field: "Employer banking details", dataset: "Grants_Master_Q3", classification: "Sensitive financial", action: "Role-controlled access only", status: "Applied" },
-  { field: "Disability status", dataset: "Learner_Records_2026", classification: "Special personal information", action: "Aggregate only, no individual export", status: "Review pending" },
-  { field: "Race / demographic code", dataset: "Learner_Records_2026", classification: "Special personal information", action: "Aggregate only, equity reporting", status: "Applied" },
+export const alerts = [
+  {
+    id: "al1",
+    metric: "Revenue · Free State",
+    message: "Fell 23% below the expected band in March",
+    when: "2 days ago",
+    severity: "high" as const,
+    rootCause: [
+      { factor: "Enrolments in Bloemfontein", contribution: "-14%", detail: "412 fewer enrolments than February" },
+      { factor: "Average fee paid", contribution: "-6%", detail: "More learners on the subsidised rate" },
+      { factor: "Refunds processed", contribution: "-3%", detail: "R38 400 refunded on cancelled cohorts" },
+    ],
+  },
+  {
+    id: "al2",
+    metric: "Completion rate · SQL basics",
+    message: "Crossed above its 70% target for the first time",
+    when: "6 days ago",
+    severity: "low" as const,
+    rootCause: [
+      { factor: "New guided practice module", contribution: "+8%", detail: "Introduced to cohorts from February" },
+      { factor: "Shorter course length", contribution: "+3%", detail: "Median days to complete fell to 27" },
+    ],
+  },
 ];
 
-export const datasetApprovals = [
-  { dataset: "Internship_Pipeline_Q3", owner: "Learner Records", submitted: "16 Jun 2026", status: "Pending", steward: "S. Naidoo" },
-  { dataset: "ETQA_Assessments_2026", owner: "ETQA", submitted: "10 Jun 2026", status: "Pending", steward: "K. Botha" },
-  { dataset: "Bursary_Awards_2026", owner: "Grants", submitted: "01 Jun 2026", status: "Approved", steward: "S. Naidoo" },
-  { dataset: "Smart_Centres_Utilisation", owner: "Skills Centres", submitted: "08 Jun 2026", status: "Approved", steward: "K. Botha" },
-  { dataset: "Labour_Market_Signals_2026", owner: "Labour Market", submitted: "05 Jun 2026", status: "Rejected", steward: "S. Naidoo" },
+export const prediction = {
+  subject: "Learner cohort · March intake",
+  outcome: "Likelihood to complete within 60 days",
+  score: 72,
+  band: "Moderate to high",
+  modelVersion: "completion-heuristic v1.4",
+  factors: [
+    { name: "Prior course completed", weight: 0.32, direction: "up" as const, reading: "Learners who finished an earlier course complete again far more often." },
+    { name: "Weekly session count", weight: 0.27, direction: "up" as const, reading: "This cohort averages 3.1 sessions a week, above the 2.4 baseline." },
+    { name: "Days since last activity", weight: 0.21, direction: "down" as const, reading: "A fifth of the cohort has been inactive for over 10 days." },
+    { name: "Region support coverage", weight: 0.12, direction: "up" as const, reading: "Most learners sit in regions with on-site facilitators." },
+    { name: "Fee status", weight: 0.08, direction: "down" as const, reading: "Unpaid balances slightly reduce completion." },
+  ],
+};
+
+export const auditEvents = [
+  { id: "e1", when: "14:02", actor: "Thandi Mokoena", action: "Ran AI query", resource: "gold.enrolments_clean", detail: "Average fee by region, last quarter" },
+  { id: "e2", when: "13:47", actor: "Thandi Mokoena", action: "Applied cleaning step", resource: "Learner enrolments 2026", detail: "Remove duplicates · keep first row" },
+  { id: "e3", when: "13:44", actor: "Thandi Mokoena", action: "Applied cleaning step", resource: "Learner enrolments 2026", detail: "Fix column types · enrolled_on to date" },
+  { id: "e4", when: "12:20", actor: "System", action: "Masked columns", resource: "Learner enrolments 2026", detail: "full_name, id_number detected as personal information" },
+  { id: "e5", when: "12:19", actor: "Thandi Mokoena", action: "Uploaded dataset", resource: "enrolments_q3.csv", detail: "48 213 rows landed in bronze" },
+  { id: "e6", when: "09:55", actor: "Sipho Dlamini", action: "Approved dataset", resource: "Course completions", detail: "Quality profile reviewed, classification internal-confidential" },
+  { id: "e7", when: "09:31", actor: "Naledi Khumalo", action: "Connected source", resource: "PostgreSQL · servicedesk.tickets", detail: "Read-only connector, credentials from secrets service" },
+  { id: "e8", when: "08:12", actor: "Thandi Mokoena", action: "Signed in", resource: "Identity provider", detail: "Multi-factor authentication passed" },
 ];
 
-export const retentionPolicy = [
-  { category: "Raw uploaded files (Bronze)", retention: "12 months", trigger: "Auto-archive to cold storage" },
-  { category: "Cleaned / analytical data (Silver, Gold)", retention: "5 years", trigger: "Aligned to APP reporting cycle" },
-  { category: "Audit logs", retention: "36 months", trigger: "POPIA Section 14 minimum" },
-  { category: "Learner PII (pseudonymised)", retention: "7 years", trigger: "DHET record-keeping requirement" },
-  { category: "Exported reports", retention: "24 months", trigger: "Manual review on expiry" },
-];
-
-export const biasModels = [
-  { model: "Learner Completion Predictor", owner: "L. Patel", status: "Approved", lastReviewed: "02 Jun 2026", reviewer: "Data Steward + Information Officer" },
-  { model: "Grant Risk Scorer", owner: "L. Patel", status: "Approved", lastReviewed: "28 May 2026", reviewer: "Data Steward + Information Officer" },
-  { model: "Smart Skills Centre Demand Forecast", owner: "M. Dlamini", status: "Pending review", lastReviewed: "—", reviewer: "—" },
-];
-
-export const fairnessMetrics = [
-  { attribute: "Gender", metric: "Demographic Parity", gap: 2.1, threshold: 5, status: "Pass" },
-  { attribute: "Gender", metric: "Equalised Odds", gap: 3.4, threshold: 5, status: "Pass" },
-  { attribute: "Province", metric: "Demographic Parity", gap: 6.8, threshold: 5, status: "Fail" },
-  { attribute: "Province", metric: "Equalised Odds", gap: 4.2, threshold: 5, status: "Pass" },
-  { attribute: "Age group", metric: "Demographic Parity", gap: 1.6, threshold: 5, status: "Pass" },
-  { attribute: "Disability status", metric: "Demographic Parity", gap: 2.9, threshold: 5, status: "Pass" },
-];
-
-export const disparateImpact = PROVINCES.slice(0, 6).map((p, i) => ({
-  province: p,
-  predicted: Math.round(70 + Math.sin(i) * 8),
-  actual: Math.round(68 + Math.cos(i) * 9),
-}));
-
-export const explainabilityFactors = [
-  { feature: "Programme type", pct: 30 },
-  { feature: "Provider quality rating", pct: 25 },
-  { feature: "Funding level", pct: 20 },
-  { feature: "Province", pct: 15 },
-  { feature: "Age group", pct: 10 },
-];
-
-export const pipelineRuns = [
-  { dag: "Grants DAG (DG + MG)", status: "Success", duration: "4m 12s", lastRun: "Today, 02:00", rows: 1248 },
-  { dag: "Learner DAG", status: "Success", duration: "9m 47s", lastRun: "Today, 02:08", rows: 84230 },
-  { dag: "ETQA DAG", status: "Success", duration: "3m 02s", lastRun: "Today, 02:17", rows: 22115 },
-  { dag: "Skills Centre DAG", status: "Warning", duration: "1m 55s", lastRun: "Today, 02:20", rows: 47 },
-  { dag: "Labour Market DAG", status: "Failed", duration: "0m 38s", lastRun: "Today, 02:22", rows: 0 },
-];
-
-export const mlExperiments = [
-  { name: "Completion-Predictor-v12", model: "XGBoost", metric: "AUC 0.87", status: "Production", by: "L. Patel", when: "Today, 09:14" },
-  { name: "GrantRisk-IsoForest-v6", model: "Isolation Forest", metric: "Precision 0.81", status: "Production", by: "L. Patel", when: "28 May 2026" },
-  { name: "CentreDemand-Prophet-v3", model: "Prophet", metric: "MAPE 6.4%", status: "Staging", by: "M. Dlamini", when: "12 Jun 2026" },
-  { name: "Completion-Predictor-v13", model: "XGBoost", metric: "AUC 0.89", status: "Development", by: "L. Patel", when: "17 Jun 2026" },
-];
-
-export const tasks = [
-  { sprint: "Sprint 12 — Data Cleaning", title: "Validate Bursary_Awards_2026 nulls", status: "In Progress", due: "20 Jun 2026", by: "S. Naidoo" },
-  { sprint: "Sprint 12 — Data Cleaning", title: "Write profiling notebook for ETQA dataset", status: "To Do", due: "22 Jun 2026", by: "S. Naidoo" },
-  { sprint: "Sprint 12 — Data Cleaning", title: "Document lineage for Grants pipeline", status: "Done", due: "14 Jun 2026", by: "K. Botha" },
-  { sprint: "Sprint 13 — ML Prep", title: "Feature engineering for Completion model", status: "To Do", due: "28 Jun 2026", by: "L. Patel" },
+export const metricDefinitions = [
+  { name: "Active learners", owner: "Data Stewardship", expression: "COUNT(DISTINCT learner_id) WHERE last_session >= today - 30", usedBy: 14 },
+  { name: "Completion rate", owner: "Data Stewardship", expression: "completions / NULLIF(enrolments, 0)", usedBy: 9 },
+  { name: "Average fee paid", owner: "Sipho Dlamini", expression: "AVG(fee_paid) WHERE status = 'approved'", usedBy: 6 },
 ];
