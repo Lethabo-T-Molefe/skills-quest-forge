@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles, Upload } from "lucide-react";
+import { Sparkles, Upload, Wand2 } from "lucide-react";
 import { LayerStrip, quietButtonClass, signalButtonClass } from "@/components";
 import { useCurrentUser } from "@/features/auth";
 import { RecentActivityPanel } from "@/features/audit";
@@ -21,6 +21,10 @@ export function OverviewPage() {
           <Link to="/datasets/upload" className={signalButtonClass}>
             <Upload className="size-4" strokeWidth={1.75} />
             Upload data
+          </Link>
+          <Link to="/clean" className={quietButtonClass}>
+            <Wand2 className="size-4" strokeWidth={1.5} />
+            Clean data
           </Link>
           <Link to="/assistant" className={quietButtonClass}>
             <Sparkles className="size-4" strokeWidth={1.5} />

@@ -9,7 +9,7 @@ export type {
 } from "./types";
 export { cleaningProfileQuery, cleaningStepsQuery } from "./api/cleaning-steps";
 export { useCleaningProfile, useCleaningSteps, useCleaningStudio } from "./hooks/use-cleaning-steps";
-export { getMethod, methodsFor, workChapters } from "./data/catalogue";
+export { getMethod, methodFamilies, methodsFor, workChapters } from "./data/catalogue";
 export { ChapterWorkbench } from "./components/ChapterWorkbench";
 export { MethodLibrary } from "./components/MethodLibrary";
 export { ProfilingBoard } from "./components/ProfilingBoard";

@@ -72,6 +72,10 @@ export const pageHelp: Record<string, HelpTopic[]> = {
   ],
   "/clean": [
     {
+      title: "This is the cleaning studio",
+      body: "Pick a bronze file to start, or reopen a silver table to rerun its recipe. The wizard then profiles the file and walks one family of problems at a time.",
+    },
+    {
       title: "Profile first",
       body: "Read emptiness, patterns, missingness (MCAR, MAR, MNAR), keys and orphans before you change a cell. The profile decides which methods are valid.",
     },

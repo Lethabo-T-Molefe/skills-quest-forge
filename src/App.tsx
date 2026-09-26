@@ -27,6 +27,7 @@ import { AlertDetailPage } from "@/pages/AlertDetailPage";
 import { AssistantPage } from "@/pages/AssistantPage";
 import { AuditPage } from "@/pages/AuditPage";
 import { CleaningPage } from "@/pages/CleaningPage";
+import { CleaningStudioPage } from "@/pages/CleaningStudioPage";
 import { ConnectPage } from "@/pages/ConnectPage";
 import { DashboardDetailPage } from "@/pages/DashboardDetailPage";
 import { DashboardsPage } from "@/pages/DashboardsPage";
@@ -235,6 +236,19 @@ const datasetDetailRoute = createRoute({
   component: DatasetDetailPage,
 });
 
+const cleaningStudioRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "clean",
+  loader: ({ context }) => context.queryClient.ensureQueryData(datasetsQuery()),
+  head: () => ({
+    meta: pageMeta(
+      pageTitle("Clean data"),
+      "Guided cleaning studio. Profile a file, work one family of problems at a time, and save a versioned silver recipe.",
+    ),
+  }),
+  component: CleaningStudioPage,
+});
+
 const cleaningRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "datasets/$datasetId/clean",
@@ -406,6 +420,7 @@ const routeTree = rootRoute.addChildren([
   uploadRoute,
   connectRoute,
   datasetDetailRoute,
+  cleaningStudioRoute,
   cleaningRoute,
   assistantRoute,
   explorerRoute,
