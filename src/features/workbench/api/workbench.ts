@@ -56,10 +56,24 @@ export function fetchNotebooks() {
 
 export const notebooksQuery = () => queryOptions({ queryKey: ["workbench", "notebooks"], queryFn: fetchNotebooks });
 
+/**
+ * Results the prototype has already produced elsewhere (a built chart, an assistant answer), keyed by their SQL.
+ * Running that same SQL here returns the same rows, as the real sandbox would.
+ */
+const knownResults = new Map<string, Omit<QueryResult, "sql">>();
+
+function normalise(sql: string) {
+  return sql.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+export function rememberQueryResult(sql: string, result: Omit<QueryResult, "sql">) {
+  if (sql.trim()) knownResults.set(normalise(sql), result);
+}
+
 export async function runSql(sql: string): Promise<QueryResult> {
   await mockResponse(true, 480);
   const lower = sql.toLowerCase();
-  if (lower.includes("insert") || lower.includes("update") || lower.includes("delete") || lower.includes("drop")) {
+  if (/\b(insert|update|delete|drop|alter|truncate|grant|create)\b/.test(lower)) {
     return {
       sql,
       refused: true,
@@ -77,6 +91,8 @@ export async function runSql(sql: string): Promise<QueryResult> {
       rows: [],
     };
   }
+  const known = knownResults.get(normalise(sql));
+  if (known) return { ...known, sql };
   return { ...regionResult, sql };
 }
 

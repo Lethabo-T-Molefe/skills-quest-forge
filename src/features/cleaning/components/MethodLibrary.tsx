@@ -10,7 +10,8 @@ export function MethodLibrary({
 }: {
   chapters: CleaningChapter[];
   methods: CleaningMethod[];
-  onPick: (methodId: string) => void;
+  /** When set, choosing a method applies it to the matching step. Without it the library is a reference. */
+  onPick?: (methodId: string) => void;
 }) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => {
@@ -30,8 +31,10 @@ export function MethodLibrary({
         placeholder="Search methods"
       />
       <p className="text-sm text-muted-foreground">
-        Every family from profiling through governance. Pick a method to add it to the recipe at the matching chapter.
-        Everyday methods are marked. Expert methods stay available so a practitioner does not leave the wizard.
+        {onPick
+          ? "Every family from profiling through governance. Choose a method to use it at the matching step."
+          : "Every family from profiling through governance. Open a file to clean, then choose any of these at the matching step."}{" "}
+        Everyday methods are marked. Expert methods stay available so a practitioner does not have to leave the wizard.
       </p>
 
       <ul className="space-y-3 text-sm">
@@ -71,18 +74,19 @@ export function MethodLibrary({
               <ul className="mt-3 space-y-2">
                 {items.map((item) => (
                   <li key={item.id}>
-                    <button
-                      type="button"
-                      className="w-full border border-border px-3 py-2 text-left text-sm hover:bg-accent/40"
-                      onClick={() => onPick(item.id)}
-                    >
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{item.name}</span>
-                        {item.recommended ? <Chip tone="ok">suggested</Chip> : null}
-                        <Chip>{item.audience}</Chip>
-                      </span>
-                      <span className="mt-1 block text-muted-foreground">{item.plain}</span>
-                    </button>
+                    {onPick ? (
+                      <button
+                        type="button"
+                        className="w-full border border-border px-3 py-2 text-left text-sm hover:bg-accent/40"
+                        onClick={() => onPick(item.id)}
+                      >
+                        <MethodSummary method={item} />
+                      </button>
+                    ) : (
+                      <div className="border border-border px-3 py-2 text-sm">
+                        <MethodSummary method={item} />
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -102,5 +106,18 @@ export function MethodLibrary({
         </div>
       </div>
     </div>
+  );
+}
+
+function MethodSummary({ method }: { method: CleaningMethod }) {
+  return (
+    <>
+      <span className="flex flex-wrap items-center gap-2">
+        <span className="font-medium">{method.name}</span>
+        {method.recommended ? <Chip tone="ok">suggested</Chip> : null}
+        <Chip>{method.audience}</Chip>
+      </span>
+      <span className="mt-1 block text-muted-foreground">{method.plain}</span>
+    </>
   );
 }

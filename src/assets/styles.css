@@ -170,6 +170,19 @@
     text-wrap: pretty;
   }
 
+  /* Code shows exactly what was typed: no ">=" drawn as a single arrow glyph. */
+  code,
+  pre,
+  textarea,
+  .font-mono {
+    font-variant-ligatures: none;
+  }
+
+  html {
+    /* Keeps focused and anchored elements clear of the sticky top bar (WCAG 2.4.11). */
+    scroll-padding-top: 4.5rem;
+  }
+
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
@@ -197,6 +210,14 @@
   font-weight: 350;
   line-height: 1.05;
   letter-spacing: -0.025em;
+}
+
+@utility heading-page {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.1vw, 2rem);
+  font-weight: 350;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 @utility heading-2 {

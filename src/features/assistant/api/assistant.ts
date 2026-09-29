@@ -9,6 +9,7 @@ const feeByRegion: AssistantTurn = {
   explanation:
     "I used the shared metric average fee paid, filtered course completions to the last quarter, grouped by region and averaged the fee. Rows you are not permitted to see were excluded before the average was taken.",
   groundedIn: ["Metric · Average fee paid", "gold.enrolments_clean", "Role row filters"],
+  build: { method: "compare", dataset: "regional-revenue", measure: "avg_fee", dimension: "region" },
   sql: `SELECT region,
        ROUND(AVG(fee_paid), 2) AS avg_fee
 FROM   gold.enrolments_clean
@@ -35,6 +36,7 @@ const completionTrend: AssistantTurn = {
   explanation:
     "I used the shared metric completion rate, which is completions divided by enrolments in the period. I grouped by course and compared the current year to January.",
   groundedIn: ["Metric · Completion rate", "gold.completions"],
+  build: { method: "trend", dataset: "course-completions", measure: "completion_rate" },
   sql: `SELECT course,
        ROUND(SUM(completed)::numeric / NULLIF(SUM(enrolled), 0), 3) AS completion_rate
 FROM   gold.completions

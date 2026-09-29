@@ -1,1 +1,1 @@
-export { cleaningWalkthrough, pageHelp, type HelpTopic } from "./content";
+export { cleaningWalkthrough, helpFor, type HelpTopic } from "./content";

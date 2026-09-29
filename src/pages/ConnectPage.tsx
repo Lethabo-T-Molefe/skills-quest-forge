@@ -1,98 +1,94 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Chip, Field, HelpTip, Panel, SignalButton, TextInput } from "@/components";
+import { BackLink, Chip, Field, HelpTip, Segmented, SignalButton, TextInput } from "@/components";
 import { useConnectors } from "@/features/connectors";
 import { MainLayout } from "@/layouts/MainLayout";
 
 const kinds = [
-  { id: "postgres", label: "Relational database" },
-  { id: "warehouse", label: "Cloud warehouse" },
-  { id: "spreadsheet", label: "Spreadsheet file" },
+  { value: "postgres", label: "Relational database" },
+  { value: "warehouse", label: "Cloud warehouse" },
+  { value: "spreadsheet", label: "Spreadsheet file" },
 ] as const;
+
+type Kind = (typeof kinds)[number]["value"];
 
 export function ConnectPage() {
   const connectors = useConnectors();
-  const [kind, setKind] = useState<(typeof kinds)[number]["id"]>("postgres");
+  const [kind, setKind] = useState<Kind>("postgres");
 
   return (
     <MainLayout
-      label="governed live sources"
+      back={<BackLink to="/datasets">All datasets</BackLink>}
       title="Connect a source"
-      intro="A read-only connector reads from a live source under credentials held in the secrets service. Its tables appear in the catalogue with classification and masking applied, exactly as an upload would."
+      description="A read-only connection to a live source. Its tables appear in Datasets, classified and masked like an upload, and wait for a steward's approval."
     >
-      <div className="grid gap-6 lg:grid-cols-[7fr_5fr]">
-        <Panel>
-          <h2 className="heading-2">New connector</h2>
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)]">
+        <section className="panel p-5" aria-label="New connection">
+          <h2 className="font-display text-xl">New connection</h2>
           <form
-            className="mt-5 space-y-4"
+            className="mt-4 space-y-4"
             onSubmit={(event) => {
               event.preventDefault();
-              toast.success("Connector requested. Tables will appear as pending until a Steward approves them.");
+              toast.success("Connection requested", {
+                description: "Its tables will appear in Datasets as waiting until a steward approves them.",
+              });
             }}
           >
-            <div className="flex flex-wrap gap-2">
-              {kinds.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setKind(item.id)}
-                  className={`rounded-[999px] border px-4 py-2 text-sm ${
-                    kind === item.id
-                      ? "border-transparent bg-surface-inverse text-background"
-                      : "border-line-strong"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+            <Segmented label="Source type" value={kind} onValueChange={setKind} options={[...kinds]} />
             <Field label="Display name">
-              <TextInput placeholder="Finance warehouse" />
+              <TextInput placeholder="Finance warehouse" required />
             </Field>
             {kind !== "spreadsheet" ? (
-              <>
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Host">
-                  <TextInput placeholder="warehouse.internal" />
+                  <TextInput placeholder="warehouse.internal" required />
                 </Field>
                 <Field label="Database">
-                  <TextInput placeholder="analytics" />
+                  <TextInput placeholder="analytics" required />
                 </Field>
-              </>
+              </div>
             ) : (
               <Field label="Spreadsheet path">
-                <TextInput placeholder="shared/fee_schedule.xlsx" />
+                <TextInput placeholder="shared/fee_schedule.xlsx" required />
               </Field>
             )}
             <p className="text-xs text-muted-foreground">
-              Credentials are held in the secrets service and issued as short-lived scoped tokens. The connector is
-              read-only.
+              Credentials stay in the secrets service and are issued as short-lived, scoped tokens. The connection can
+              only read.
             </p>
-            <SignalButton type="submit">Request connection</SignalButton>
+            <SignalButton type="submit">Request the connection</SignalButton>
           </form>
-        </Panel>
+        </section>
 
-        <div className="space-y-3">
-          {connectors.map((connector) => (
-            <Panel key={connector.id}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="label-paren">({connector.kind})</p>
-                  <h2 className="heading-2 mt-1">{connector.name}</h2>
-                  <p className="mt-2 text-sm text-muted-foreground">{connector.sourcePath}</p>
+        <section aria-label="Existing connections">
+          <h2 className="font-sans mb-3 text-sm font-medium">Existing connections</h2>
+          <ul className="divide-y divide-border border border-border bg-surface-raised">
+            {connectors.map((connector) => (
+              <li key={connector.id} className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium">{connector.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{connector.sourcePath}</p>
+                  </div>
+                  <Chip tone={connector.status === "connected" ? "ok" : "warn"}>{connector.status}</Chip>
                 </div>
-                <Chip tone={connector.status === "connected" ? "ok" : "warn"}>{connector.status}</Chip>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Chip>{connector.tables} tables</Chip>
-                <Chip>Owner · {connector.owner}</Chip>
-                <Chip>Synced {connector.lastSync}</Chip>
-              </div>
-            </Panel>
-          ))}
-          <HelpTip>
-            Until a Steward approves a connected table, it is not queryable in the cleaned or analytics layers.
-          </HelpTip>
-        </div>
+                <p className="num mt-2 text-xs text-muted-foreground">
+                  {connector.tables} tables · owner {connector.owner} · synced {connector.lastSync}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3">
+            <HelpTip>
+              Until a steward approves a connected table, it cannot be analysed. Stewards find it under{" "}
+              <Link to="/governance" className="text-signal-strong underline-offset-4 hover:underline">
+                Approvals
+              </Link>
+              .
+            </HelpTip>
+          </div>
+        </section>
       </div>
     </MainLayout>
   );

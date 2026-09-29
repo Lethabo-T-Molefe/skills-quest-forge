@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export const quietButtonClass =
@@ -12,7 +12,7 @@ export function QuietButton({
   active,
   type = "button",
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { children: ReactNode; active?: boolean }) {
+}: ComponentProps<"button"> & { children: ReactNode; active?: boolean }) {
   return (
     <button type={type} className={cn(quietButtonClass, active && quietButtonActiveClass, className)} {...props}>
       {children}

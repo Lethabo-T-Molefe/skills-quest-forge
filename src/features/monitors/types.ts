@@ -11,6 +11,8 @@ export interface Alert {
   when: string;
   severity: "high" | "low";
   rootCause: RootCauseFactor[];
+  /** The chart-builder setup that lets someone explore this change themselves. */
+  explore?: { dataset: string; method: "explain" | "trend"; measure: string; dimension?: string };
 }
 
 export interface Monitor {

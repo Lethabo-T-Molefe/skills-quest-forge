@@ -1,72 +1,86 @@
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Chip, HelpTip, Notice, Panel, QuietButton, SignalButton } from "@/components";
+import { Chip, EmptyState, QuietButton, SignalButton } from "@/components";
 import { canApprove, useCurrentUser } from "@/features/auth";
-import { classificationLabel, useDatasets } from "@/features/datasets";
+import { classificationLabel, layerLabels, useDatasets } from "@/features/datasets";
 import { MainLayout } from "@/layouts/MainLayout";
+import { formatNumber } from "@/lib/format";
 
 export function GovernancePage() {
   const datasets = useDatasets();
   const user = useCurrentUser();
   const pending = datasets.filter((item) => item.status === "pending");
+  const mayDecide = canApprove(user);
 
   return (
     <MainLayout
-      label="steward queue"
-      title="Approvals and classification"
-      intro="A dataset moves through pending, approved or rejected. Until a Steward approves it, it is not queryable in the cleaned or analytics layers. The decision, the deciding member and the reason are recorded."
+      title="Approvals"
+      description="Nothing can be analysed until a steward approves it. Review each dataset's quality and classification, then decide. The decision, who made it and why are recorded."
     >
-      {pending.length > 0 ? (
-        <Notice tone="warn" title={`${pending.length} dataset${pending.length === 1 ? "" : "s"} waiting`}>
-          Until a Steward approves a file, it stays out of explorer, the assistant and gold dashboards.
-        </Notice>
+      {!mayDecide ? (
+        <p className="mb-4 text-sm text-warning">Only stewards and administrators can approve or reject datasets.</p>
       ) : null}
-      <div className={pending.length > 0 ? "mt-6" : ""}>
+
       {pending.length === 0 ? (
-        <Panel>
-          <p className="text-sm">Nothing is waiting for a decision.</p>
-        </Panel>
+        <EmptyState title="Nothing is waiting for a decision" body="New uploads and connected tables will appear here for review." />
       ) : (
-        <div className="space-y-3">
+        <ul className="divide-y divide-border border border-border bg-surface-raised">
           {pending.map((dataset) => (
-            <Panel key={dataset.id}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="label-paren">({dataset.layer})</p>
-                  <h2 className="heading-2 mt-1">{dataset.name}</h2>
-                  <p className="mt-2 max-w-[68ch] text-sm text-muted-foreground">{dataset.description}</p>
-                </div>
-                <Chip tone="warn">{dataset.status}</Chip>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Chip>{classificationLabel[dataset.classification]}</Chip>
-                <Chip>Owner · {dataset.owner}</Chip>
-                <Chip>{dataset.sourceName}</Chip>
-              </div>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <SignalButton
-                  disabled={!canApprove(user)}
-                  onClick={() => toast.success(`${dataset.name} approved. The decision was written to the audit log.`)}
+            <li key={dataset.id} className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
+              <div className="min-w-0 flex-1 basis-72">
+                <Link
+                  to="/datasets/$datasetId"
+                  params={{ datasetId: dataset.id }}
+                  className="font-display text-lg underline-offset-4 hover:underline"
                 >
-                  Approve
-                </SignalButton>
+                  {dataset.name}
+                </Link>
+                <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">{dataset.description}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Chip>{layerLabels[dataset.layer]}</Chip>
+                  <Chip tone={dataset.classification === "restricted-personal" ? "signal" : "neutral"}>
+                    {classificationLabel[dataset.classification]}
+                  </Chip>
+                  <Chip>Owner · {dataset.owner}</Chip>
+                </div>
+              </div>
+              <dl className="num grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <dt className="text-xs text-muted-foreground">Complete</dt>
+                  <dd>{dataset.quality.completeness}%</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">Repeats</dt>
+                  <dd>{formatNumber(dataset.quality.duplicates)}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">Rows</dt>
+                  <dd>{formatNumber(dataset.rows)}</dd>
+                </div>
+              </dl>
+              <div className="flex flex-wrap gap-2">
                 <QuietButton
-                  disabled={!canApprove(user)}
-                  onClick={() => toast.error(`${dataset.name} rejected. The reason will be stored with the decision.`)}
+                  disabled={!mayDecide}
+                  onClick={() => toast.error(`${dataset.name} rejected`, { description: "The reason is stored with the decision." })}
                 >
                   Reject
                 </QuietButton>
+                <SignalButton
+                  disabled={!mayDecide}
+                  onClick={() =>
+                    toast.success(`${dataset.name} approved`, { description: "The decision was written to the audit trail." })
+                  }
+                >
+                  Approve
+                </SignalButton>
               </div>
-            </Panel>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
-      </div>
-      <div className="mt-6">
-        <HelpTip>
-          Classification is mandatory and drives how the data may be used. Restricted-personal columns stay masked
-          before promotion.
-        </HelpTip>
-      </div>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Classification is mandatory and decides how data may be used. Personal columns stay masked after approval.
+      </p>
     </MainLayout>
   );
 }

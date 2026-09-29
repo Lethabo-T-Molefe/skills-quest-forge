@@ -1,31 +1,33 @@
-import { LayerStrip, Panel } from "@/components";
+import { LayerStrip } from "@/components";
 import type { Dataset } from "../types";
 
+/** Where the data came from and which layers it has reached. */
 export function DatasetLineagePanel({ dataset }: { dataset: Dataset }) {
   return (
-    <Panel className="overflow-hidden p-0">
-      <div className="p-6">
-        <h2 className="heading-2">Lineage</h2>
-        <ol className="mt-4 space-y-3 text-sm">
-          <li className="flex gap-3">
-            <span className="num w-16 shrink-0 text-muted-foreground">bronze</span>
-            <span>{dataset.sourceName} · raw, immutable</span>
-          </li>
-          <li className="flex gap-3">
-            <span className="num w-16 shrink-0 text-muted-foreground">silver</span>
-            <span className={dataset.layer === "bronze" ? "text-muted-foreground" : ""}>
-              {dataset.layer === "bronze" ? "Not cleaned yet" : "Cleaned, typed, masked, deduplicated"}
-            </span>
-          </li>
-          <li className="flex gap-3">
-            <span className="num w-16 shrink-0 text-muted-foreground">gold</span>
-            <span className={dataset.layer === "gold" ? "" : "text-muted-foreground"}>
-              {dataset.layer === "gold" ? "Published for dashboards and metrics" : "Not promoted"}
-            </span>
-          </li>
-        </ol>
-      </div>
+    <div className="space-y-4">
+      <ol className="space-y-2.5 text-sm">
+        <li className="flex gap-3">
+          <span className="w-16 shrink-0 text-muted-foreground">Bronze</span>
+          <span>{dataset.sourceName} · raw, never changed</span>
+        </li>
+        <li className="flex gap-3">
+          <span className="w-16 shrink-0 text-muted-foreground">Silver</span>
+          <span className={dataset.layer === "bronze" ? "text-muted-foreground" : ""}>
+            {dataset.layer === "bronze" ? "Not cleaned yet" : "Cleaned, typed, masked and deduplicated"}
+          </span>
+        </li>
+        <li className="flex gap-3">
+          <span className="w-16 shrink-0 text-muted-foreground">Gold</span>
+          <span className={dataset.layer === "gold" ? "" : "text-muted-foreground"}>
+            {dataset.layer === "gold" ? "Published for dashboards and metrics" : "Not promoted"}
+          </span>
+        </li>
+      </ol>
       <LayerStrip current={dataset.layer} />
-    </Panel>
+      <p className="text-xs text-muted-foreground">
+        Every move between layers is recorded with a timestamp and the person who made it, so any figure can be traced
+        back to this source.
+      </p>
+    </div>
   );
 }

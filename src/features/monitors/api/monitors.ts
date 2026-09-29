@@ -9,6 +9,7 @@ const alerts: Alert[] = [
     message: "Fell 23% below the expected band in March",
     when: "2 days ago",
     severity: "high",
+    explore: { dataset: "regional-revenue", method: "explain", measure: "revenue", dimension: "region" },
     rootCause: [
       { factor: "Enrolments in Bloemfontein", contribution: "-14%", detail: "412 fewer enrolments than February" },
       { factor: "Average fee paid", contribution: "-6%", detail: "More learners on the subsidised rate" },
@@ -21,6 +22,7 @@ const alerts: Alert[] = [
     message: "Crossed above its 70% target for the first time",
     when: "6 days ago",
     severity: "low",
+    explore: { dataset: "course-completions", method: "trend", measure: "completion_rate" },
     rootCause: [
       { factor: "New guided practice module", contribution: "+8%", detail: "Introduced to cohorts from February" },
       { factor: "Shorter course length", contribution: "+3%", detail: "Median days to complete fell to 27" },

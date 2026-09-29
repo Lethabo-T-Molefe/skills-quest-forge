@@ -12,9 +12,8 @@ export function SearchPage() {
 
   return (
     <MainLayout
-      label="catalogue search"
       title={q ? `Results for “${q}”` : "Search"}
-      intro="The catalogue is a searchable inventory of tables, columns, definitions and lineage, indexed so the assistant can find the right objects."
+      description="Find datasets, shared metrics, dashboards and members in one place."
     >
       <SearchField
         className="mb-6 max-w-xl"

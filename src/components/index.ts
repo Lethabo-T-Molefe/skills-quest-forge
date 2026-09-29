@@ -1,3 +1,4 @@
+export { BackLink } from "./BackLink";
 export { Chip, type ChipTone } from "./Chip";
 export { CodeBlock } from "./CodeBlock";
 export { ConfirmDialog } from "./ConfirmDialog";
@@ -6,6 +7,7 @@ export { Drawer } from "./Drawer";
 export { EmptyState } from "./EmptyState";
 export { Field, inputClass, textareaClass } from "./Field";
 export { HelpTip } from "./HelpTip";
+export { JourneySteps, type JourneyStep, type StepState } from "./JourneySteps";
 export { LayerStrip } from "./LayerStrip";
 export { Logo, type LogoVariant } from "./Logo";
 export { MediaFrame } from "./MediaFrame";
@@ -16,6 +18,8 @@ export { QuietButton, quietButtonActiveClass, quietButtonClass } from "./QuietBu
 export { ResultTable } from "./ResultTable";
 export { ScrollPane } from "./ScrollPane";
 export { SearchField } from "./SearchField";
+export { Segmented, type SegmentedOption } from "./Segmented";
 export { SelectMenu } from "./SelectMenu";
 export { SignalButton, signalButtonClass } from "./SignalButton";
+export { TabsContent, TabsList, TabsRoot, TabsTrigger } from "./Tabs";
 export { TextArea, TextInput } from "./TextInput";

@@ -10,22 +10,32 @@ export function SelectMenu({
   options,
   placeholder = "Choose",
   id,
+  size = "md",
+  className,
+  ariaLabel,
 }: {
   label?: string;
   value: string;
   onValueChange: (value: string) => void;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; disabled?: boolean }[];
   placeholder?: string;
   id?: string;
+  size?: "sm" | "md";
+  className?: string;
+  /** Accessible name when there is no visible label. */
+  ariaLabel?: string;
 }) {
   return (
-    <label className="block text-sm">
-      {label ? <span className="font-medium">{label}</span> : null}
+    <label className={cn("block text-sm", className)}>
+      {label ? <span className={size === "sm" ? "text-xs font-medium text-muted-foreground" : "font-medium"}>{label}</span> : null}
       <SelectPrimitive.Root value={value} onValueChange={onValueChange}>
         <SelectPrimitive.Trigger
           id={id}
+          aria-label={ariaLabel}
           className={cn(
-            "mt-1.5 flex w-full items-center justify-between rounded-[999px] border border-line-strong bg-surface-raised px-4 py-2.5 text-left text-sm",
+            "flex w-full items-center justify-between rounded-[999px] border border-line-strong bg-surface-raised text-left text-sm",
+            size === "sm" ? "px-3.5 py-1.5" : "px-4 py-2.5",
+            label ? (size === "sm" ? "mt-1" : "mt-1.5") : null,
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal",
             "disabled:opacity-50",
           )}
@@ -47,7 +57,8 @@ export function SelectMenu({
                   <SelectPrimitive.Item
                     key={option.value}
                     value={option.value}
-                    className="relative flex cursor-pointer items-center justify-between px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[state=checked]:font-medium"
+                    disabled={option.disabled ?? false}
+                    className="relative flex cursor-pointer items-center justify-between gap-3 px-3 py-2 text-sm outline-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45 data-[highlighted]:bg-accent data-[state=checked]:font-medium"
                   >
                     <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
                     <SelectPrimitive.ItemIndicator>

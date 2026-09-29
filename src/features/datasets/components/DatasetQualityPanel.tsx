@@ -1,68 +1,71 @@
 import { Lock } from "lucide-react";
-import { Panel, ScrollPane } from "@/components";
 import { formatNumber } from "@/lib/format";
 import type { Dataset } from "../types";
 
-/** Quality metrics plus the per-column profile table. */
-export function DatasetQualityPanel({ dataset }: { dataset: Dataset }) {
+/** The four headline quality measures, taken when the data arrived. */
+export function DatasetQualitySummary({ dataset }: { dataset: Dataset }) {
   const q = dataset.quality;
-
   return (
-    <Panel>
-      <h2 className="heading-2">Quality profile</h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Measured on all <span className="num">{formatNumber(dataset.rows)}</span> rows when the data arrived.
-      </p>
-      <div className="num mt-5 grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
+    <div>
+      <div className="num grid grid-cols-2 gap-px border border-border bg-border sm:grid-cols-4">
         {[
-          ["Completeness", `${q.completeness}%`],
-          ["Type conformance", `${q.conformance}%`],
-          ["Duplicate rows", formatNumber(q.duplicates)],
-          ["Outliers", formatNumber(q.outliers)],
-        ].map(([k, v]) => (
-          <div key={k} className="bg-surface-raised p-4">
-            <p className="font-sans text-xs text-muted-foreground">{k}</p>
-            <p className="mt-1 font-display text-2xl font-light">{v}</p>
+          ["Completeness", `${q.completeness}%`, "Cells that are filled in"],
+          ["Type conformance", `${q.conformance}%`, "Values that match their column type"],
+          ["Duplicate rows", formatNumber(q.duplicates), "Rows that repeat another row"],
+          ["Outliers", formatNumber(q.outliers), "Values far from the rest"],
+        ].map(([label, value, hint]) => (
+          <div key={label} className="bg-surface-raised p-4" title={hint}>
+            <p className="font-sans text-xs text-muted-foreground">{label}</p>
+            <p className="mt-1 font-display text-2xl font-light">{value}</p>
           </div>
         ))}
       </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Measured on all <span className="num">{formatNumber(dataset.rows)}</span> rows when the data arrived.
+      </p>
+    </div>
+  );
+}
 
-      <h3 className="mt-8 text-sm font-semibold">Columns</h3>
-      <ScrollPane className="mt-3" orientation="horizontal">
+/** Per-column profile: type, emptiness, distinct values and a masked sample. */
+export function DatasetColumnsTable({ dataset }: { dataset: Dataset }) {
+  return (
+    <div>
+      <div className="overflow-x-auto border border-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-line-strong text-left text-xs text-muted-foreground">
-              <th className="py-2 pr-4 font-medium">Column</th>
-              <th className="py-2 pr-4 font-medium">Type</th>
-              <th className="py-2 pr-4 font-medium">Missing</th>
-              <th className="py-2 pr-4 font-medium">Distinct</th>
-              <th className="py-2 font-medium">Sample</th>
+            <tr className="border-b border-line-strong bg-surface-alt text-left text-xs text-muted-foreground">
+              <th className="px-4 py-2.5 font-medium">Column</th>
+              <th className="px-4 py-2.5 font-medium">Type</th>
+              <th className="px-4 py-2.5 font-medium">Missing</th>
+              <th className="px-4 py-2.5 font-medium">Distinct</th>
+              <th className="px-4 py-2.5 font-medium">Sample</th>
             </tr>
           </thead>
-          <tbody className="num">
+          <tbody className="num bg-surface-raised">
             {dataset.columns.map((c) => (
               <tr key={c.name} className="border-b border-border last:border-0">
-                <td className="py-2.5 pr-4 font-sans font-medium">
+                <td className="px-4 py-2 font-sans font-medium">
                   <span className="flex items-center gap-1.5">
                     {c.name}
-                    {c.masked ? <Lock className="size-3.5 text-signal-strong" strokeWidth={1.75} /> : null}
+                    {c.masked ? <Lock className="size-3.5 text-signal-strong" strokeWidth={1.75} aria-label="Masked" /> : null}
                   </span>
                 </td>
-                <td className="py-2.5 pr-4 font-sans text-muted-foreground">{c.type}</td>
-                <td className={`py-2.5 pr-4 ${c.missingPct > 5 ? "text-signal-strong" : "text-muted-foreground"}`}>
+                <td className="px-4 py-2 font-sans text-muted-foreground">{c.type}</td>
+                <td className={`px-4 py-2 ${c.missingPct > 5 ? "text-signal-strong" : "text-muted-foreground"}`}>
                   {c.missingPct}%
                 </td>
-                <td className="py-2.5 pr-4 text-muted-foreground">{formatNumber(c.distinct)}</td>
-                <td className="py-2.5 text-muted-foreground">{c.sample}</td>
+                <td className="px-4 py-2 text-muted-foreground">{formatNumber(c.distinct)}</td>
+                <td className="px-4 py-2 text-muted-foreground">{c.sample}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </ScrollPane>
-      <p className="mt-3 text-xs text-muted-foreground">
-        Columns marked with a lock were detected as personal information and masked before this data became
-        readable.
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        A lock means the column was detected as personal information and masked before anyone could read it. Missing
+        values above 5% are highlighted.
       </p>
-    </Panel>
+    </div>
   );
 }

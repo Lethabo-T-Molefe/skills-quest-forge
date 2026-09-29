@@ -12,6 +12,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { isPublicPath } from "@/config/public";
 import { pageTitle, siteConfig } from "@/config/site";
+import { parseAnalyseSearch, parseAskSearch, parseBuildSearch, parseCodeSearch } from "@/features/analysis";
 import { authPaths, currentUserQuery, getSession, orgMembersQuery } from "@/features/auth";
 import { auditEventsQuery } from "@/features/audit";
 import { assistantExamplesQuery } from "@/features/assistant";
@@ -24,7 +25,6 @@ import { alertQuery, alertsQuery, monitorsQuery, predictionQuery } from "@/featu
 import { notebooksQuery } from "@/features/workbench";
 import { AdminPage } from "@/pages/AdminPage";
 import { AlertDetailPage } from "@/pages/AlertDetailPage";
-import { AssistantPage } from "@/pages/AssistantPage";
 import { AuditPage } from "@/pages/AuditPage";
 import { CleaningPage } from "@/pages/CleaningPage";
 import { CleaningStudioPage } from "@/pages/CleaningStudioPage";
@@ -34,13 +34,11 @@ import { DashboardsPage } from "@/pages/DashboardsPage";
 import { DatasetDetailPage } from "@/pages/DatasetDetailPage";
 import { DatasetsPage } from "@/pages/DatasetsPage";
 import { ErrorPage } from "@/pages/ErrorPage";
-import { ExplorerPage } from "@/pages/ExplorerPage";
 import { GovernancePage } from "@/pages/GovernancePage";
 import { MfaPage } from "@/pages/MfaPage";
 import { MonitorsPage } from "@/pages/MonitorsPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { OverviewPage } from "@/pages/OverviewPage";
-import { PredictPage } from "@/pages/PredictPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { SearchPage } from "@/pages/SearchPage";
 import { SemanticPage } from "@/pages/SemanticPage";
@@ -48,7 +46,11 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { SignInPage } from "@/pages/SignInPage";
 import { UploadPage } from "@/pages/UploadPage";
 import { VerifyPage } from "@/pages/VerifyPage";
-import { WorkbenchPage } from "@/pages/WorkbenchPage";
+import { AnalysePage } from "@/pages/analyse/AnalysePage";
+import { AskPage } from "@/pages/analyse/AskPage";
+import { BuildPage } from "@/pages/analyse/BuildPage";
+import { CodePage } from "@/pages/analyse/CodePage";
+import { PredictPage } from "@/pages/analyse/PredictPage";
 import { AudiencePage } from "@/pages/public/AudiencePage";
 import { ContactPage } from "@/pages/public/ContactPage";
 import { LandingPage } from "@/pages/public/LandingPage";
@@ -172,6 +174,8 @@ const contactRoute = createRoute({
   component: ContactPage,
 });
 
+/* ------------------------------------------------------------------ home and data */
+
 const overviewRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "workspace",
@@ -181,12 +185,10 @@ const overviewRoute = createRoute({
       queryClient.ensureQueryData(datasetsQuery()),
       queryClient.ensureQueryData(alertsQuery()),
       queryClient.ensureQueryData(auditEventsQuery()),
+      queryClient.ensureQueryData(dashboardsQuery()),
     ]),
   head: () => ({
-    meta: pageMeta(
-      pageTitle("Workspace overview"),
-      "DataForge is a governed analytics workspace: upload data, clean it step by step, ask questions in plain English and share the answer.",
-    ),
+    meta: pageMeta(pageTitle("Home"), "Your next steps: bring data in, clean it, analyse it and share the answer."),
   }),
   component: OverviewPage,
 });
@@ -196,10 +198,7 @@ const datasetsRoute = createRoute({
   path: "datasets",
   loader: ({ context }) => context.queryClient.ensureQueryData(datasetsQuery()),
   head: () => ({
-    meta: pageMeta(
-      pageTitle("Dataset catalogue"),
-      "Browse governed datasets with their classification, approval status and quality profile.",
-    ),
+    meta: pageMeta(pageTitle("Datasets"), "Every dataset with its classification, approval status, quality and next step."),
   }),
   component: DatasetsPage,
 });
@@ -236,14 +235,20 @@ const datasetDetailRoute = createRoute({
   component: DatasetDetailPage,
 });
 
+/* ------------------------------------------------------------------ clean */
+
 const cleaningStudioRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "clean",
-  loader: ({ context }) => context.queryClient.ensureQueryData(datasetsQuery()),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(datasetsQuery()),
+      context.queryClient.ensureQueryData(cleaningStepsQuery()),
+    ]),
   head: () => ({
     meta: pageMeta(
-      pageTitle("Clean data"),
-      "Guided cleaning studio. Profile a file, work one family of problems at a time, and save a versioned silver recipe.",
+      pageTitle("Clean"),
+      "Choose a file to clean. Profile it, fix one family of problems at a time, and save a versioned silver recipe.",
     ),
   }),
   component: CleaningStudioPage,
@@ -251,7 +256,7 @@ const cleaningStudioRoute = createRoute({
 
 const cleaningRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "datasets/$datasetId/clean",
+  path: "clean/$datasetId",
   loader: async ({ context, params }) => {
     const [dataset] = await Promise.all([
       context.queryClient.ensureQueryData(datasetQuery(params.datasetId)),
@@ -261,29 +266,64 @@ const cleaningRoute = createRoute({
     if (!dataset) throw notFound();
     return { dataset };
   },
-  head: () => ({ meta: pageMeta(pageTitle("Cleaning wizard"), "Guided step-by-step data cleaning.") }),
+  head: ({ loaderData }) => ({
+    meta: pageMeta(pageTitle(`Clean ${loaderData?.dataset.name ?? "data"}`), "Guided, step-by-step data cleaning."),
+  }),
   component: CleaningPage,
 });
 
-const assistantRoute = createRoute({
+/* ------------------------------------------------------------------ analyse */
+
+const analyseRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "assistant",
-  loader: ({ context }) => context.queryClient.ensureQueryData(assistantExamplesQuery()),
+  path: "analyse",
+  validateSearch: parseAnalyseSearch,
+  loader: ({ context }) => context.queryClient.ensureQueryData(datasetsQuery()),
   head: () => ({
-    meta: pageMeta(pageTitle("Assistant"), "Ask a grounded question in plain English."),
+    meta: pageMeta(pageTitle("Analyse"), "Choose the data, the kind of question and how you want to work."),
   }),
-  component: AssistantPage,
+  component: AnalysePage,
 });
 
-const explorerRoute = createRoute({
+const analyseAskRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "explorer",
-  validateSearch: (search: Record<string, unknown>) =>
-    typeof search["dataset"] === "string" ? { dataset: search["dataset"] } : {},
-  loader: ({ context }) => context.queryClient.ensureQueryData(datasetsQuery()),
-  head: () => ({ meta: pageMeta(pageTitle("Explorer"), "Point-and-click charts with generated SQL.") }),
-  component: ExplorerPage,
+  path: "analyse/ask",
+  validateSearch: parseAskSearch,
+  loader: ({ context }) => context.queryClient.ensureQueryData(assistantExamplesQuery()),
+  head: () => ({ meta: pageMeta(pageTitle("Ask a question"), "Ask a grounded question in plain English.") }),
+  component: AskPage,
 });
+
+const analyseBuildRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "analyse/build",
+  validateSearch: parseBuildSearch,
+  loader: ({ context }) => context.queryClient.ensureQueryData(datasetsQuery()),
+  head: () => ({
+    meta: pageMeta(pageTitle("Build a chart"), "Point-and-click analysis where you choose how the numbers are calculated."),
+  }),
+  component: BuildPage,
+});
+
+const analyseCodeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "analyse/code",
+  validateSearch: parseCodeSearch,
+  loader: ({ context }) => context.queryClient.ensureQueryData(notebooksQuery()),
+  head: () => ({ meta: pageMeta(pageTitle("Write SQL"), "SQL workbench and sandboxed notebooks.") }),
+  component: CodePage,
+});
+
+const analysePredictRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "analyse/predict",
+  validateSearch: parseAnalyseSearch,
+  loader: ({ context }) => context.queryClient.ensureQueryData(predictionQuery()),
+  head: () => ({ meta: pageMeta(pageTitle("Predict"), "Guided, explainable scores.") }),
+  component: PredictPage,
+});
+
+/* ------------------------------------------------------------------ share and watch */
 
 const dashboardsRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -333,12 +373,22 @@ const alertDetailRoute = createRoute({
   component: AlertDetailPage,
 });
 
+/* ------------------------------------------------------------------ governance and account */
+
 const semanticRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "semantic",
   loader: ({ context }) => context.queryClient.ensureQueryData(metricDefinitionsQuery()),
-  head: () => ({ meta: pageMeta(pageTitle("Semantic layer"), "Shared metric definitions.") }),
+  head: () => ({ meta: pageMeta(pageTitle("Metrics"), "Shared metric definitions.") }),
   component: SemanticPage,
+});
+
+const governanceRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "governance",
+  loader: ({ context }) => context.queryClient.ensureQueryData(datasetsQuery()),
+  head: () => ({ meta: pageMeta(pageTitle("Approvals"), "Steward approval and classification queue.") }),
+  component: GovernancePage,
 });
 
 const auditRoute = createRoute({
@@ -347,24 +397,6 @@ const auditRoute = createRoute({
   loader: ({ context }) => context.queryClient.ensureQueryData(auditEventsQuery()),
   head: () => ({ meta: pageMeta(pageTitle("Audit trail"), "Immutable record of who did what, and when.") }),
   component: AuditPage,
-});
-
-const workbenchRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "workbench",
-  validateSearch: (search: Record<string, unknown>) =>
-    typeof search["sql"] === "string" ? { sql: search["sql"] } : {},
-  loader: ({ context }) => context.queryClient.ensureQueryData(notebooksQuery()),
-  head: () => ({ meta: pageMeta(pageTitle("Workbench"), "SQL workbench and sandboxed notebooks.") }),
-  component: WorkbenchPage,
-});
-
-const predictRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "predict",
-  loader: ({ context }) => context.queryClient.ensureQueryData(predictionQuery()),
-  head: () => ({ meta: pageMeta(pageTitle("Predict"), "Guided, explainable scores.") }),
-  component: PredictPage,
 });
 
 const adminRoute = createRoute({
@@ -397,12 +429,49 @@ const searchRoute = createRoute({
   component: SearchPage,
 });
 
-const governanceRoute = createRoute({
+/* ------------------------------------------------------------------ old addresses */
+
+// Earlier versions used these paths. They redirect so bookmarks and shared links keep working.
+const legacyCleaningRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "governance",
-  loader: ({ context }) => context.queryClient.ensureQueryData(datasetsQuery()),
-  head: () => ({ meta: pageMeta(pageTitle("Approvals"), "Steward approval and classification queue.") }),
-  component: GovernancePage,
+  path: "datasets/$datasetId/clean",
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: "/clean/$datasetId", params: { datasetId: params.datasetId }, replace: true });
+  },
+});
+
+const legacyAssistantRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "assistant",
+  beforeLoad: () => {
+    throw redirect({ to: "/analyse/ask", replace: true });
+  },
+});
+
+const legacyExplorerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "explorer",
+  validateSearch: parseBuildSearch,
+  beforeLoad: ({ search }) => {
+    throw redirect({ to: "/analyse/build", search, replace: true });
+  },
+});
+
+const legacyWorkbenchRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "workbench",
+  validateSearch: parseCodeSearch,
+  beforeLoad: ({ search }) => {
+    throw redirect({ to: "/analyse/code", search, replace: true });
+  },
+});
+
+const legacyPredictRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "predict",
+  beforeLoad: () => {
+    throw redirect({ to: "/analyse/predict", replace: true });
+  },
 });
 
 const routeTree = rootRoute.addChildren([
@@ -422,20 +491,26 @@ const routeTree = rootRoute.addChildren([
   datasetDetailRoute,
   cleaningStudioRoute,
   cleaningRoute,
-  assistantRoute,
-  explorerRoute,
+  analyseRoute,
+  analyseAskRoute,
+  analyseBuildRoute,
+  analyseCodeRoute,
+  analysePredictRoute,
   dashboardsRoute,
   dashboardDetailRoute,
   monitorsRoute,
   alertDetailRoute,
   semanticRoute,
+  governanceRoute,
   auditRoute,
-  workbenchRoute,
-  predictRoute,
   adminRoute,
   settingsRoute,
   searchRoute,
-  governanceRoute,
+  legacyCleaningRoute,
+  legacyAssistantRoute,
+  legacyExplorerRoute,
+  legacyWorkbenchRoute,
+  legacyPredictRoute,
 ]);
 
 const queryClient = new QueryClient();

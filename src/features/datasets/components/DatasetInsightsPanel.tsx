@@ -1,54 +1,77 @@
 import { Link } from "@tanstack/react-router";
-import { Panel, quietButtonClass } from "@/components";
-import type { Dataset } from "../types";
+import { quietButtonClass } from "@/components";
+import { canClean, useCurrentUser } from "@/features/auth";
+import type { Dataset, DatasetInsight } from "../types";
 
-export function DatasetInsightsPanel({ dataset }: { dataset: Dataset }) {
+/** Insights found before anyone asked, each with the step that follows from it. */
+export function DatasetInsightsList({ dataset }: { dataset: Dataset }) {
   return (
-    <Panel>
-      <p className="label-paren">(before you ask)</p>
-      <h2 className="heading-2 mt-1">What we noticed</h2>
-      <ul className="mt-4 space-y-5">
-        {dataset.insights.map((i) => (
-          <li key={i.title} className="border-l-2 border-signal pl-4">
-            <p className="text-xs text-muted-foreground">{i.kind}</p>
-            <p className="mt-0.5 font-medium">{i.title}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{i.body}</p>
-            <div className="mt-2">
-              <SuggestionLink datasetId={dataset.id} suggestion={i.suggestion} />
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Panel>
+    <ul className="space-y-4">
+      {dataset.insights.map((insight) => (
+        <li key={insight.title} className="border-l-2 border-signal pl-4">
+          <p className="text-xs text-muted-foreground">{insightKindLabel[insight.kind]}</p>
+          <p className="mt-0.5 font-medium">{insight.title}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{insight.body}</p>
+          <div className="mt-2">
+            <SuggestionLink dataset={dataset} insight={insight} />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
-function SuggestionLink({ datasetId, suggestion }: { datasetId: string; suggestion: string }) {
-  const text = suggestion.toLowerCase();
+const insightKindLabel: Record<DatasetInsight["kind"], string> = {
+  quality: "Data quality",
+  pattern: "Pattern",
+  anomaly: "Anomaly",
+};
+
+const smallButton = `${quietButtonClass} px-3 py-1.5 text-xs`;
+
+function SuggestionLink({ dataset, insight }: { dataset: Dataset; insight: DatasetInsight }) {
+  const user = useCurrentUser();
+  const text = insight.suggestion.toLowerCase();
+  const needsAnalysis = text.includes("chart") || text.includes("ask") || text.includes("monitor") || text.includes("root-cause");
+
+  // Analysis only runs on approved data, so say so rather than leading to a dead end.
+  if (needsAnalysis && dataset.status !== "approved") {
+    return <p className="text-xs text-muted-foreground">{insight.suggestion}: available once this dataset is approved.</p>;
+  }
   if (text.includes("chart")) {
     return (
-      <Link to="/explorer" search={{ dataset: datasetId }} className={quietButtonClass}>
-        {suggestion}
+      <Link to="/analyse/build" search={{ dataset: dataset.id, method: "compare" }} className={smallButton}>
+        {insight.suggestion}
       </Link>
     );
   }
-  if (text.includes("monitor") || text.includes("root-cause")) {
+  if (text.includes("monitor")) {
     return (
-      <Link to="/monitors" className={quietButtonClass}>
-        {suggestion}
+      <Link to="/monitors" className={smallButton}>
+        {insight.suggestion}
+      </Link>
+    );
+  }
+  if (text.includes("root-cause")) {
+    return (
+      <Link to="/analyse/build" search={{ dataset: dataset.id, method: "explain" }} className={smallButton}>
+        {insight.suggestion}
       </Link>
     );
   }
   if (text.includes("ask")) {
     return (
-      <Link to="/assistant" className={quietButtonClass}>
-        {suggestion}
+      <Link to="/analyse/ask" search={{ dataset: dataset.id }} className={smallButton}>
+        {insight.suggestion}
       </Link>
     );
   }
+  if (!canClean(user)) {
+    return <p className="text-xs text-muted-foreground">Suggested fix: {insight.suggestion.toLowerCase()}.</p>;
+  }
   return (
-    <Link to="/datasets/$datasetId/clean" params={{ datasetId }} className={quietButtonClass}>
-      {suggestion}
+    <Link to="/clean/$datasetId" params={{ datasetId: dataset.id }} className={smallButton}>
+      {insight.suggestion}
     </Link>
   );
 }
