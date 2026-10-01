@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
 import { Field, Notice, SignalButton, TextInput } from "@/components";
 import { PASSWORD_MIN_LENGTH, passwordHint, resetPassword, signOut } from "@/features/auth";
 import { AuthLayout } from "@/layouts/AuthLayout";
@@ -9,7 +8,6 @@ import { errorMessage } from "@/lib/api";
 /** Opened from a reset email, or from the invitation an administrator sends to a new member. */
 export function ResetPasswordPage() {
   const { token } = useSearch({ from: "/reset-password" });
-  const queryClient = useQueryClient();
   const [password, setPassword] = useState("");
   const [repeat, setRepeat] = useState("");
   const [busy, setBusy] = useState(false);
@@ -29,7 +27,6 @@ export function ResetPasswordPage() {
       await resetPassword(token, password);
       // A reset ends every session for the account, so this browser signs in again with the new password.
       await signOut();
-      queryClient.clear();
       setDone(true);
     } catch (caught) {
       setError(errorMessage(caught, "The password could not be changed. Try again."));

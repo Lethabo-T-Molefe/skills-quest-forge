@@ -6,6 +6,7 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   notFound,
   redirect,
 } from "@tanstack/react-router";
@@ -34,43 +35,70 @@ import { dashboardQuery, dashboardsQuery } from "@/features/dashboards";
 import { datasetQuery, datasetsQuery } from "@/features/datasets";
 import { metricDefinitionsQuery, metricSummariesQuery } from "@/features/metrics";
 import { alertQuery, alertsQuery, monitorsQuery } from "@/features/monitors";
-import { AdminPage } from "@/pages/AdminPage";
-import { AlertDetailPage } from "@/pages/AlertDetailPage";
-import { AuditPage } from "@/pages/AuditPage";
-import { CleaningPage } from "@/pages/CleaningPage";
-import { CleaningStudioPage } from "@/pages/CleaningStudioPage";
-import { ConnectPage } from "@/pages/ConnectPage";
-import { DashboardDetailPage } from "@/pages/DashboardDetailPage";
-import { DashboardsPage } from "@/pages/DashboardsPage";
-import { DatasetDetailPage } from "@/pages/DatasetDetailPage";
-import { DatasetsPage } from "@/pages/DatasetsPage";
-import { EmbedPage } from "@/pages/EmbedPage";
 import { ErrorPage } from "@/pages/ErrorPage";
-import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
-import { GovernancePage } from "@/pages/GovernancePage";
-import { MfaPage } from "@/pages/MfaPage";
-import { MonitorsPage } from "@/pages/MonitorsPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { OverviewPage } from "@/pages/OverviewPage";
 import { PendingPage } from "@/pages/PendingPage";
-import { RegisterPage } from "@/pages/RegisterPage";
-import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
-import { SearchPage } from "@/pages/SearchPage";
-import { SemanticPage } from "@/pages/SemanticPage";
-import { SettingsPage } from "@/pages/SettingsPage";
 import { SignInPage } from "@/pages/SignInPage";
-import { UploadPage } from "@/pages/UploadPage";
-import { VerifyPage } from "@/pages/VerifyPage";
-import { AnalysePage } from "@/pages/analyse/AnalysePage";
-import { AskPage } from "@/pages/analyse/AskPage";
-import { BuildPage } from "@/pages/analyse/BuildPage";
-import { CodePage } from "@/pages/analyse/CodePage";
-import { PredictPage } from "@/pages/analyse/PredictPage";
-import { AudiencePage } from "@/pages/public/AudiencePage";
-import { ContactPage } from "@/pages/public/ContactPage";
 import { LandingPage } from "@/pages/public/LandingPage";
-import { ProductPage } from "@/pages/public/ProductPage";
-import { SecurityPage } from "@/pages/public/SecurityPage";
+
+// Each page is its own chunk, fetched the first time it is opened. The charting, notebook and
+// embedding code then loads only for the members who reach those pages.
+const AdminPage = lazyRouteComponent(() => import("@/pages/AdminPage"), "AdminPage");
+const AlertDetailPage = lazyRouteComponent(
+  () => import("@/pages/AlertDetailPage"),
+  "AlertDetailPage",
+);
+const AuditPage = lazyRouteComponent(() => import("@/pages/AuditPage"), "AuditPage");
+const CleaningPage = lazyRouteComponent(() => import("@/pages/CleaningPage"), "CleaningPage");
+const CleaningStudioPage = lazyRouteComponent(
+  () => import("@/pages/CleaningStudioPage"),
+  "CleaningStudioPage",
+);
+const ConnectPage = lazyRouteComponent(() => import("@/pages/ConnectPage"), "ConnectPage");
+const DashboardDetailPage = lazyRouteComponent(
+  () => import("@/pages/DashboardDetailPage"),
+  "DashboardDetailPage",
+);
+const DashboardsPage = lazyRouteComponent(() => import("@/pages/DashboardsPage"), "DashboardsPage");
+const DatasetDetailPage = lazyRouteComponent(
+  () => import("@/pages/DatasetDetailPage"),
+  "DatasetDetailPage",
+);
+const DatasetsPage = lazyRouteComponent(() => import("@/pages/DatasetsPage"), "DatasetsPage");
+const EmbedPage = lazyRouteComponent(() => import("@/pages/EmbedPage"), "EmbedPage");
+const ForgotPasswordPage = lazyRouteComponent(
+  () => import("@/pages/ForgotPasswordPage"),
+  "ForgotPasswordPage",
+);
+const GovernancePage = lazyRouteComponent(() => import("@/pages/GovernancePage"), "GovernancePage");
+const MfaPage = lazyRouteComponent(() => import("@/pages/MfaPage"), "MfaPage");
+const MonitorsPage = lazyRouteComponent(() => import("@/pages/MonitorsPage"), "MonitorsPage");
+const OverviewPage = lazyRouteComponent(() => import("@/pages/OverviewPage"), "OverviewPage");
+const RegisterPage = lazyRouteComponent(() => import("@/pages/RegisterPage"), "RegisterPage");
+const ResetPasswordPage = lazyRouteComponent(
+  () => import("@/pages/ResetPasswordPage"),
+  "ResetPasswordPage",
+);
+const SearchPage = lazyRouteComponent(() => import("@/pages/SearchPage"), "SearchPage");
+const SemanticPage = lazyRouteComponent(() => import("@/pages/SemanticPage"), "SemanticPage");
+const SettingsPage = lazyRouteComponent(() => import("@/pages/SettingsPage"), "SettingsPage");
+const UploadPage = lazyRouteComponent(() => import("@/pages/UploadPage"), "UploadPage");
+const VerifyPage = lazyRouteComponent(() => import("@/pages/VerifyPage"), "VerifyPage");
+const AnalysePage = lazyRouteComponent(() => import("@/pages/analyse/AnalysePage"), "AnalysePage");
+const AskPage = lazyRouteComponent(() => import("@/pages/analyse/AskPage"), "AskPage");
+const BuildPage = lazyRouteComponent(() => import("@/pages/analyse/BuildPage"), "BuildPage");
+const CodePage = lazyRouteComponent(() => import("@/pages/analyse/CodePage"), "CodePage");
+const PredictPage = lazyRouteComponent(() => import("@/pages/analyse/PredictPage"), "PredictPage");
+const AudiencePage = lazyRouteComponent(
+  () => import("@/pages/public/AudiencePage"),
+  "AudiencePage",
+);
+const ContactPage = lazyRouteComponent(() => import("@/pages/public/ContactPage"), "ContactPage");
+const ProductPage = lazyRouteComponent(() => import("@/pages/public/ProductPage"), "ProductPage");
+const SecurityPage = lazyRouteComponent(
+  () => import("@/pages/public/SecurityPage"),
+  "SecurityPage",
+);
 
 function pageMeta(title: string, description: string) {
   return [
@@ -661,10 +689,15 @@ const router = createRouter({
   defaultPendingMs: 400,
 });
 
-// When the API ends the session (sign-out elsewhere, an expired or replayed refresh token), start again.
+// When a session ends (sign-out, a changed password, an expired or replayed refresh token), start again.
 onSessionEnd(() => {
-  queryClient.clear();
-  if (!isPublicPath(router.state.location.pathname)) void router.navigate({ to: "/sign-in" });
+  if (isPublicPath(router.state.location.pathname)) {
+    queryClient.clear();
+    return;
+  }
+  // Leave the signed-in screens first. Clearing the cache while they are still mounted would make them
+  // ask the API again, now signed out.
+  void router.navigate({ to: "/sign-in" }).finally(() => queryClient.clear());
 });
 
 declare module "@tanstack/react-router" {

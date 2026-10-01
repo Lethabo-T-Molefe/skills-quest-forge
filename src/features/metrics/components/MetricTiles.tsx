@@ -20,7 +20,7 @@ export function MetricTiles() {
   }
 
   return (
-    <dl className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 xl:grid-cols-4">
+    <dl className="grid grid-cols-1 gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 xl:grid-cols-4">
       {metrics.map((m) => (
         <div key={m.key} className="bg-surface-raised px-5 py-4">
           <dt className="text-xs text-muted-foreground">

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   ChevronsLeft,
@@ -325,17 +325,13 @@ function NavLink({
 }
 
 function SignOutButton({ className }: { className: string }) {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   return (
     <button
       type="button"
       className={cn(className, "w-full text-left")}
       onClick={() => {
-        void signOut().then(() => {
-          queryClient.clear();
-          void navigate({ to: "/sign-in" });
-        });
+        // Ending the session returns to sign-in and clears what was cached (see onSessionEnd in App.tsx).
+        void signOut();
       }}
     >
       <LogOut className="size-4" strokeWidth={1.5} />
@@ -346,7 +342,6 @@ function SignOutButton({ className }: { className: string }) {
 
 function AccountMenu({ user, collapsed }: { user: CurrentUser; collapsed: boolean }) {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   return (
     <DropdownMenu.Root>
@@ -393,10 +388,7 @@ function AccountMenu({ user, collapsed }: { user: CurrentUser; collapsed: boolea
           <DropdownMenu.Item
             className={menuItemClass}
             onSelect={() => {
-              void signOut().then(() => {
-                queryClient.clear();
-                void navigate({ to: "/sign-in" });
-              });
+              void signOut();
             }}
           >
             <LogOut className="size-4" strokeWidth={1.5} />

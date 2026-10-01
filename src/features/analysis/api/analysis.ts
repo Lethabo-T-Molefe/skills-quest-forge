@@ -1,19 +1,12 @@
 import { queryOptions, useQuery, useSuspenseQuery, keepPreviousData } from "@tanstack/react-query";
-import { ApiError, api } from "@/lib/api";
+import { api } from "@/lib/api";
 import type { AnalysisCatalogue, AnalysisDataset, AnalysisResult, BuildConfig } from "../types";
 
 export const analysisCatalogueQuery = () =>
   queryOptions({
     queryKey: ["analysis", "catalogue"],
-    queryFn: async (): Promise<AnalysisCatalogue> => {
-      try {
-        return await api.get<AnalysisCatalogue>("/analysis/catalogue");
-      } catch (error) {
-        // Roles that do not analyse data (auditors) have nothing to choose from. The pages say so.
-        if (error instanceof ApiError && error.status === 403) return { datasets: [] };
-        throw error;
-      }
-    },
+    // Roles that do not analyse data (auditors) get an empty list, and the pages say so.
+    queryFn: () => api.get<AnalysisCatalogue>("/analysis/catalogue"),
     staleTime: 60_000,
   });
 

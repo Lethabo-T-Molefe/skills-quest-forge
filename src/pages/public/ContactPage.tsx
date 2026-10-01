@@ -3,24 +3,42 @@ import { toast } from "sonner";
 import { Field, MediaFrame, SignalButton, TextArea, TextInput } from "@/components";
 import { media } from "@/config/media";
 import { PublicLayout } from "@/layouts/PublicLayout";
+import { api, errorMessage } from "@/lib/api";
 
 export function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organisation, setOrganisation] = useState("");
   const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
 
-  function onSubmit(event: FormEvent) {
+  async function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (name.trim().length < 2 || !email.includes("@") || message.trim().length < 8) {
       toast.error("Add your name, a work email and a short message.");
       return;
     }
-    toast.success("Message recorded. In production this reaches Amina, not a ticket queue.");
-    setName("");
-    setEmail("");
-    setOrganisation("");
-    setMessage("");
+    setSending(true);
+    try {
+      await api.post("/contact", {
+        name: name.trim(),
+        email: email.trim(),
+        organisation: organisation.trim(),
+        message: message.trim(),
+      });
+      toast.success("Message sent", {
+        description: "It goes to Amina by email, and she replies to the address you gave.",
+      });
+      setName("");
+      setEmail("");
+      setOrganisation("");
+      setMessage("");
+    } catch (error) {
+      // What was typed stays in the form, so it can be sent again.
+      toast.error(errorMessage(error, "The message could not be sent. Try again."));
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -51,12 +69,15 @@ export function ContactPage() {
               </div>
               <div className="flex justify-between gap-4 border-b border-border py-3">
                 <dt className="text-muted-foreground">Channel</dt>
-                <dd>This form, in the prototype</dd>
+                <dd>This form, which reaches her by email</dd>
               </div>
             </dl>
           </div>
 
-          <form className="space-y-4 lg:col-span-6 lg:col-start-7" onSubmit={onSubmit}>
+          <form
+            className="space-y-4 lg:col-span-6 lg:col-start-7"
+            onSubmit={(event) => void onSubmit(event)}
+          >
             <Field label="Your name">
               <TextInput value={name} onChange={(event) => setName(event.target.value)} />
             </Field>
@@ -80,7 +101,9 @@ export function ContactPage() {
                 onChange={(event) => setMessage(event.target.value)}
               />
             </Field>
-            <SignalButton type="submit">Send the message</SignalButton>
+            <SignalButton type="submit" disabled={sending}>
+              {sending ? "Sending…" : "Send the message"}
+            </SignalButton>
           </form>
         </div>
       </article>

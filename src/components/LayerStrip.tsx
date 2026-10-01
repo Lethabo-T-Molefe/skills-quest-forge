@@ -8,7 +8,7 @@ export function LayerStrip({ current }: { current?: "bronze" | "silver" | "gold"
   const order = { bronze: 0, silver: 1, gold: 2 };
 
   return (
-    <ol className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
+    <ol className="grid grid-cols-1 gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
       {layers.map((layer, index) => {
         const reached = current ? index <= order[current] : true;
         return (

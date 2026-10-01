@@ -116,7 +116,7 @@ export function DatasetsPage() {
               />
             </div>
           ) : (
-            <div className="mt-5 grid gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
+            <div className="mt-5 grid grid-cols-1 gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
               {shown.map((d) => (
                 <DatasetCard key={d.id} dataset={d} />
               ))}

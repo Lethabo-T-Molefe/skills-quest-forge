@@ -47,7 +47,7 @@ export function DashboardsPage() {
           }
         />
       ) : (
-        <div className="grid gap-px overflow-hidden border border-border bg-border md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-px overflow-hidden border border-border bg-border md:grid-cols-2 xl:grid-cols-3">
           {dashboards.map((board) => (
             <Link
               key={board.id}

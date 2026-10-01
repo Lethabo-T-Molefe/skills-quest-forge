@@ -79,14 +79,14 @@ export function SemanticPage() {
           }
         />
       ) : (
-        <div className="grid gap-px overflow-hidden border border-border bg-border lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-px overflow-hidden border border-border bg-border lg:grid-cols-2">
           {metrics.map((metric) => {
             const mine = metric.ownerId === user.id;
             return (
               <article
                 key={metric.id}
                 id={metric.id}
-                className="flex scroll-mt-24 flex-col bg-surface-raised p-5"
+                className="flex min-w-0 scroll-mt-24 flex-col bg-surface-raised p-5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">

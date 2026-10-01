@@ -116,7 +116,7 @@ export function TableFrame({
       role="region"
       aria-label={label}
       tabIndex={0}
-      className={cn("overflow-x-auto border border-border bg-surface-raised", className)}
+      className={cn("relative overflow-x-auto border border-border bg-surface-raised", className)}
     >
       {children}
     </div>

@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
@@ -165,8 +164,6 @@ function MfaPanel() {
 }
 
 function PasswordPanel() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [repeat, setRepeat] = useState("");
@@ -175,11 +172,9 @@ function PasswordPanel() {
   const change = useMutation({
     mutationFn: () => changePassword(current, next),
     onSuccess: async () => {
-      // The API ends every session when a password changes, so this one signs in again.
+      // The API ends every session when a password changes. Signing out here returns to sign-in.
       await signOut();
-      queryClient.clear();
       toast.success("Password changed", { description: "Sign in with your new password." });
-      await navigate({ to: "/sign-in" });
     },
     onError: notifyError("The password could not be changed."),
   });

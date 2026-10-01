@@ -49,7 +49,7 @@ export function SecurityPage() {
           </div>
         </div>
 
-        <div className="mt-16 grid gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
+        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
           <MediaFrame {...media.sandbox} ratio="16 / 10" />
           <MediaFrame {...media.audit} ratio="16 / 10" />
         </div>

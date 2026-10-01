@@ -112,7 +112,7 @@ export function OverviewPage() {
       ) : null}
 
       <ol
-        className="grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 xl:grid-cols-4"
+        className="grid grid-cols-1 gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 xl:grid-cols-4"
         aria-label="Your workflow"
       >
         <Stage

@@ -72,7 +72,7 @@ export function ProductPage() {
           <p className="label-paren">(medallion layers)</p>
           <h2 className="heading-2 mt-2">One warehouse, three layers.</h2>
           <MediaFrame {...media.plates} className="mt-8" ratio="16 / 8" />
-          <ul className="mt-0 grid gap-px overflow-hidden border border-border bg-border md:grid-cols-3">
+          <ul className="mt-0 grid grid-cols-1 gap-px overflow-hidden border border-border bg-border md:grid-cols-3">
             {layers.map((layer) => (
               <li key={layer.name} className="bg-surface-raised">
                 <MediaFrame {...layer.image} ratio="16 / 10" />
@@ -85,7 +85,7 @@ export function ProductPage() {
           </ul>
         </section>
 
-        <section className="mt-20 grid gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
+        <section className="mt-20 grid grid-cols-1 gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
           <div className="bg-surface-raised">
             <MediaFrame {...media.sandbox} ratio="16 / 10" />
             <div className="p-6">

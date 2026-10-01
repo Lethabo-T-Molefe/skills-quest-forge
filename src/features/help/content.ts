@@ -155,14 +155,14 @@ const pageHelp: Record<string, HelpTopic[]> = {
   ],
   "/settings": [
     {
-      title: "Preview a role",
-      body: "In this prototype you can switch role to see how the screens change for other people.",
+      title: "Your account",
+      body: "Turn on multi-factor authentication, change your password, see how much of this month's compute, storage and assistant questions you have used, and open Superset or Jupyter already signed in.",
     },
   ],
   "/search": [
     {
       title: "One search for everything",
-      body: "Search covers datasets, metrics, dashboards and members.",
+      body: "Search covers datasets (including their column names), shared metrics, dashboards and notebooks. You only see what your role and sharing allow.",
     },
   ],
 };

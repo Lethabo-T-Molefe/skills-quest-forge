@@ -54,7 +54,7 @@ export async function completeMfa(code: string): Promise<CurrentUser> {
   }
 }
 
-/** Prototype only (the API must run with DEMO_MODE): sign in as the seeded member for a role. */
+/** Demo workspaces only (the API must run with DEMO_MODE): sign in as the seeded member for a role. */
 export async function signInDemo(role: RoleId = "analyst"): Promise<CurrentUser> {
   const result = await api.post<SessionResponse>("/auth/demo", { role });
   storeTokens(result);

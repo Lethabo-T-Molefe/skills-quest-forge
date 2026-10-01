@@ -116,7 +116,7 @@ export function LandingPage() {
       <section className="mx-auto max-w-[1600px] px-5 py-24 md:px-10">
         <p className="label-paren">(the path)</p>
         <h2 className="heading-1 mt-2 max-w-[20ch]">From a messy file to a shared answer.</h2>
-        <ol className="mt-12 grid gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
+        <ol className="mt-12 grid grid-cols-1 gap-px overflow-hidden border border-border bg-border md:grid-cols-2">
           {steps.map((step) => (
             <li key={step.label} className="grid bg-surface-raised sm:grid-cols-2">
               <MediaFrame {...step.image} ratio="1 / 1" />
@@ -134,7 +134,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-[1600px]">
           <p className="label-paren">(what it does)</p>
           <h2 className="heading-1 mt-2 max-w-[18ch]">The tools, not a course catalogue.</h2>
-          <ul className="mt-12 grid gap-px overflow-hidden border border-border bg-border md:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-12 grid grid-cols-1 gap-px overflow-hidden border border-border bg-border md:grid-cols-2 xl:grid-cols-3">
             {capabilities.map((item) => (
               <li key={item.title} className="bg-surface-raised">
                 <MediaFrame {...item.image} ratio="16 / 10" />
@@ -194,8 +194,8 @@ export function LandingPage() {
             <p className="label-paren">(next)</p>
             <h2 className="heading-1 mt-2">Try the workspace.</h2>
             <p className="mt-3 max-w-[50ch] text-sm text-muted-foreground">
-              The prototype runs on mock data. Sign in as Thandi, or create an account and walk the
-              same path.
+              Sign in, or create an account and walk the path yourself: upload a file, clean it,
+              have it approved, then ask it a question.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
