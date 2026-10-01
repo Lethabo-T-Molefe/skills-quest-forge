@@ -34,7 +34,10 @@ export function Segmented<T extends string>({
       onValueChange={(next) => {
         if (next) onValueChange(next as T);
       }}
-      className={cn("inline-flex max-w-full flex-wrap gap-1 rounded-[999px] bg-surface-alt p-1", className)}
+      className={cn(
+        "inline-flex max-w-full flex-wrap gap-1 rounded-[999px] bg-surface-alt p-1",
+        className,
+      )}
     >
       {options.map((option) => (
         <ToggleGroup.Item

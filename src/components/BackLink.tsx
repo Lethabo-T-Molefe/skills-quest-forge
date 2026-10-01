@@ -23,4 +23,6 @@ BackAnchor.displayName = "BackAnchor";
 const CreatedBackLink = createLink(BackAnchor);
 
 /** "Back to …" link above a page title. Typed like a router Link, so its route and params are checked. */
-export const BackLink: LinkComponent<typeof BackAnchor> = (props) => <CreatedBackLink preload="intent" {...props} />;
+export const BackLink: LinkComponent<typeof BackAnchor> = (props) => (
+  <CreatedBackLink preload="intent" {...props} />
+);

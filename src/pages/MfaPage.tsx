@@ -1,18 +1,40 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Field, SignalButton, TextInput } from "@/components";
-import { demoUser, initialsFromName, setSession } from "@/features/auth";
+import { completeMfa, hasMfaChallenge } from "@/features/auth";
 import { AuthLayout } from "@/layouts/AuthLayout";
+import { errorMessage } from "@/lib/api";
 
 export function MfaPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [challenge] = useState(hasMfaChallenge);
+
+  if (!challenge) {
+    return (
+      <AuthLayout label="multi-factor authentication" title="Sign in first">
+        <p className="text-sm text-muted-foreground">
+          This step follows your password. The challenge expires after five minutes or one attempt.
+        </p>
+        <Link
+          to="/sign-in"
+          className="mt-5 inline-block text-signal-strong underline-offset-4 hover:underline"
+        >
+          Back to sign in
+        </Link>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout label="multi-factor authentication" title="Approve this sign-in">
       <p className="mb-6 text-sm text-muted-foreground">
-        A failed second factor blocks the session. Enter the code from your authenticator app.
+        Enter the six-digit code from your authenticator app. A wrong code blocks this attempt, and
+        you sign in again.
       </p>
       <form
         className="space-y-4"
@@ -22,23 +44,25 @@ export function MfaPage() {
             setError("Enter the six-digit authenticator code.");
             return;
           }
-          const name = window.sessionStorage.getItem("dataforge.pending-name") ?? demoUser.name;
-          const email = window.sessionStorage.getItem("dataforge.pending-email") ?? demoUser.email;
-          setSession({
-            ...demoUser,
-            name,
-            email,
-            initials: initialsFromName(name) || demoUser.initials,
-            workspace: `${name.split(" ")[0] ?? "Your"}'s workspace`,
-          });
-          void navigate({ to: "/workspace" });
+          setBusy(true);
+          completeMfa(code)
+            .then(async () => {
+              await queryClient.invalidateQueries({ queryKey: ["auth"] });
+              void navigate({ to: "/workspace" });
+            })
+            .catch((caught: unknown) => {
+              setError(errorMessage(caught));
+              window.setTimeout(() => void navigate({ to: "/sign-in" }), 2500);
+            })
+            .finally(() => setBusy(false));
         }}
       >
-        <Field label="Authenticator code" error={error} hint="Use 123456 in this prototype.">
+        <Field label="Authenticator code" error={error}>
           <TextInput
             className="num tracking-[0.4em]"
             inputMode="numeric"
-            maxLength={6}
+            autoComplete="one-time-code"
+            maxLength={7}
             value={code}
             onChange={(event) => {
               setCode(event.target.value);
@@ -46,8 +70,8 @@ export function MfaPage() {
             }}
           />
         </Field>
-        <SignalButton type="submit" className="w-full">
-          Enter workspace
+        <SignalButton type="submit" className="w-full" disabled={busy}>
+          {busy ? "Checking…" : "Enter workspace"}
         </SignalButton>
       </form>
     </AuthLayout>

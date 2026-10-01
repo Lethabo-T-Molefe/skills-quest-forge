@@ -1,105 +1,47 @@
-import { queryOptions } from "@tanstack/react-query";
-import { mockResponse } from "@/lib/mock-api";
-import type { Alert, Monitor, Prediction } from "../types";
+import { queryOptions, type QueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import type { Alert, Monitor, MonitorCheck, MonitorDraft } from "../types";
 
-const alerts: Alert[] = [
-  {
-    id: "al1",
-    metric: "Revenue · Free State",
-    message: "Fell 23% below the expected band in March",
-    when: "2 days ago",
-    severity: "high",
-    explore: { dataset: "regional-revenue", method: "explain", measure: "revenue", dimension: "region" },
-    rootCause: [
-      { factor: "Enrolments in Bloemfontein", contribution: "-14%", detail: "412 fewer enrolments than February" },
-      { factor: "Average fee paid", contribution: "-6%", detail: "More learners on the subsidised rate" },
-      { factor: "Refunds processed", contribution: "-3%", detail: "R38 400 refunded on cancelled cohorts" },
-    ],
-  },
-  {
-    id: "al2",
-    metric: "Completion rate · SQL basics",
-    message: "Crossed above its 70% target for the first time",
-    when: "6 days ago",
-    severity: "low",
-    explore: { dataset: "course-completions", method: "trend", measure: "completion_rate" },
-    rootCause: [
-      { factor: "New guided practice module", contribution: "+8%", detail: "Introduced to cohorts from February" },
-      { factor: "Shorter course length", contribution: "+3%", detail: "Median days to complete fell to 27" },
-    ],
-  },
-];
+const monitorPath = (monitorId: string, rest = "") =>
+  `/monitors/${encodeURIComponent(monitorId)}${rest}`;
+const alertPath = (alertId: string, rest = "") => `/alerts/${encodeURIComponent(alertId)}${rest}`;
 
-const monitors: Monitor[] = [
-  {
-    id: "m1",
-    name: "Free State revenue band",
-    metric: "Regional revenue",
-    threshold: "Alert if month-on-month change exceeds 15%",
-    cadence: "Daily",
-    owner: "Lerato Naidoo",
-    status: "watching",
-    lastChecked: "2 hours ago",
-  },
-  {
-    id: "m2",
-    name: "SQL basics completion",
-    metric: "Completion rate",
-    threshold: "Alert if the rate crosses 70%",
-    cadence: "Weekly",
-    owner: "Thandi Mokoena",
-    status: "watching",
-    lastChecked: "Yesterday",
-  },
-  {
-    id: "m3",
-    name: "Open data issues",
-    metric: "Open data issues",
-    threshold: "Alert if open flags exceed 10",
-    cadence: "Daily",
-    owner: "Naledi Khumalo",
-    status: "paused",
-    lastChecked: "Last week",
-  },
-];
+export const alertsQuery = () =>
+  queryOptions({ queryKey: ["monitors", "alerts"], queryFn: () => api.get<Alert[]>("/alerts") });
 
-const prediction: Prediction = {
-  subject: "Learner cohort · March intake",
-  outcome: "Likelihood to complete within 60 days",
-  score: 72,
-  band: "Moderate to high",
-  modelVersion: "completion-heuristic v1.4",
-  factors: [
-    { name: "Prior course completed", weight: 0.32, direction: "up", reading: "Learners who finished an earlier course complete again far more often." },
-    { name: "Weekly session count", weight: 0.27, direction: "up", reading: "This cohort averages 3.1 sessions a week, above the 2.4 baseline." },
-    { name: "Days since last activity", weight: 0.21, direction: "down", reading: "A fifth of the cohort has been inactive for over 10 days." },
-    { name: "Region support coverage", weight: 0.12, direction: "up", reading: "Most learners sit in regions with on-site facilitators." },
-    { name: "Fee status", weight: 0.08, direction: "down", reading: "Unpaid balances slightly reduce completion." },
-  ],
-};
+/** An alert with its plain-language root cause: the main contributing factors and their figures. */
+export const alertQuery = (alertId: string) =>
+  queryOptions({
+    queryKey: ["monitors", "alerts", alertId],
+    queryFn: () => api.get<Alert>(alertPath(alertId)),
+  });
 
-export function fetchAlerts() {
-  return mockResponse(alerts);
+export const monitorsQuery = () =>
+  queryOptions({ queryKey: ["monitors", "list"], queryFn: () => api.get<Monitor[]>("/monitors") });
+
+export function refreshMonitors(queryClient: QueryClient) {
+  return Promise.all(
+    [["monitors"], ["audit"]].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+  );
 }
 
-export function fetchAlert(id: string) {
-  return mockResponse(alerts.find((item) => item.id === id) ?? null);
+export function createMonitor(draft: MonitorDraft) {
+  return api.post<Monitor>("/monitors", draft);
 }
 
-export function fetchMonitors() {
-  return mockResponse(monitors);
+export function setMonitorStatus(monitorId: string, status: Monitor["status"]) {
+  return api.patch<Monitor>(monitorPath(monitorId), { status });
 }
 
-export function fetchPrediction() {
-  return mockResponse(prediction);
+export function deleteMonitor(monitorId: string) {
+  return api.delete(monitorPath(monitorId));
 }
 
-export const alertsQuery = () => queryOptions({ queryKey: ["monitors", "alerts"], queryFn: fetchAlerts });
+/** Evaluate a monitor now instead of waiting for its next scheduled check. */
+export function checkMonitor(monitorId: string) {
+  return api.post<MonitorCheck>(monitorPath(monitorId, "/check"));
+}
 
-export const alertQuery = (id: string) =>
-  queryOptions({ queryKey: ["monitors", "alerts", id], queryFn: () => fetchAlert(id) });
-
-export const monitorsQuery = () => queryOptions({ queryKey: ["monitors", "list"], queryFn: fetchMonitors });
-
-export const predictionQuery = () =>
-  queryOptions({ queryKey: ["monitors", "prediction"], queryFn: fetchPrediction });
+export function acknowledgeAlert(alertId: string) {
+  return api.post<Alert>(alertPath(alertId, "/acknowledge"));
+}

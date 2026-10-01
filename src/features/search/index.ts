@@ -1,1 +1,1 @@
-export { searchCatalogue, type SearchHit } from "./search";
+export { searchQuery, type SearchHit } from "./search";

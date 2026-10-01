@@ -1,89 +1,101 @@
-import { MONTHS } from "../data/facts";
-import { analysisDatasets, getAnalysisDataset, grainsFor, measures } from "../data/schemas";
-import type { AnalysisDataset, BuildConfig, BuildMethodId, DimensionId, MeasureId } from "../types";
+import type { AnalysisDataset, BuildConfig, BuildMethodId, MeasureDef } from "../types";
 
-const firstMonth = MONTHS[0].id;
-const lastMonth = MONTHS[MONTHS.length - 1]!.id;
-const previousMonth = MONTHS[MONTHS.length - 2]!.id;
+/**
+ * Starting settings for a method on a dataset. This mirrors the API's own defaults, so switching methods
+ * is instant; the API validates every configuration again when it runs.
+ */
 
 export interface BuildPresets {
   measure?: string | undefined;
   dimension?: string | undefined;
+  filters?: Record<string, string> | undefined;
 }
 
-/** Measures a method can use on a dataset. Explaining a change needs a total, so rates are left out. */
-export function measuresFor(dataset: AnalysisDataset, method: BuildMethodId): MeasureId[] {
-  return method === "explain"
-    ? dataset.measures.filter((id) => measures[id].kind === "additive")
-    : dataset.measures;
+const isRatio = (m: MeasureDef) => m.kind === "ratio";
+const isAdditive = (m: MeasureDef) => m.kind === "additive";
+
+/** Explaining a change needs a total that adds up, so rates and distinct counts are left out. */
+export function measuresFor(dataset: AnalysisDataset, method: BuildMethodId): MeasureDef[] {
+  return method === "explain" ? dataset.measures.filter(isAdditive) : dataset.measures;
 }
 
-/** Group-by choices: the categorical dimensions (month is handled by trend and explain). */
-export function groupDimensionsFor(dataset: AnalysisDataset): DimensionId[] {
-  return dataset.dimensions.filter((dim) => dim !== "month");
+export function findMeasure(dataset: AnalysisDataset, id: string) {
+  return dataset.measures.find((m) => m.id === id);
 }
 
-function pickMeasure(dataset: AnalysisDataset, method: BuildMethodId, wanted?: string): MeasureId {
+function pickMeasure(dataset: AnalysisDataset, method: BuildMethodId, wanted?: string) {
   const allowed = measuresFor(dataset, method);
-  if (wanted && (allowed as string[]).includes(wanted)) return wanted as MeasureId;
-  if (allowed.includes(dataset.defaultMeasure)) return dataset.defaultMeasure;
-  return allowed[0] ?? dataset.defaultMeasure;
-}
-
-function secondMeasure(dataset: AnalysisDataset, first: MeasureId): MeasureId {
-  const preferred: Partial<Record<MeasureId, MeasureId>> = {
-    completion_rate: "sessions_per_learner",
-    sessions_per_learner: "completion_rate",
-    revenue: "enrolments",
-    enrolments: "avg_fee",
-    avg_fee: "enrolments",
-  };
-  const wanted = preferred[first];
-  if (wanted && dataset.measures.includes(wanted)) return wanted;
-  return dataset.measures.find((id) => id !== first) ?? first;
+  if (wanted && allowed.some((m) => m.id === wanted)) return wanted;
+  if (allowed.some((m) => m.id === dataset.defaultMeasure)) return dataset.defaultMeasure;
+  return allowed[0]?.id ?? dataset.defaultMeasure;
 }
 
 /**
- * A meaningful default pair for the relationship method, x being the likely driver.
- * (Revenue against enrolments would be trivially strong, since revenue is enrolments × fee.)
+ * A partner for the relationship method. Two totals are trivially related (bigger groups have more of
+ * everything), so a total is paired with a rate (preferably the one it is the denominator of) and a rate
+ * with another rate.
  */
-function relationshipPair(dataset: AnalysisDataset): [MeasureId, MeasureId] {
-  const pairs: [MeasureId, MeasureId][] = [
-    ["sessions_per_learner", "completion_rate"],
-    ["enrolments", "avg_fee"],
-  ];
-  const pair = pairs.find(([x, y]) => dataset.measures.includes(x) && dataset.measures.includes(y));
-  if (pair) return pair;
-  const first = dataset.defaultMeasure;
-  return [first, secondMeasure(dataset, first)];
+function secondMeasure(dataset: AnalysisDataset, first: string) {
+  const firstDef = findMeasure(dataset, first);
+  const others = dataset.measures.filter((m) => m.id !== first);
+  const ratios = others.filter(isRatio);
+  if (!firstDef) return others[0]?.id ?? first;
+  if (isRatio(firstDef)) {
+    if (ratios[0]) return ratios[0].id;
+    const denominator = others.find((m) => m.column !== null && m.column === firstDef.denominator);
+    return (denominator ?? others[0] ?? firstDef).id;
+  }
+  const perUnit = ratios.find((m) => m.denominator === firstDef.column);
+  return (perUnit ?? ratios[0] ?? others[0] ?? firstDef).id;
 }
 
-/** Sensible starting settings for a method on a dataset, optionally seeded from a link. */
-export function defaultConfig(datasetId: string, method: BuildMethodId, presets: BuildPresets = {}): BuildConfig {
-  const dataset = getAnalysisDataset(datasetId) ?? analysisDatasets[0]!;
-  const dimensions = groupDimensionsFor(dataset);
+function relationshipPair(dataset: AnalysisDataset): [string, string] {
+  const ratios = dataset.measures.filter(isRatio);
+  const fallback = dataset.measures[0];
+  const defaultDef = findMeasure(dataset, dataset.defaultMeasure) ?? fallback;
+  if (!defaultDef) return [dataset.defaultMeasure, dataset.defaultMeasure];
+  if (ratios.length >= 2) {
+    const y = isRatio(defaultDef) ? defaultDef : ratios[0]!;
+    return [secondMeasure(dataset, y.id), y.id];
+  }
+  if (ratios.length === 1) return [secondMeasure(dataset, ratios[0]!.id), ratios[0]!.id];
+  return [defaultDef.id, secondMeasure(dataset, defaultDef.id)];
+}
+
+export function defaultConfig(
+  dataset: AnalysisDataset,
+  method: BuildMethodId,
+  presets: BuildPresets = {},
+): BuildConfig {
+  const dims = dataset.dimensions.map((d) => d.id);
   const dimension =
-    presets.dimension && (dimensions as string[]).includes(presets.dimension)
-      ? (presets.dimension as DimensionId)
-      : (dimensions[0] ?? "region");
-  const grains = grainsFor(dataset);
+    presets.dimension && dims.includes(presets.dimension)
+      ? presets.dimension
+      : (dims[0] ?? "month");
   const [measure, measureY] =
     method === "relationship" && !presets.measure
       ? relationshipPair(dataset)
-      : [pickMeasure(dataset, method, presets.measure), secondMeasure(dataset, pickMeasure(dataset, method, presets.measure))];
-
+      : [
+          pickMeasure(dataset, method, presets.measure),
+          secondMeasure(dataset, pickMeasure(dataset, method, presets.measure)),
+        ];
+  const months = dataset.months.map((m) => m.id);
+  const filters = Object.fromEntries(
+    Object.entries(presets.filters ?? {}).filter(([dim, value]) =>
+      dataset.dimensions.some((d) => d.id === dim && d.values.includes(value)),
+    ),
+  );
   return {
     datasetId: dataset.id,
     method,
     measure,
     measureY,
     dimension,
-    grain: grains[0] ?? "region",
+    grain: dataset.grains[0]?.id ?? dimension,
     split: "none",
-    from: firstMonth,
-    to: lastMonth,
-    region: "all",
-    course: "all",
+    from: months[0] ?? "",
+    to: months[months.length - 1] ?? "",
+    filters,
     aggregation: "total",
     rateMethod: "pooled",
     display: "value",
@@ -93,41 +105,44 @@ export function defaultConfig(datasetId: string, method: BuildMethodId, presets:
     change: "level",
     smoothing: "none",
     correlation: "pearson",
-    periodA: previousMonth,
-    periodB: lastMonth,
+    periodA: months[months.length - 2] ?? months[0] ?? "",
+    periodB: months[months.length - 1] ?? "",
     changeView: "amount",
   };
 }
 
 /** Switch method but keep what the person already chose where it still applies. */
-export function switchMethod(config: BuildConfig, method: BuildMethodId): BuildConfig {
-  const next = defaultConfig(config.datasetId, method);
-  const dataset = getAnalysisDataset(config.datasetId);
-  // A relationship starts from a meaningful pair; everything else keeps the measure if it still applies.
+export function switchMethod(
+  dataset: AnalysisDataset,
+  config: BuildConfig,
+  method: BuildMethodId,
+): BuildConfig {
+  const next = defaultConfig(dataset, method);
   const keepMeasure =
-    method !== "relationship" && dataset ? (measuresFor(dataset, method) as string[]).includes(config.measure) : false;
+    method !== "relationship" && measuresFor(dataset, method).some((m) => m.id === config.measure);
   const measure = keepMeasure ? config.measure : next.measure;
   return {
     ...next,
     measure,
-    measureY: dataset && measure !== next.measure ? secondMeasure(dataset, measure) : next.measureY,
+    measureY: measure !== next.measure ? secondMeasure(dataset, measure) : next.measureY,
     dimension: config.dimension,
-    region: config.region,
-    course: config.course,
+    filters: config.filters,
     from: config.from,
     to: config.to,
   };
 }
 
 /** Switch dataset, falling back to fields the new dataset actually has. */
-export function switchDataset(config: BuildConfig, datasetId: string): BuildConfig {
-  const next = defaultConfig(datasetId, config.method, { measure: config.measure, dimension: config.dimension });
-  const dataset = getAnalysisDataset(datasetId);
+export function switchDataset(dataset: AnalysisDataset, config: BuildConfig): BuildConfig {
+  const next = defaultConfig(dataset, config.method, {
+    measure: config.measure,
+    dimension: config.dimension,
+    filters: config.filters,
+  });
+  const months = dataset.months.map((m) => m.id);
   return {
     ...next,
-    course: dataset?.dimensions.includes("course") ? config.course : "all",
-    region: config.region,
-    from: config.from,
-    to: config.to,
+    from: months.includes(config.from) ? config.from : next.from,
+    to: months.includes(config.to) ? config.to : next.to,
   };
 }

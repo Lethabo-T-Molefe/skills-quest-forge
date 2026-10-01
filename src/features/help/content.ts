@@ -154,10 +154,16 @@ const pageHelp: Record<string, HelpTopic[]> = {
     },
   ],
   "/settings": [
-    { title: "Preview a role", body: "In this prototype you can switch role to see how the screens change for other people." },
+    {
+      title: "Preview a role",
+      body: "In this prototype you can switch role to see how the screens change for other people.",
+    },
   ],
   "/search": [
-    { title: "One search for everything", body: "Search covers datasets, metrics, dashboards and members." },
+    {
+      title: "One search for everything",
+      body: "Search covers datasets, metrics, dashboards and members.",
+    },
   ],
 };
 
@@ -165,7 +171,9 @@ const pageHelp: Record<string, HelpTopic[]> = {
 export function helpFor(pathname: string): HelpTopic[] {
   if (pageHelp[pathname]) return pageHelp[pathname];
   const match = Object.keys(pageHelp)
-    .filter((key) => key !== "/workspace" && pathname.startsWith(key.endsWith("/") ? key : `${key}/`))
+    .filter(
+      (key) => key !== "/workspace" && pathname.startsWith(key.endsWith("/") ? key : `${key}/`),
+    )
     .sort((a, b) => b.length - a.length)[0];
   return (match ? pageHelp[match] : undefined) ?? pageHelp["/workspace"] ?? [];
 }

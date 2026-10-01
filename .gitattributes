@@ -1,0 +1,6 @@
+# Prettier (and the ESLint prettier rule) expect LF. Keep it on every platform, including Windows checkouts.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

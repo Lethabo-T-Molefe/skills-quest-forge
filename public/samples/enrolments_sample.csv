@@ -1,0 +1,247 @@
+learner_id,full_name,id_number,enrolled_on,course,region,fee_paid
+LR-200177,Pieter Botha,8202033448080,03-02-2026,Stewardship 101,Eastern Cape,"R1,100.00"
+LR-200157,Pieter Jacobs,9210272699081,2026/02/05,Dashboards in practice,Mpumalanga,R 1 750.00
+LR-200121,Zanele Mahlangu,7708160340089,January 11 2026,Dashboards in practice,Eastern Cape,1750
+LR-200019,Zanele Nkosi,8405064024082,2026/02/01,Data literacy,Western Cape,R 1 050.00
+LR-200044,Fatima Mokoena,7908147439084,15-03-2026,Dashboards in practice,Gauteng,1600
+LR-200182,Lindiwe Naidoo,8105063633082,2026/01/21,Stewardship 101,Eastern Cape,950
+LR-200073,Lerato Molefe,8802027435082,2026/03/21,Python for analysts,Gauteng,R 1 850.00
+LR-200062,Nomsa Mahlangu,8305205774087,21-02-2026,Dashboards in practice,Gauteng,R 1 350.00
+LR-200075,Sibusiso Pillay,9007110777081,08-03-2026,Data literacy,Western Cape,950
+LR-200209,Tshepo Mokoena,7502260792084,,Dashboards in practice,Gauteng,"R1,500.00"
+LR-200028,Johan Mokoena,7112144260089,2026/03/13,Dashboards in practice,Limpopo,R 1 500.00
+LR-200131,Sipho Molefe,9810284263089,25-01-2026,Python for analysts,Free State,1850
+LR-200198,Zanele Zulu,7009238427085,2026/01/06,Data literacy,Gauteng,"R1,050.00"
+LR-200183,Lindiwe Zulu,9901275058089,2026/02/18,SQL basics,KwaZulu-Natal,
+LR-200043,Kagiso Botha,8001137920089,March 9 2026,Stewardship 101,Limpopo,1350
+LR-200104,Lindiwe Dlamini,9309243804089,2026/02/04,Python for analysts,Gauteng,1950
+LR-200173,Naledi Nkosi,8610150708085,February 9 2026,SQL basics,Gauteng,1250
+LR-200109,Tshepo Ndlovu,8412219499085,02-01-2026,Stewardship 101,Free State,R 1 100.00
+LR-200120,Sipho Naidoo,8411256482086,2026/03/22,SQL basics,KwaZulu-Natal,R 1 350.00
+LR-200004,Priya Mokoena,8510130722082,2026/03/20,Python for analysts,Gauteng,R 2 100.00
+LR-200083,Kagiso Khumalo,9410271077087,February 10 2026,Stewardship 101,GP,R 1 100.00
+LR-200043,Kagiso Botha,8001137920089,March 9 2026,Stewardship 101,Limpopo,1350
+LR-200205,Lerato Naidoo,7104205563084,January 4 2026,Data literacy,Western Cape,R 950.00
+LR-200040,Nomsa Mokoena,8907062375085,2026/02/03,Stewardship 101,Mpumalanga,
+LR-200047,Sibusiso Dlamini,8110210544089,,Dashboards in practice,Eastern Cape,R 1 500.00
+LR-200050,Zanele Van der Merwe,8205258547087,08-01-2026,SQL basics,Mpumalanga,R 1 250.00
+LR-200003,Naledi Nkosi,8301149527081,January 8 2026,data lit,Gauteng,R 950.00
+LR-200161,Pieter Botha,7501259858089,2026/03/06,Data literacy,Western Cape,950
+LR-200126,Chantelle Mahlangu,8002021115085,2026/03/27,Python for analysts,Gauteng,R 2 100.00
+LR-200217,Kagiso Botha,8304117535085,2026/02/11,Dashboards in practice,Free State,1350
+LR-200068,Priya Sithole,8401275707083,2026/01/22,Dashboards in practice,KwaZulu-Natal,R 1 750.00
+LR-200235,Fatima Pillay,8906163162086,2026/03/21,Python for analysts,KwaZulu-Natal,R 1 950.00
+LR-200189,Aisha Dlamini,7910164733086,2026/01/23,Python for analysts,Mpumalanga,R 1 850.00
+LR-200097,Kagiso Adams,9406024405087,2026/02/21,Dashboards in practice,Gauteng,1500
+LR-200210,Zanele Van der Merwe,7707242645087,February 19 2026,SQL basics,,R 1 500.00
+LR-200193,Lerato Ndlovu,9409153735089,06-02-2026,Python for analysts,Gauteng,R 1 850.00
+LR-200007,Zanele Van der Merwe,8611030723080,2026/01/03,Dashboards in practice,Western Cape,1600
+LR-200020,Johan Molefe,7907118187084,2026/03/21,Dashboards in practice,Gauteng,R 1 500.00
+LR-200203,Priya Botha,7206013343080,,SQL basics,,R 1 350.00
+LR-200160,Bongani Dlamini,7909040988084,January 6 2026,DATA LITERACY,Limpopo,R 800.00
+LR-200134,Nomsa Adams,7403012384083,14-01-2026,Dashboards in practice,KwaZulu-Natal,R 1 350.00
+LR-200201,Johan Jacobs,8410204639084,2026/03/17,Stewardship 101,Mpumalanga,"R1,100.00"
+LR-200063,Ruan Khumalo,9401186866086,05-03-2026,Data literacy,,950
+LR-200076,Thabo Pillay,7312277583088,08-02-2026,SQL basics,Gauteng,R 1 500.00
+LR-200200,Sipho Mahlangu,9009277789084,14-02-2026,Data literacy,KwaZulu-Natal,R 950.00
+LR-200148,Thabo Ndlovu,9611231289088,10-01-2026,Stewardship 101,Free State,"R1,100.00"
+LR-200015,Aisha Khumalo,9506196930088,04-03-2026,SQL basics,Gauteng,R 1 350.00
+LR-200107,Mpho Botha,9512129026089,2026/03/03,Python for analysts,Free State,1850
+LR-200070,Chantelle Naidoo,8505208460082,2026/01/15,Stewardship 101,Western Cape,R 1 350.00
+LR-200122,Nomsa Zulu,8210218654080,2026/02/23,Python for analysts,Mpumalanga,2100
+LR-200033,Chantelle Zulu,8205237227084,2026/02/08,Data literacy,Gauteng,"R1,050.00"
+LR-200231,Fatima Khumalo,7304254391084,January 19 2026,Data literacy,Gauteng,1200
+LR-200238,Fatima Ndlovu,7502016900086,2026/03/06,Data literacy,Gauteng,R 950.00
+LR-200127,Nomsa Mahlangu,8405016094086,2026/01/01,Dashboards in practice,Western Cape,1350
+LR-200175,Lerato Zulu,8305048072080,2026/03/28,Python for analysts,KwaZulu-Natal,R 1 950.00
+LR-200230,Lerato Sithole,9305078886088,2026/02/16,SQL basics,Western Cape,R 1 350.00
+LR-200228,Johan Van der Merwe,9112035755087,20-02-2026,Dashboards in practice,Gauteng,1500
+LR-200176,Nomsa Mahlangu,8412098092088,19-01-2026,SQL basics,,1250
+LR-200192,Ruan Pillay,8912110809087,,Stewardship 101,Free State,R 1 100.00
+LR-200124,Chantelle Jacobs,7812218058085,2026/03/02,Stewardship 101,Eastern Cape,"R1,100.00"
+LR-200138,Lerato Ndlovu,8810088316088,2026/03/05,Python for analysts,Gauteng,R 1 950.00
+LR-200111,Kagiso Ndlovu,9202093221086,2026/03/16,SQL Basics ,Gauteng,"R1,250.00"
+LR-200179,Bongani Sithole,8507053952089,2026/03/09,SQL basics,Eastern Cape,R 1 250.00
+LR-200088,Ruan Nkosi,7712041436086,21-01-2026,Python for analysts,Free State,1950
+LR-200146,Bongani Sithole,8503245869084,02-01-2026,Python for analysts,Western Cape,R 1 850.00
+LR-200221,Priya Zulu,8302187819085,2026/01/07,Data literacy,KwaZulu-Natal,950
+LR-200074,Nomsa Mokoena,9403199855082,09-02-2026,Dashboards in practice,KwaZulu-Natal,R 1 500.00
+LR-200046,Priya Naidoo,9305027651086,27-01-2026,SQL basics,Western Cape,1100
+LR-200022,Johan Van der Merwe,9212163877088,27-03-2026,Dashboards in practice,Western Cape,1500
+LR-200064,Nomsa Botha,7804049349089,,Dashboards in practice,Gauteng,1500
+LR-200162,Sipho Van der Merwe,9807062948081,2026/02/23,Python for analysts,Limpopo,R 1 850.00
+LR-200103,Tshepo Mokoena,9111189845080,2026/01/19,Python for analysts,Gauteng,
+LR-200136,Aisha Zulu,8202032198083,2026/01/20,Python for analysts,GP,1850
+LR-200115,Kagiso Jacobs,9607279775083,27-02-2026,Python for analysts,Western Cape,R 1 850.00
+LR-200152,Priya Van der Merwe,7507286400085,March 7 2026,Python for analysts,Gauteng,"R1,850.00"
+LR-200027,Aisha Pillay,8605228960083,2026/01/10,SQL basics,,"R1,250.00"
+LR-200224,Chantelle Dlamini,8004025714082,2026/01/17,Python for analysts,,"R1,700.00"
+LR-200069,Bongani Pillay,8901072177084,21-02-2026,Python for analysts,Gauteng,1950
+LR-200058,Sipho Van der Merwe,9112192974088,March 25 2026,Python for analysts,Free State,1850
+LR-200119,Sibusiso Botha,7603088996087,2026/01/04,Data literacy,Gauteng,R 1 200.00
+LR-200061,Lerato Zulu,7706273586085,2026/01/02,Dashboards in practice,Limpopo,R 1 750.00
+LR-200057,Aisha Pillay,9907124640089,2026/01/20,SQL basics,KwaZulu-Natal,980000
+LR-200018,Priya Pillay,8612202618082,2026/02/25,Python for analysts,,R 1 850.00
+LR-200116,Lerato Nkosi,9106147693080,2026/03/09,SQL Basics ,KwaZulu-Natal,
+LR-200113,Kagiso Khumalo,8403251652089,2026/03/27,SQL basics,Limpopo,1350
+LR-200079,Zanele Dlamini,8507049200088,05-01-2026,Stewardship 101,Gauteng,1200
+LR-200105,Ayanda Mokoena,9403018297083,2026/02/27,Python for analysts,Gauteng,1850
+LR-200155,Fatima Ndlovu,9703110880084,2026/02/08,SQL basics,Gauteng,R 1 350.00
+LR-200195,Naledi Molefe,9404266480084,January 20 2026,Stewardship 101,Western Cape,1100
+LR-200000,Kagiso Jacobs,7112222811086,28-01-2026,SQL basics,Western Cape,1250
+LR-200039,Lindiwe Sithole,7702237396087,2026/01/21,SQL basics,KwaZulu-Natal,R 1 250.00
+LR-200025,Mpho Jacobs,9801036234083,January 14 2026,Stewardship 101,KwaZulu-Natal,1100
+LR-200128,Ayanda Mokoena,8112052094085,04-01-2026,SQL basics,Gauteng,R 1 350.00
+LR-200077,Fatima Adams,7505081257089,2026/02/12,Dashboards in practice,Western Cape,1600
+LR-200166,Naledi Nkosi,9406097106083,2026/02/07,Stewardship 101,Gauteng,R 1 100.00
+LR-200180,Pieter Zulu,9805014195083,February 9 2026,Dashboards in practice,Gauteng,1500
+LR-200145,Sipho Mokoena,8901022217087,2026/02/18,SQL basics,KwaZulu-Natal,1500
+LR-200041,Sibusiso Molefe,8206038892086,12-01-2026,Python for analysts,Limpopo,R 1 850.00
+LR-200239,Aisha Adams,7202196070082,March 28 2026,SQL basics,,R 1 250.00
+LR-200131,Sipho Molefe,9810284263089,25-01-2026,Python for analysts,Free State,1850
+LR-200013,Sibusiso Botha,8108081788084,2026/03/22,Stewardship 101,Gauteng,1350
+LR-200101,Lindiwe Mokoena,9507186927088,2026/01/20,Dashboards in practice,Gauteng,R 1 500.00
+LR-200156,Lerato Zulu,7012197794087,2026/01/07,Stewardship 101,Western Cape,R 1 350.00
+LR-200208,Ruan Ndlovu,7212183789086,21-02-2026,Python for analysts,Gauteng,2100
+LR-200048,Sipho Ndlovu,8501174822086,2026/01/05,SQL basics,Western Cape,R 1 350.00
+LR-200174,Naledi Van der Merwe,9009213107088,08-01-2026,Data literacy,Gauteng,R 950.00
+LR-200112,Bongani Nkosi,8006233728084,2026/03/06,Stewardship 101,Eastern Cape,R 1 100.00
+LR-200035,Fatima Sithole,7107167808088,2026/02/09,SQL basics,Gauteng,1500
+LR-200110,Ayanda Khumalo,9008115219081,2026/03/23,Dashboards in practice,Western Cape,R 1 350.00
+LR-200184,Johan Molefe,9702024414080,28-02-2026,Data literacy,KwaZulu-Natal,R 1 200.00
+LR-200132,Chantelle Mokoena,8907155971088,20-01-2026,Python for analysts,Gauteng,"R1,700.00"
+LR-200086,Lerato Botha,9403235518084,2026/02/20,Data literacy,KwaZulu-Natal,R 950.00
+LR-200098,Lindiwe Khumalo,8904015912088,February 27 2026,Dashboards in practice,KwaZulu-Natal,R 1 500.00
+LR-200006,Lerato Botha,9011180474081,2026/01/10,Data literacy,Limpopo,R950.00
+LR-200223,Thabo Molefe,9705099799086,04-03-2026,Dashboards in practice,Mpumalanga,R 1 500.00
+LR-200094,Fatima Mokoena,9501181783084,2026/03/25,Stewardship 101,,R 1 200.00
+LR-200087,Nomsa Naidoo,8602091837086,2026/02/15,Dashboards in practice,Free State,R 1 600.00
+LR-200237,Chantelle Jacobs,8301249831081,16-03-2026,Stewardship 101,Western Cape,R 1 200.00
+LR-200125,Thabo Khumalo,9601032484081,January 2 2026,Stewardship 101,,R 950.00
+LR-200172,Johan Pillay,9506018185089,25-01-2026,Dashboards in practice,Free State,R 1 600.00
+LR-200135,Lerato Jacobs,9706093092088,2026/02/10,Data literacy,Eastern Cape,R 1 050.00
+LR-200233,Nomsa Mahlangu,9301271535087,2026/03/08,SQL basics,Free State,R 1 100.00
+LR-200194,Nomsa Naidoo,9501226819081,2026/02/17,Dashboards in practice,Western Cape,R 1 600.00
+LR-200169,Fatima Mokoena,7603212162089,06-03-2026,Python for analysts,KwaZulu-Natal,2100
+LR-200206,Bongani Zulu,7004099710084,2026/03/16,Data literacy,Free State,950
+LR-200032,Tshepo Nkosi,9804188505080,2026/01/10,Stewardship 101,,R 1 100.00
+LR-200159,Mpho Sithole,7907287611083,2026/02/25,Data literacy,,800
+LR-200054,Nomsa Dlamini,9409242314089,2026/01/19,SQL basics,Limpopo,R 1 500.00
+LR-200037,Pieter Pillay,8709280827082,March 18 2026,Python for analysts,Free State,1700
+LR-200220,Thabo Ndlovu,,2026/02/24,Data literacy,Western Cape,R 950.00
+LR-200082,Aisha Nkosi,7704214542089,21-01-2026,Data literacy,Mpumalanga,R 950.00
+LR-200154,Sipho Molefe,7002206632085,17-03-2026,SQL basics,Free State,R 1 350.00
+LR-200144,Nomsa Mokoena,7803218221089,2026/01/05,Dashboards in practice,Mpumalanga,1350
+LR-200029,Mpho Zulu,8308101855084,2026/03/08,Stewardship 101,KwaZulu-Natal,R 1 100.00
+LR-200199,Zanele Khumalo,8212199432084,2026/02/01,SQL Basics ,Free State,R 1 250.00
+LR-200042,Ayanda Ndlovu,7607128529081,February 19 2026,Python for analysts,Western Cape,1850
+LR-200168,Ruan Pillay,9709116391084,2026/01/04,Dashboards in practice,Western Cape,R 1 350.00
+LR-200142,Lerato Mokoena,8102142314085,February 28 2026,Stewardship 101,Gauteng,R 1 200.00
+LR-200100,Priya Adams,9211083262085,24-03-2026,Stewardship 101,Gauteng,R 1 100.00
+LR-200190,Aisha Adams,7310278466083,2026/03/16,Python for analysts,Western Cape,R 2 100.00
+LR-200071,Ayanda Ndlovu,9403203569089,,Dashboards in practice,Western Cape,1500
+LR-200133,Kagiso Mahlangu,8001124237087,27-01-2026,Data literacy,KwaZulu-Natal,R 1 200.00
+LR-200024,Fatima Khumalo,9408124938087,06-02-2026,Stewardship 101,Western Cape,R 1 200.00
+LR-200141,Kagiso Pillay,8608028053082,2026/02/23,Dashboards in practice,Gauteng,R 1 500.00
+LR-200011,Ayanda Khumalo,9210015245083,2026/03/01,Python for analysts,Gauteng,1950
+LR-200008,Lerato Naidoo,9912043490083,January 5 2026,Stewardship 101,Western Cape,
+LR-200102,Tshepo Van der Merwe,7204087720080,02-03-2026,SQL basics,Gauteng,R 1 350.00
+LR-200085,Sibusiso Molefe,9807068059085,2026/03/17,Stewardship 101,Gauteng,1200
+LR-200089,Lindiwe Botha,9102229345084,January 13 2026,SQL basics,Western Cape,R 1 250.00
+LR-200036,Lerato Naidoo,7508183761081,2026/02/16,SQL basics,Gauteng,1350
+LR-200056,Zanele Sithole,8202191258089,23-02-2026,SQL basics,Gauteng,1250
+LR-200219,Sibusiso Sithole,7506065573087,2026/01/07,SQL Basics ,KwaZulu-Natal,R 1 250.00
+LR-200091,Chantelle Mokoena,,2026/03/24,SQL basics,Gauteng,R 1 250.00
+LR-200084,Pieter Ndlovu,9406188497083,11-03-2026,Stewardship 101,Mpumalanga,R 1 100.00
+LR-200060,Mpho Botha,7908075201080,2026/01/22,Dashboards in practice,Western Cape,R 1 500.00
+LR-200137,Johan Zulu,8803253928081,January 28 2026,Dashboards in practice,Gauteng,R 1 350.00
+LR-200147,Pieter Khumalo,9711219292086,2026/03/17,Python for analysts,Gauteng,1700
+LR-200129,Thabo Pillay,7608238153082,2026/03/20,Dashboards in practice,GP,1350
+LR-200012,Lerato Mahlangu,9502051372085,25-03-2026,Data literacy,Eastern Cape,"R1,050.00"
+LR-200010,Naledi Adams,9405219508087,January 2 2026,Dashboards in practice,Western Cape,R 1 350.00
+LR-200014,Aisha Naidoo,7904237242087,2026/03/03,SQL basics,Mpumalanga,R 1 350.00
+LR-200009,Kagiso Mokoena,7307245608082,2026/02/10,Dashboards in practice,Gauteng,R 1 500.00
+LR-200150,Bongani Naidoo,7805103601080,23-03-2026,Python for analysts,Gauteng,R 1 950.00
+LR-200151,Thabo Mokoena,7301288408082,2026/02/24,Python for analysts,,R 2 100.00
+LR-200153,Nomsa Dlamini,8104187880081,2026/03/12,Data literacy,Western Cape,R 950.00
+LR-200213,Tshepo Molefe,7012027718081,2026/01/28,SQL basics,Western Cape,R 1 250.00
+LR-200092,Nomsa Mokoena,8205155400084,2026/03/16,Data literacy,Western Cape,1050
+LR-200187,Naledi Mokoena,8608090707087,2026/03/11,Python for analysts,KwaZulu-Natal,1700
+LR-200229,Zanele Botha,8203185013089,28-03-2026,Data literacy,Free State,R950.00
+LR-200106,Zanele Naidoo,8609045401080,,Data literacy,,1050
+LR-200218,Pieter Naidoo,7809215868080,19-01-2026,Data literacy,KwaZulu-Natal,R 1 050.00
+LR-200130,Aisha Adams,8105117868089,22-02-2026,Stewardship 101,KwaZulu-Natal,R 1 100.00
+LR-200214,Fatima Mahlangu,9312172644082,05-03-2026,Data literacy,KwaZulu-Natal,
+LR-200114,Lerato Adams,7708279135080,March 4 2026,Data literacy,Gauteng,R 1 200.00
+LR-200170,Tshepo Botha,7306031705086,08-02-2026,SQL basics,Gauteng,R 1 500.00
+LR-200031,Mpho Jacobs,7603282275086,12-01-2026,Python for analysts,Mpumalanga,R 1 700.00
+LR-200143,Ayanda Sithole,9909131041087,28-02-2026,Data literacy,,R 950.00
+LR-200065,Thabo Jacobs,9412097880082,March 1 2026,Data literacy,Free State,R 950.00
+LR-200001,Johan Adams,8206080504080,2026/03/04,Data literacy,Free State,950
+LR-200140,Ruan Sithole,8005203512083,January 12 2026,Python for analysts,Eastern Cape,1850
+LR-200178,Lindiwe Khumalo,9311036136082,February 21 2026,Python for analysts,Free State,1950
+LR-200225,Bongani Mokoena,8602278991085,2026/01/01,SQL Basics ,Gauteng,1350
+LR-200197,Ayanda Adams,7207157443086,2026/01/14,Dashboards in practice,KwaZulu-Natal,R 1 750.00
+LR-200165,Tshepo Sithole,7503215329087,2026/03/13,Dashboards in practice,Gauteng,R 1 500.00
+LR-200051,Mpho Jacobs,8803280961088,19-01-2026,SQL basics,,"R1,100.00"
+LR-200034,Sipho Khumalo,9206213927084,2026/01/21,SQL basics,Gauteng,R 1 350.00
+LR-200149,Mpho Khumalo,9706285420085,2026/03/20,Stewardship 101,KwaZulu-Natal,R 1 100.00
+LR-200053,Bongani Pillay,7608176545087,February 17 2026,Dashboards in practice,Gauteng,R 1 500.00
+LR-200216,Priya Zulu,8108133227082,2026/03/09,SQL basics,Mpumalanga,R 1 100.00
+LR-200117,Zanele Dlamini,9410066649087,2026/01/01,Stewardship 101,Western Cape,R 1 350.00
+LR-200236,Lindiwe Van der Merwe,8805241876088,2026/01/26,Dashboards in practice,Gauteng,"R1,500.00"
+LR-200234,Johan Naidoo,7208150262088,2026/02/27,Stewardship 101,Gauteng,1100
+LR-200093,Priya Naidoo,7401218215081,2026/03/24,Dashboards in practice,Mpumalanga,1500
+LR-200038,Johan Dlamini,8005204464080,2026/03/25,Stewardship 101,Gauteng,1100
+LR-200095,Lerato Dlamini,7807090179086,March 12 2026,Dashboards in practice,,"R1,500.00"
+LR-200227,Ayanda Van der Merwe,9809227865083,2026/01/11,sql basics,Free State,R 1 250.00
+LR-200215,Kagiso Pillay,8103128813081,2026/01/27,SQL basics,Gauteng,1500
+LR-200226,Ayanda Botha,8203138660080,2026/01/08,SQL basics,Mpumalanga,R 1 100.00
+LR-200222,Johan Dlamini,7303127410087,2026/01/23,Stewardship 101,,R 1 100.00
+LR-200181,Kagiso Khumalo,9512273718089,2026/02/14,Stewardship 101,KwaZulu-Natal,R 950.00
+LR-200037,Pieter Pillay,8709280827082,March 18 2026,Python for analysts,Free State,1700
+LR-200072,Aisha Nkosi,9807049736080,2026/03/13,Stewardship 101,Gauteng,R 1 100.00
+LR-200096,Priya Jacobs,8008029897081,2026/02/01,Stewardship 101,Eastern Cape,"R1,200.00"
+LR-200099,Priya Sithole,9507063658085,2026/02/05,Dashboards in practice,Western Cape,1750
+LR-200171,Naledi Mahlangu,7710226789085,March 5 2026,Python for analysts,Eastern Cape,R 1 850.00
+LR-200139,Chantelle Pillay,9009141909089,February 9 2026,Data literacy,Gauteng,R 950.00
+LR-200108,Lindiwe Dlamini,8807051786087,2026/01/12,SQL basics,KwaZulu-Natal,R 1 100.00
+LR-200191,Tshepo Botha,7904207397086,2026/03/03,Stewardship 101,KwaZulu-Natal,R 1 100.00
+LR-200055,Pieter Botha,7908217481085,2026/02/27,Stewardship 101,,1100
+LR-200067,Naledi Naidoo,8908022947081,2026/02/13,Data literacy,GP,1200
+LR-200005,Tshepo Adams,7502101612081,,Dashboards in practice,Gauteng,"R1,350.00"
+LR-200080,Fatima Adams,9312104635085,18-03-2026,SQL basics,Gauteng,1250
+LR-200049,Sibusiso Molefe,7510059161085,January 23 2026,SQL basics,,1250
+LR-200158,Bongani Jacobs,7903278593087,2026/03/24,Python for analysts,KwaZulu-Natal,R 2 100.00
+LR-200204,Mpho Van der Merwe,7512211618089,March 1 2026,SQL basics,Western Cape,1350
+LR-200163,Kagiso Ndlovu,8308184316089,2026/01/04,SQL basics,Mpumalanga,R 1 250.00
+LR-200017,Kagiso Zulu,9301125706085,02-03-2026,Dashboards in practice,KwaZulu-Natal,1750
+LR-200078,Sibusiso Mahlangu,9103277985085,08-03-2026,Dashboards in practice,Mpumalanga,R 1 600.00
+LR-200026,Thabo Molefe,9605282804081,10-01-2026,SQL basics,Western Cape,R 1 100.00
+LR-200045,Pieter Mahlangu,9411156870081,19-02-2026,SQL Basics ,KwaZulu-Natal,1250
+LR-200002,Tshepo Van der Merwe,9712074104083,2026/03/20,Data literacy,KwaZulu-Natal,R 950.00
+LR-200185,Bongani Khumalo,8006116264084,2026/03/24,Python for analysts,Gauteng,R 1 700.00
+LR-200196,Tshepo Dlamini,7206166479081,23-03-2026,SQL basics,Gauteng,
+LR-200167,Kagiso Naidoo,9812170253084,2026/01/10,Python for analysts,Mpumalanga,R 1 950.00
+LR-200207,Ruan Zulu,9104257214083,24-01-2026,Data literacy,KwaZulu-Natal,1200
+LR-200164,Lerato Sithole,9001244461084,2026/01/04,Stewardship 101,Eastern Cape,"R1,100.00"
+LR-200211,Pieter Botha,7204015588081,2026/02/06,Stewardship 101,Free State,R 1 100.00
+LR-200186,Kagiso Sithole,8403264387089,2026/03/18,Data literacy,Gauteng,"R1,200.00"
+LR-200059,Chantelle Naidoo,8410053665083,12-03-2026,Python for analysts,Free State,1850
+LR-200023,Sipho Dlamini,7606134790080,12-03-2026,Data literacy,Mpumalanga,R 950.00
+LR-200062,Nomsa Mahlangu,8305205774087,21-02-2026,Dashboards in practice,Gauteng,R 1 350.00
+LR-200016,Chantelle Nkosi,7903205985087,28-03-2026,SQL basics,,R 1 350.00
+LR-200188,Bongani Jacobs,9410134522086,26-02-2026,Python for analysts,Gauteng,R 1 850.00
+LR-200021,Kagiso Zulu,9906134349082,2026/01/22,Stewardship 101,Gauteng,R 1 100.00
+LR-200185,Bongani Khumalo,8006116264084,2026/03/24,Python for analysts,Gauteng,R 1 700.00
+LR-200202,Johan Sithole,9311083304081,2026/03/09,Stewardship 101,Limpopo,"R1,100.00"
+LR-200118,Zanele Jacobs,8201201550083,02-01-2026,Data literacy,Western Cape,R 950.00
+LR-200066,Ruan Zulu,8206062533083,17-02-2026,Python for analysts,Western Cape,R 1 850.00
+LR-200058,Sipho Van der Merwe,9112192974088,March 25 2026,Python for analysts,Free State,1850
+LR-200123,Lerato Jacobs,9404156938088,2026/03/18,SQL basics,Western Cape,R 1 250.00
+LR-200212,Zanele Naidoo,8401209969088,14-02-2026,Data literacy,Western Cape,R 950.00
+LR-200030,Johan Zulu,8803224411089,January 22 2026,sql basics,Western Cape,R 1 500.00
+LR-200090,Kagiso Adams,8105263811089,19-02-2026,Stewardship 101,,"R1,100.00"
+LR-200232,Zanele Jacobs,,2026/02/07,Dashboards in practice,Gauteng,R 1 500.00
+LR-200052,Thabo Mahlangu,8406193515086,2026/02/04,Stewardship 101,,1100
+LR-200081,Nomsa Mokoena,9704258379086,2026/02/01,Dashboards in practice,Free State,1350

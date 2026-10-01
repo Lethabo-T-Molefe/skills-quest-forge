@@ -5,50 +5,48 @@ export type BuildMethodId = Exclude<MethodId, "predict">;
 /** The ways of working a person can choose between for the same question. */
 export type AnalysisMode = "ask" | "build" | "code" | "guided";
 
-export type DimensionId = "region" | "course" | "month";
-export type MeasureId =
-  | "enrolments"
-  | "completions"
-  | "revenue"
-  | "completion_rate"
-  | "avg_fee"
-  | "sessions_per_learner";
-
-/** The unit of observation for summaries and relationships, for example one region in one month. */
-export type UnitGrain = "region" | "course" | "month" | "region-month" | "course-month" | "region-course";
-
-export interface FactRow {
-  region: string;
-  course: string;
-  month: string;
-  enrolments: number;
-  completions: number;
-  revenue: number;
-  sessions: number;
-}
-
-export type AdditiveColumn = "enrolments" | "completions" | "revenue" | "sessions";
 export type MeasureUnit = "count" | "money" | "rate" | "decimal";
 
+/** A number the analysis can compute, from the semantic layer (governed) or a column total. */
 export interface MeasureDef {
-  id: MeasureId;
+  id: string;
   label: string;
   unit: MeasureUnit;
+  /** Additive measures add up across groups. Ratios are a numerator over a denominator. */
+  kind: "additive" | "ratio" | "distinct";
   description: string;
-  /** Additive measures add up across rows. Ratios are a numerator over a denominator. */
-  kind: "additive" | "ratio";
-  column?: AdditiveColumn;
-  numerator?: AdditiveColumn;
-  denominator?: AdditiveColumn;
+  governed: boolean;
+  column: string | null;
+  numerator: string | null;
+  denominator: string | null;
+  metricId: string | null;
 }
 
+export interface DimensionDef {
+  id: string;
+  label: string;
+  column: string;
+  /** Values largest group first, for filters and ordering. */
+  values: string[];
+}
+
+export interface MonthOption {
+  id: string;
+  label: string;
+  short: string;
+}
+
+/** An approved dataset the member may analyse, with the fields the semantic layer gives it. */
 export interface AnalysisDataset {
   id: string;
   name: string;
   table: string;
-  measures: MeasureId[];
-  dimensions: DimensionId[];
-  defaultMeasure: MeasureId;
+  measures: MeasureDef[];
+  dimensions: DimensionDef[];
+  hasTime: boolean;
+  months: MonthOption[];
+  grains: { id: string; label: string }[];
+  defaultMeasure: string;
 }
 
 export interface MethodTechnique {
@@ -73,19 +71,19 @@ export interface AnalysisMethod {
 export interface BuildConfig {
   datasetId: string;
   method: BuildMethodId;
-  measure: MeasureId;
+  measure: string;
   /** Second measure, used by the relationship method. */
-  measureY: MeasureId;
+  measureY: string;
   /** Group-by for compare, breakdown for explain. */
-  dimension: DimensionId;
-  /** Unit of observation for summarise and relationship. */
-  grain: UnitGrain;
-  /** Optional split into one line per group, for trend. */
-  split: "none" | "region" | "course";
+  dimension: string;
+  /** Unit of observation for summarise and relationship, e.g. "region-month". */
+  grain: string;
+  /** Optional split into one line per group, for trend: a dimension id or "none". */
+  split: string;
   from: string;
   to: string;
-  region: string;
-  course: string;
+  /** Dimension id → the one value to keep. */
+  filters: Record<string, string>;
   aggregation: "total" | "monthly-mean" | "monthly-median";
   rateMethod: "pooled" | "average";
   display: "value" | "share" | "index";
@@ -101,37 +99,34 @@ export interface BuildConfig {
   changeView: "amount" | "percent";
 }
 
-export interface SummaryStats {
-  n: number;
-  excluded: number;
-  mean: number;
-  median: number;
-  std: number;
-  min: number;
-  max: number;
-  q1: number;
-  q3: number;
-}
-
 export interface ChartPoint {
   name: string;
   value: number | null;
 }
 
+/** How a number is written. The API describes it; the page formats with the shared helpers. */
+export type ValueFormat =
+  | { type: "measure"; unit: MeasureUnit }
+  | { type: "compact"; unit: MeasureUnit }
+  | { type: "percent"; digits: number }
+  | { type: "delta"; unit: MeasureUnit }
+  | { type: "share" }
+  | { type: "index" }
+  | { type: "count"; singular: string; plural: string }
+  | { type: "number" };
+
 export type AnalysisVisual =
   | { kind: "histogram"; bins: ChartPoint[] }
   | { kind: "bars"; points: ChartPoint[]; reference?: number }
-  | { kind: "lines"; points: Array<Record<string, number | string | null>>; series: string[] }
+  | { kind: "lines"; points: Record<string, number | string | null>[]; series: string[] }
   | {
       kind: "scatter";
       points: { name: string; x: number; y: number }[];
       fit: { x1: number; y1: number; x2: number; y2: number } | null;
       xLabel: string;
       yLabel: string;
-      formatX: (value: number) => string;
-      formatY: (value: number) => string;
-      axisX: (value: number) => string;
-      axisY: (value: number) => string;
+      xUnit: MeasureUnit;
+      yUnit: MeasureUnit;
     }
   | { kind: "contribution"; points: ChartPoint[] };
 
@@ -144,12 +139,22 @@ export interface AnalysisResult {
   /** Caveats that apply to this particular result. */
   notes: string[];
   visual: AnalysisVisual;
-  /** Formats a raw chart value in full, for tooltips and tables. */
-  format: (value: number) => string;
-  /** Formats a raw chart value briefly, for axis ticks. */
-  axisFormat: (value: number) => string;
+  format: ValueFormat;
+  axisFormat: ValueFormat;
   table: { columns: string[]; rows: (string | number)[][] };
+  /** The analytical SQL behind the chart; it runs as-is in the workbench. */
   sql: string;
+  sqlRunnable?: boolean;
+  /** Whether a row policy limited the rows for this member's role. */
+  rowPolicy?: boolean;
+  empty?: boolean;
   /** Headline figures shown above the chart. */
   figures: { label: string; value: string; detail?: string }[];
+  dataset?: { id: string; name: string; table: string };
+  measureUnit?: MeasureUnit;
+  config?: BuildConfig;
+}
+
+export interface AnalysisCatalogue {
+  datasets: AnalysisDataset[];
 }

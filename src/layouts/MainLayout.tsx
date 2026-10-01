@@ -2,22 +2,32 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { ChevronsLeft, ChevronsRight, CircleHelp, Globe, LogOut, Menu, Search, Settings } from "lucide-react";
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  CircleHelp,
+  Globe,
+  LogOut,
+  Menu,
+  Search,
+  Settings,
+} from "lucide-react";
 import { Drawer, Logo, SearchField } from "@/components";
 import { navSections, type NavItem } from "@/config/navigation";
-import { canApprove, clearSession, useCurrentUser, type CurrentUser } from "@/features/auth";
+import { canApprove, signOut, useCurrentUser, type CurrentUser } from "@/features/auth";
 import { datasetsQuery } from "@/features/datasets";
 import { helpFor } from "@/features/help";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { toggleSidebar, useSidebarCollapsed } from "@/stores/sidebar-store";
 
 const menuItemClass =
   "flex cursor-pointer items-center gap-2 px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent/60";
 
 /**
- * App chrome: the grouped sidebar, the top bar and a compact page heading.
- * With `fill`, a tool page takes exactly the height of the screen on large displays,
- * so only its own panels scroll instead of the whole page.
+ * App chrome: the grouped sidebar, the top bar and the page heading.
+ * The page scrolls as one. Tool pages keep their settings in view with a sticky side rail instead of
+ * locking themselves to the height of the window.
  */
 export function MainLayout({
   title,
@@ -25,7 +35,6 @@ export function MainLayout({
   back,
   actions,
   toolbar,
-  fill = false,
   children,
 }: {
   title: string;
@@ -36,7 +45,6 @@ export function MainLayout({
   actions?: ReactNode;
   /** Controls that belong to the whole page, such as tabs, shown under the heading. */
   toolbar?: ReactNode;
-  fill?: boolean;
   children: ReactNode;
 }) {
   const currentUser = useCurrentUser();
@@ -45,11 +53,17 @@ export function MainLayout({
   const [query, setQuery] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const collapsed = useSidebarCollapsed();
+  const collapsedPreference = useSidebarCollapsed();
+  // Between 1024 and 1279 px the sidebar is an icon rail, so the page keeps its width for content.
+  const wide = useMediaQuery("(min-width: 1280px)");
+  const collapsed = collapsedPreference || !wide;
   const help = helpFor(pathname);
 
   const datasets = useQuery({ ...datasetsQuery(), enabled: canApprove(currentUser) });
-  const pendingApprovals = datasets.data?.filter((item) => item.status === "pending").length ?? 0;
+  // Cleaned datasets waiting for a decision. Raw ones cannot be approved yet, so they are not counted.
+  const pendingApprovals =
+    datasets.data?.filter((item) => item.status === "pending" && item.layer !== "bronze").length ??
+    0;
   const badges = { pendingApprovals };
 
   return (
@@ -69,17 +83,26 @@ export function MainLayout({
         >
           <button
             type="button"
+            hidden={!wide}
             onClick={toggleSidebar}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-expanded={!collapsed}
             className="absolute top-[94px] -right-3.5 z-10 flex size-7 items-center justify-center rounded-full border border-line-strong bg-surface-raised text-muted-foreground shadow-sm transition-colors hover:text-foreground"
           >
-            {collapsed ? <ChevronsRight className="size-4" strokeWidth={1.75} /> : <ChevronsLeft className="size-4" strokeWidth={1.75} />}
+            {collapsed ? (
+              <ChevronsRight className="size-4" strokeWidth={1.75} />
+            ) : (
+              <ChevronsLeft className="size-4" strokeWidth={1.75} />
+            )}
           </button>
 
           <Link to="/workspace" className="block">
-            {collapsed ? <Logo variant="submark" className="mx-auto size-11" /> : <Logo variant="secondary" className="w-full" />}
+            {collapsed ? (
+              <Logo variant="submark" className="mx-auto size-11" />
+            ) : (
+              <Logo variant="secondary" className="w-full" />
+            )}
           </Link>
 
           <nav aria-label="Main" className="mt-7 min-h-0 flex-1 overflow-y-auto">
@@ -130,7 +153,9 @@ export function MainLayout({
                   <CircleHelp className="size-4" strokeWidth={1.5} />
                   Help
                 </button>
-                <span className="hidden text-xs text-muted-foreground sm:inline">{currentUser.workspace}</span>
+                <span className="hidden text-xs text-muted-foreground sm:inline">
+                  {currentUser.workspace}
+                </span>
               </div>
             </div>
           </header>
@@ -138,28 +163,38 @@ export function MainLayout({
           <main
             id="main"
             tabIndex={-1}
-            className={cn(
-              "px-4 py-5 focus:outline-none sm:px-6",
-              fill && "lg:flex lg:h-[calc(100dvh-3.5rem)] lg:flex-col lg:overflow-hidden",
-            )}
+            className="px-4 pt-7 pb-16 focus:outline-none sm:px-8 lg:pt-9"
           >
-            <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-              <div className="min-w-0 max-w-3xl">
-                {back ? <div className="mb-1">{back}</div> : null}
-                <h1 className="heading-page">{title}</h1>
-                {description ? <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{description}</p> : null}
+            <div className="mx-auto w-full max-w-[1320px]">
+              <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+                <div className="min-w-0 max-w-3xl">
+                  {back ? <div className="mb-2">{back}</div> : null}
+                  <h1 className="heading-page">{title}</h1>
+                  {description ? (
+                    <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+                      {description}
+                    </p>
+                  ) : null}
+                </div>
+                {actions ? (
+                  <div className="flex flex-wrap items-center gap-2">{actions}</div>
+                ) : null}
               </div>
-              {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+              {toolbar ? <div className="mt-6">{toolbar}</div> : null}
+              <div className="mt-7 lg:mt-8">{children}</div>
             </div>
-            {toolbar ? <div className="mt-4">{toolbar}</div> : null}
-            <div className={cn("mt-5", fill && "lg:min-h-0 lg:flex-1")}>{children}</div>
           </main>
         </div>
       </div>
 
       <Drawer open={menuOpen} title="Menu" onClose={() => setMenuOpen(false)}>
         <nav aria-label="Main">
-          <NavSections user={currentUser} collapsed={false} badges={badges} onNavigate={() => setMenuOpen(false)} />
+          <NavSections
+            user={currentUser}
+            collapsed={false}
+            badges={badges}
+            onNavigate={() => setMenuOpen(false)}
+          />
         </nav>
         <div className="mt-6 border-t border-border pt-4">
           <p className="text-sm font-medium">{currentUser.name}</p>
@@ -217,13 +252,20 @@ function NavSections({
               collapsed ? (
                 <div className="mx-auto mb-2 h-px w-8 bg-line-strong/60" aria-hidden />
               ) : (
-                <p className="mb-1.5 px-3 text-xs font-medium text-muted-foreground">{section.title}</p>
+                <p className="mb-1.5 px-3 text-xs font-medium text-muted-foreground">
+                  {section.title}
+                </p>
               )
             ) : null}
             <ul className="flex flex-col gap-0.5">
               {items.map((item) => (
                 <li key={item.to}>
-                  <NavLink item={item} collapsed={collapsed} badge={item.badge ? badges[item.badge] : 0} onNavigate={onNavigate} />
+                  <NavLink
+                    item={item}
+                    collapsed={collapsed}
+                    badge={item.badge ? badges[item.badge] : 0}
+                    onNavigate={onNavigate}
+                  />
                 </li>
               ))}
             </ul>
@@ -251,7 +293,9 @@ function NavLink({
       activeOptions={{ exact: item.exact ?? false }}
       title={collapsed ? `${item.label}: ${item.hint}` : item.hint}
       activeProps={{ className: "bg-surface-raised text-foreground shadow-sm" }}
-      inactiveProps={{ className: "text-muted-foreground hover:bg-accent/60 hover:text-foreground" }}
+      inactiveProps={{
+        className: "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+      }}
       className={cn(
         "relative flex items-center gap-3 rounded-[999px] py-2 text-sm transition-colors",
         collapsed ? "justify-center px-0" : "px-3",
@@ -288,9 +332,10 @@ function SignOutButton({ className }: { className: string }) {
       type="button"
       className={cn(className, "w-full text-left")}
       onClick={() => {
-        clearSession();
-        queryClient.clear();
-        void navigate({ to: "/sign-in" });
+        void signOut().then(() => {
+          queryClient.clear();
+          void navigate({ to: "/sign-in" });
+        });
       }}
     >
       <LogOut className="size-4" strokeWidth={1.5} />
@@ -330,8 +375,13 @@ function AccountMenu({ user, collapsed }: { user: CurrentUser; collapsed: boolea
           sideOffset={10}
           className="z-50 w-56 border border-border bg-surface-raised p-1.5 shadow-lg"
         >
-          <DropdownMenu.Label className="truncate px-3 py-1.5 text-xs text-muted-foreground">{user.email}</DropdownMenu.Label>
-          <DropdownMenu.Item className={menuItemClass} onSelect={() => void navigate({ to: "/settings" })}>
+          <DropdownMenu.Label className="truncate px-3 py-1.5 text-xs text-muted-foreground">
+            {user.email}
+          </DropdownMenu.Label>
+          <DropdownMenu.Item
+            className={menuItemClass}
+            onSelect={() => void navigate({ to: "/settings" })}
+          >
             <Settings className="size-4" strokeWidth={1.5} />
             Settings
           </DropdownMenu.Item>
@@ -343,9 +393,10 @@ function AccountMenu({ user, collapsed }: { user: CurrentUser; collapsed: boolea
           <DropdownMenu.Item
             className={menuItemClass}
             onSelect={() => {
-              clearSession();
-              queryClient.clear();
-              void navigate({ to: "/sign-in" });
+              void signOut().then(() => {
+                queryClient.clear();
+                void navigate({ to: "/sign-in" });
+              });
             }}
           >
             <LogOut className="size-4" strokeWidth={1.5} />

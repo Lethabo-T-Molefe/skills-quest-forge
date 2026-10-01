@@ -41,7 +41,13 @@ export function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center px-6">
-      <button type="button" className="absolute inset-0 bg-foreground/55" aria-label="Close" tabIndex={-1} onClick={onClose} />
+      <button
+        type="button"
+        className="absolute inset-0 bg-foreground/55"
+        aria-label="Close"
+        tabIndex={-1}
+        onClick={onClose}
+      />
       <div
         role="dialog"
         aria-modal="true"

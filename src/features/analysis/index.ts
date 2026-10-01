@@ -1,9 +1,29 @@
 export type * from "./types";
 export { analysisMethods, analysisModes, getMethod, isMethodId, methodIds } from "./data/methods";
-export { analysisDatasets, getAnalysisDataset, measures } from "./data/schemas";
-export { defaultConfig, switchDataset, switchMethod, type BuildPresets } from "./engine/config";
-export { runAnalysis } from "./engine/run";
 export {
+  analysisCatalogueQuery,
+  runAnalysis,
+  saveExploration,
+  useAnalysisDatasets,
+  useAnalysisResult,
+} from "./api/analysis";
+export {
+  defaultConfig,
+  findMeasure,
+  measuresFor,
+  switchDataset,
+  switchMethod,
+  type BuildPresets,
+} from "./engine/config";
+export {
+  formatCompact,
+  formatDelta,
+  formatPercent,
+  formatValue,
+  formatterFor,
+} from "./engine/format";
+export {
+  filtersFromSearch,
   parseAnalyseSearch,
   parseAskSearch,
   parseBuildSearch,

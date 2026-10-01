@@ -40,7 +40,13 @@ export function Drawer({
 
   return (
     <div className="fixed inset-0 z-[70]">
-      <button type="button" className="absolute inset-0 bg-foreground/55" aria-label="Close" tabIndex={-1} onClick={onClose} />
+      <button
+        type="button"
+        className="absolute inset-0 bg-foreground/55"
+        aria-label="Close"
+        tabIndex={-1}
+        onClick={onClose}
+      />
       <aside
         ref={panelRef}
         role="dialog"
@@ -53,7 +59,11 @@ export function Drawer({
           <h2 id={titleId} className="heading-2">
             {title}
           </h2>
-          <button type="button" onClick={onClose} className="rounded-full p-1 text-muted-foreground hover:bg-accent">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full p-1 text-muted-foreground hover:bg-accent"
+          >
             <X className="size-5" strokeWidth={1.5} />
             <span className="sr-only">Close</span>
           </button>

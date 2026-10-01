@@ -10,9 +10,11 @@ export const publicNav = [
 
 export const marketingPaths = ["/", "/product", "/security", "/who", "/contact"] as const;
 
+/** Pages that need no session: marketing, sign-in, and dashboards embedded with a signed link. */
 export function isPublicPath(pathname: string) {
   return (
     (marketingPaths as readonly string[]).includes(pathname) ||
-    (authPaths as readonly string[]).includes(pathname)
+    (authPaths as readonly string[]).includes(pathname) ||
+    pathname.startsWith("/embed/")
   );
 }

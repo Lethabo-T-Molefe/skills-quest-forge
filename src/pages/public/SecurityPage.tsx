@@ -39,9 +39,9 @@ export function SecurityPage() {
             <p className="label-paren">(security and governance)</p>
             <h1 className="heading-1 mt-2 max-w-[16ch]">Built to be accountable.</h1>
             <p className="mt-6 max-w-[68ch] text-muted-foreground">
-              Access is controlled by role. Personal information is masked. Every meaningful action is recorded. The design
-              aligns with POPIA: accountability, processing limitation, purpose specification, security safeguards and
-              information quality.
+              Access is controlled by role. Personal information is masked. Every meaningful action
+              is recorded. The design aligns with POPIA: accountability, processing limitation,
+              purpose specification, security safeguards and information quality.
             </p>
           </div>
           <div className="lg:col-span-6">
@@ -58,7 +58,9 @@ export function SecurityPage() {
           {safeguards.map((item) => (
             <li key={item.title} className="border-l-2 border-signal pl-5">
               <h2 className="font-medium">{item.title}</h2>
-              <p className="mt-2 max-w-[50ch] text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+              <p className="mt-2 max-w-[50ch] text-sm leading-relaxed text-muted-foreground">
+                {item.body}
+              </p>
             </li>
           ))}
         </ul>
@@ -71,19 +73,27 @@ export function SecurityPage() {
           <dl className="space-y-5 text-sm lg:col-span-6 lg:col-start-7">
             <div>
               <dt className="font-medium">Accountability</dt>
-              <dd className="mt-1 text-muted-foreground">The audit log reconstructs how any figure was produced.</dd>
+              <dd className="mt-1 text-muted-foreground">
+                The audit log reconstructs how any figure was produced.
+              </dd>
             </div>
             <div>
               <dt className="font-medium">Processing limitation</dt>
-              <dd className="mt-1 text-muted-foreground">Classification, approval and least-privilege roles.</dd>
+              <dd className="mt-1 text-muted-foreground">
+                Classification, approval and least-privilege roles.
+              </dd>
             </div>
             <div>
               <dt className="font-medium">Purpose specification</dt>
-              <dd className="mt-1 text-muted-foreground">The catalogue records the purpose and definition of each object.</dd>
+              <dd className="mt-1 text-muted-foreground">
+                The catalogue records the purpose and definition of each object.
+              </dd>
             </div>
             <div>
               <dt className="font-medium">Information quality</dt>
-              <dd className="mt-1 text-muted-foreground">Profiling, guided cleaning and anomaly detection before promotion.</dd>
+              <dd className="mt-1 text-muted-foreground">
+                Profiling, guided cleaning and anomaly detection before promotion.
+              </dd>
             </div>
           </dl>
         </section>

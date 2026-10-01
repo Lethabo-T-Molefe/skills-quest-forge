@@ -28,7 +28,9 @@ export function MediaFrame({
           className="h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
         />
       </div>
-      {caption ? <figcaption className="mt-2 text-xs text-muted-foreground">{caption}</figcaption> : null}
+      {caption ? (
+        <figcaption className="mt-2 text-xs text-muted-foreground">{caption}</figcaption>
+      ) : null}
     </figure>
   );
 }

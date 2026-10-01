@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Library, Upload, Wand2 } from "lucide-react";
-import { Chip, Drawer, EmptyState, QuietButton, SearchField, Segmented, quietButtonClass, signalButtonClass } from "@/components";
-import { canClean, useCurrentUser } from "@/features/auth";
-import { MethodLibrary, useCleaningStudio } from "@/features/cleaning";
-import { layerLabels, useDatasets, type Dataset } from "@/features/datasets";
+import {
+  Chip,
+  Drawer,
+  EmptyState,
+  QuietButton,
+  SearchField,
+  Segmented,
+  quietButtonClass,
+  signalButtonClass,
+} from "@/components";
+import { canApprove, canClean, useCurrentUser } from "@/features/auth";
+import { MethodLibrary, useCleaningCatalogue } from "@/features/cleaning";
+import { useDatasets, type Dataset } from "@/features/datasets";
 import { MainLayout } from "@/layouts/MainLayout";
 import { formatNumber } from "@/lib/format";
 
@@ -20,18 +29,20 @@ function problems(dataset: Dataset) {
 
 export function CleaningStudioPage() {
   const datasets = useDatasets();
-  const studio = useCleaningStudio();
+  const catalogue = useCleaningCatalogue();
   const user = useCurrentUser();
   const [query, setQuery] = useState("");
   const [focus, setFocus] = useState<"queue" | "all">("queue");
   const [libraryOpen, setLibraryOpen] = useState(false);
 
-  const queue = datasets.filter((item) => item.layer === "bronze");
+  const queue = datasets.filter((item) => item.layer === "bronze" && item.status !== "rejected");
   const source = focus === "queue" ? queue : datasets;
   const shown = source.filter((item) =>
-    `${item.name} ${item.description} ${item.owner}`.toLowerCase().includes(query.trim().toLowerCase()),
+    `${item.name} ${item.description} ${item.owner}`
+      .toLowerCase()
+      .includes(query.trim().toLowerCase()),
   );
-  const mayClean = canClean(user);
+  const roleCanClean = canClean(user);
 
   return (
     <MainLayout
@@ -50,7 +61,7 @@ export function CleaningStudioPage() {
         </>
       }
     >
-      {!mayClean ? (
+      {!roleCanClean ? (
         <p className="mb-4 text-sm text-warning">
           Your role can look through profiles and recipes here, but cannot change data.
         </p>
@@ -66,13 +77,20 @@ export function CleaningStudioPage() {
             { value: "all", label: `All datasets (${datasets.length})` },
           ]}
         />
-        <SearchField className="max-w-sm" value={query} onChange={setQuery} placeholder="Search by name, owner or description" />
+        <SearchField
+          className="max-w-sm"
+          value={query}
+          onChange={setQuery}
+          placeholder="Search by name, owner or description"
+        />
       </div>
 
       {shown.length === 0 ? (
         <div className="mt-5">
           <EmptyState
-            title={focus === "queue" && !query ? "Nothing is waiting to be cleaned" : "Nothing matched"}
+            title={
+              focus === "queue" && !query ? "Nothing is waiting to be cleaned" : "Nothing matched"
+            }
             body={
               focus === "queue" && !query
                 ? "Every raw file has been cleaned. Upload a new file, or show all datasets to rerun a recipe."
@@ -90,8 +108,13 @@ export function CleaningStudioPage() {
           {shown.map((dataset) => {
             const raw = dataset.layer === "bronze";
             const found = problems(dataset);
+            // The API allows cleaning by the owner or a steward; everyone else can look.
+            const mayClean = roleCanClean && (dataset.ownerId === user.id || canApprove(user));
             return (
-              <li key={dataset.id} className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
+              <li
+                key={dataset.id}
+                className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4"
+              >
                 <div className="min-w-0 flex-1 basis-80">
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
@@ -101,14 +124,16 @@ export function CleaningStudioPage() {
                     >
                       {dataset.name}
                     </Link>
-                    <Chip tone={raw ? "signal" : "ok"}>{raw ? "Needs cleaning" : "Recipe saved"}</Chip>
+                    <Chip tone={raw ? "signal" : "ok"}>
+                      {raw ? "Needs cleaning" : "Recipe saved"}
+                    </Chip>
                   </div>
                   <p className="num mt-1 text-xs text-muted-foreground">
-                    {layerLabels[dataset.layer]} · {formatNumber(dataset.rows)} rows · owner {dataset.owner}
+                    {dataset.layerLabel} · {formatNumber(dataset.rows)} rows · owner {dataset.owner}
                   </p>
                 </div>
                 <p className="min-w-0 flex-1 basis-64 text-sm text-muted-foreground">
-                  {found.length > 0 ? found.join(" · ") : "No quality problems left"}
+                  {found.length > 0 ? found.join(" · ") : "No quality problems found"}
                 </p>
                 <Link
                   to="/clean/$datasetId"
@@ -125,12 +150,12 @@ export function CleaningStudioPage() {
       )}
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Cleaning covers missing values, repeats, extreme values, formats, types, labels, table shape, rules, contradictions
-        and personal information. The original file is never changed.
+        Cleaning covers missing values, repeats, extreme values, formats, types, labels, table
+        shape, rules, contradictions and personal information. The original file is never changed.
       </p>
 
       <Drawer open={libraryOpen} title="What can be fixed" onClose={() => setLibraryOpen(false)}>
-        <MethodLibrary chapters={studio.chapters} methods={studio.methods} />
+        <MethodLibrary chapters={catalogue.chapters} methods={catalogue.methods} />
       </Drawer>
     </MainLayout>
   );

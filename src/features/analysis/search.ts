@@ -17,16 +17,27 @@ export function parseAnalyseSearch(search: Record<string, unknown>): AnalyseSear
 export interface BuildSearch extends AnalyseSearch {
   measure?: string | undefined;
   dimension?: string | undefined;
-  region?: string | undefined;
+  /** Keeps one value of one dimension, written as "dimension:value" (for example "region:Gauteng"). */
+  only?: string | undefined;
 }
 
 export function parseBuildSearch(search: Record<string, unknown>): BuildSearch {
   const parsed: BuildSearch = parseAnalyseSearch(search);
-  for (const key of ["measure", "dimension", "region"] as const) {
+  for (const key of ["measure", "dimension", "only"] as const) {
     const value = search[key];
     if (typeof value === "string") parsed[key] = value;
   }
+  // Links made before filters were general named the region directly.
+  if (!parsed.only && typeof search["region"] === "string")
+    parsed.only = `region:${search["region"]}`;
   return parsed;
+}
+
+/** The filters a build link asks for, as dimension id to value. */
+export function filtersFromSearch(search: BuildSearch): Record<string, string> {
+  const [dimension, ...rest] = (search.only ?? "").split(":");
+  const value = rest.join(":");
+  return dimension && value ? { [dimension]: value } : {};
 }
 
 export interface AskSearch extends AnalyseSearch {
@@ -41,10 +52,13 @@ export function parseAskSearch(search: Record<string, unknown>): AskSearch {
 
 export interface CodeSearch extends AnalyseSearch {
   sql?: string | undefined;
+  /** A notebook to open on the Notebooks tab. */
+  notebook?: string | undefined;
 }
 
 export function parseCodeSearch(search: Record<string, unknown>): CodeSearch {
   const parsed: CodeSearch = parseAnalyseSearch(search);
   if (typeof search["sql"] === "string") parsed.sql = search["sql"];
+  if (typeof search["notebook"] === "string") parsed.notebook = search["notebook"];
   return parsed;
 }

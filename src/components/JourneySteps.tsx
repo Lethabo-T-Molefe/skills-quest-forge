@@ -27,13 +27,24 @@ export function JourneySteps({ steps, className }: { steps: JourneyStep[]; class
               step.state === "todo" && "border border-line-strong text-muted-foreground",
             )}
           >
-            {step.state === "done" ? <Check className="size-3.5" strokeWidth={2} aria-label="Done" /> : index + 1}
+            {step.state === "done" ? (
+              <Check className="size-3.5" strokeWidth={2} aria-label="Done" />
+            ) : (
+              index + 1
+            )}
           </span>
           <span className="min-w-0">
-            <span className={cn("block text-sm", step.state === "todo" ? "text-muted-foreground" : "font-medium")}>
+            <span
+              className={cn(
+                "block text-sm",
+                step.state === "todo" ? "text-muted-foreground" : "font-medium",
+              )}
+            >
               {step.label}
             </span>
-            {step.detail ? <span className="block text-xs text-muted-foreground">{step.detail}</span> : null}
+            {step.detail ? (
+              <span className="block text-xs text-muted-foreground">{step.detail}</span>
+            ) : null}
           </span>
           {index < steps.length - 1 ? (
             <span aria-hidden className="mt-3 hidden h-px w-6 shrink-0 bg-line-strong sm:block" />

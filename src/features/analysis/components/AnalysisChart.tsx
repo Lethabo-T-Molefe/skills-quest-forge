@@ -14,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { formatCompact, formatValue, formatterFor } from "../engine/format";
 import type { AnalysisResult } from "../types";
 
 const palette = ["#E94F37", "#393E41", "#4E7A5E", "#9A7B2C", "#8A8F93"];
@@ -28,14 +29,19 @@ const grid = <CartesianGrid stroke="currentColor" strokeOpacity={0.08} />;
 
 /** One chart per method: histogram, ranked bars, lines, scatter with a fitted line, or signed contributions. */
 export function AnalysisChart({ result }: { result: AnalysisResult }) {
-  const { visual, format, axisFormat } = result;
-  const formatTooltip = (value: unknown) => (typeof value === "number" ? format(value) : String(value ?? "—"));
+  const { visual } = result;
+  const format = formatterFor(result.format);
+  const axisFormat = formatterFor(result.axisFormat);
+  const formatTooltip = (value: unknown) =>
+    typeof value === "number" ? format(value) : String(value ?? "—");
 
   if (
     (visual.kind === "bars" || visual.kind === "contribution" || visual.kind === "histogram") &&
     (visual.kind === "histogram" ? visual.bins : visual.points).length === 0
   ) {
-    return <p className="p-6 text-sm text-muted-foreground">Nothing to chart with these settings.</p>;
+    return (
+      <p className="p-6 text-sm text-muted-foreground">Nothing to chart with these settings.</p>
+    );
   }
 
   return (
@@ -45,8 +51,18 @@ export function AnalysisChart({ result }: { result: AnalysisResult }) {
           <BarChart data={visual.bins} margin={{ top: 8, right: 8, bottom: 4, left: 0 }}>
             {grid}
             <XAxis dataKey="name" tick={tick} tickLine={false} axisLine={false} interval={0} />
-            <YAxis tick={tick} tickLine={false} axisLine={false} width={36} allowDecimals={false} tickFormatter={axisFormat} />
-            <Tooltip contentStyle={tooltipStyle} formatter={(value) => [formatTooltip(value), "Values in range"]} />
+            <YAxis
+              tick={tick}
+              tickLine={false}
+              axisLine={false}
+              width={36}
+              allowDecimals={false}
+              tickFormatter={axisFormat}
+            />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              formatter={(value) => [formatTooltip(value), "Values in range"]}
+            />
             <Bar dataKey="value" fill="#393E41" />
           </BarChart>
         ) : visual.kind === "bars" || visual.kind === "contribution" ? (
@@ -56,18 +72,48 @@ export function AnalysisChart({ result }: { result: AnalysisResult }) {
             margin={{ top: 4, right: 16, bottom: 4, left: 4 }}
           >
             {grid}
-            <XAxis type="number" tick={tick} tickLine={false} axisLine={false} tickFormatter={axisFormat} />
-            <YAxis type="category" dataKey="name" tick={tick} tickLine={false} axisLine={false} width={116} />
-            <Tooltip contentStyle={tooltipStyle} formatter={(value) => [formatTooltip(value), result.title]} cursor={{ fill: "rgba(57,62,65,0.06)" }} />
-            {visual.kind === "contribution" ? <ReferenceLine x={0} stroke="#393E41" strokeOpacity={0.5} /> : null}
+            <XAxis
+              type="number"
+              tick={tick}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={axisFormat}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tick={tick}
+              tickLine={false}
+              axisLine={false}
+              width={116}
+            />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              formatter={(value) => [formatTooltip(value), result.title]}
+              cursor={{ fill: "rgba(57,62,65,0.06)" }}
+            />
+            {visual.kind === "contribution" ? (
+              <ReferenceLine x={0} stroke="#393E41" strokeOpacity={0.5} />
+            ) : null}
             {visual.kind === "bars" && visual.reference !== undefined ? (
-              <ReferenceLine x={visual.reference} stroke="#393E41" strokeDasharray="4 4" label={{ value: "Average", fontSize: 11, position: "top" }} />
+              <ReferenceLine
+                x={visual.reference}
+                stroke="#393E41"
+                strokeDasharray="4 4"
+                label={{ value: "Average", fontSize: 11, position: "top" }}
+              />
             ) : null}
             <Bar dataKey="value" maxBarSize={28}>
               {visual.points.map((point) => (
                 <Cell
                   key={point.name}
-                  fill={visual.kind === "contribution" ? ((point.value ?? 0) < 0 ? "#E94F37" : "#393E41") : "#E94F37"}
+                  fill={
+                    visual.kind === "contribution"
+                      ? (point.value ?? 0) < 0
+                        ? "#E94F37"
+                        : "#393E41"
+                      : "#E94F37"
+                  }
                 />
               ))}
             </Bar>
@@ -76,8 +122,18 @@ export function AnalysisChart({ result }: { result: AnalysisResult }) {
           <LineChart data={visual.points} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
             {grid}
             <XAxis dataKey="name" tick={tick} tickLine={false} axisLine={false} />
-            <YAxis tick={tick} tickLine={false} axisLine={false} width={52} tickFormatter={axisFormat} domain={["auto", "auto"]} />
-            <Tooltip contentStyle={tooltipStyle} formatter={(value, name) => [formatTooltip(value), String(name)]} />
+            <YAxis
+              tick={tick}
+              tickLine={false}
+              axisLine={false}
+              width={52}
+              tickFormatter={axisFormat}
+              domain={["auto", "auto"]}
+            />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              formatter={(value, name) => [formatTooltip(value), String(name)]}
+            />
             {visual.series.length > 1 ? <Legend wrapperStyle={{ fontSize: 12 }} /> : null}
             {visual.series.map((series, index) => (
               <Line
@@ -103,7 +159,7 @@ export function AnalysisChart({ result }: { result: AnalysisResult }) {
               tickLine={false}
               axisLine={false}
               domain={["auto", "auto"]}
-              tickFormatter={visual.axisX}
+              tickFormatter={(value: number) => formatCompact(value, visual.xUnit)}
               label={{ value: visual.xLabel, position: "insideBottom", offset: -12, fontSize: 12 }}
             />
             <YAxis
@@ -115,21 +171,22 @@ export function AnalysisChart({ result }: { result: AnalysisResult }) {
               axisLine={false}
               width={52}
               domain={["auto", "auto"]}
-              tickFormatter={visual.axisY}
+              tickFormatter={(value: number) => formatCompact(value, visual.yUnit)}
             />
             <Tooltip
               cursor={{ strokeDasharray: "3 3" }}
               content={({ active, payload }) => {
-                const point = payload?.[0]?.payload as { name: string; x: number; y: number } | undefined;
+                const point = payload?.[0]?.payload as
+                  { name: string; x: number; y: number } | undefined;
                 if (!active || !point) return null;
                 return (
                   <div style={tooltipStyle} className="px-3 py-2">
                     <p className="font-medium">{point.name}</p>
                     <p>
-                      {visual.xLabel}: {visual.formatX(point.x)}
+                      {visual.xLabel}: {formatValue(point.x, visual.xUnit)}
                     </p>
                     <p>
-                      {visual.yLabel}: {visual.formatY(point.y)}
+                      {visual.yLabel}: {formatValue(point.y, visual.yUnit)}
                     </p>
                   </div>
                 );
@@ -146,7 +203,12 @@ export function AnalysisChart({ result }: { result: AnalysisResult }) {
                 ifOverflow="extendDomain"
               />
             ) : null}
-            <Scatter data={visual.points} fill="#E94F37" fillOpacity={0.75} isAnimationActive={false} />
+            <Scatter
+              data={visual.points}
+              fill="#E94F37"
+              fillOpacity={0.75}
+              isAnimationActive={false}
+            />
           </ScatterChart>
         )}
       </ResponsiveContainer>

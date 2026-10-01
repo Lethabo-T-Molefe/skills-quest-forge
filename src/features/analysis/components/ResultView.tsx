@@ -16,35 +16,36 @@ export function ResultView({
 }: {
   result: AnalysisResult;
   actions?: ReactNode;
-  className?: string;
+  className?: string | undefined;
 }) {
   return (
-    <section className={cn("panel flex h-full min-h-0 flex-col overflow-y-auto", className)} aria-label="Result">
-      <header className="border-b border-border px-5 py-4">
+    <section className={cn("panel", className)} aria-label="Result">
+      <header className="border-b border-border px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h2 className="font-display text-lg leading-snug">{result.title}</h2>
+          <h2 className="font-display text-xl leading-snug">{result.title}</h2>
           {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
         </div>
         {result.figures.length > 0 ? (
-          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+          <dl className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))] gap-x-6 gap-y-4">
             {result.figures.map((figure) => (
               <div key={figure.label} className="min-w-0">
-                <dt className="truncate text-xs text-muted-foreground">{figure.label}</dt>
-                <dd className="num truncate font-display text-xl font-light" title={figure.value}>
+                <dt className="text-xs text-muted-foreground">{figure.label}</dt>
+                <dd className="num mt-0.5 font-display text-2xl leading-tight font-light break-words">
                   {figure.value}
                 </dd>
-                {figure.detail ? <dd className="truncate text-xs text-muted-foreground">{figure.detail}</dd> : null}
+                {figure.detail ? (
+                  <dd className="mt-0.5 text-xs text-muted-foreground">{figure.detail}</dd>
+                ) : null}
               </div>
             ))}
           </dl>
         ) : null}
-        <p className="mt-3 max-w-[90ch] text-sm">{result.reading}</p>
+        <p className="mt-4 max-w-[80ch] text-[15px] leading-relaxed">{result.reading}</p>
         {result.notes.length > 0 ? <Notes notes={result.notes} /> : null}
       </header>
 
-      {/* Keeps room for the chart; on a very short window the whole panel scrolls instead. */}
-      <TabsRoot defaultValue="chart" className="flex min-h-[320px] flex-1 flex-col">
-        <div className="px-5 pt-3">
+      <TabsRoot defaultValue="chart">
+        <div className="overflow-x-auto px-6 pt-4">
           <TabsList aria-label="Result views">
             <TabsTrigger value="chart">Chart</TabsTrigger>
             <TabsTrigger value="table">Table</TabsTrigger>
@@ -52,29 +53,32 @@ export function ResultView({
             <TabsTrigger value="how">How it was worked out</TabsTrigger>
           </TabsList>
         </div>
-        {/* The chart keeps a readable minimum height; when the panel is shorter, this area scrolls instead of clipping. */}
-        <TabsContent value="chart" className="min-h-0 flex-1 overflow-y-auto px-3 pt-3 pb-4">
-          <div className="h-full min-h-[260px]">
+        <TabsContent value="chart" className="px-4 pt-4 pb-6">
+          <div className="h-[320px] sm:h-[400px]">
             <AnalysisChart result={result} />
           </div>
         </TabsContent>
-        <TabsContent value="table" className="min-h-0 flex-1 overflow-auto px-5 pt-3 pb-4">
+        <TabsContent value="table" className="px-6 pt-4 pb-6">
           {result.table.rows.length > 0 ? (
             <ResultTable columns={result.table.columns} rows={result.table.rows} />
           ) : (
             <p className="text-sm text-muted-foreground">No rows for these settings.</p>
           )}
         </TabsContent>
-        <TabsContent value="sql" className="min-h-0 flex-1 overflow-auto px-5 pt-3 pb-4">
+        <TabsContent value="sql" className="px-6 pt-4 pb-6">
           <CodeBlock code={result.sql} label="SQL for this result" />
           <p className="mt-2 text-xs text-muted-foreground">
-            This is the query behind the chart, with the same method and options. Open it in SQL to change it.
+            This is the query behind the chart, with the same method and options. Open it in SQL to
+            change it.
           </p>
         </TabsContent>
-        <TabsContent value="how" className="min-h-0 flex-1 overflow-auto px-5 pt-3 pb-4">
-          <p className="max-w-[80ch] text-sm">{result.method || "Nothing was calculated with these settings."}</p>
+        <TabsContent value="how" className="px-6 pt-4 pb-6">
+          <p className="max-w-[80ch] text-sm">
+            {result.method || "Nothing was calculated with these settings."}
+          </p>
           <p className="mt-3 max-w-[80ch] text-xs text-muted-foreground">
-            It ran on permitted, approved data only, inside your sandbox. Personal columns stay masked.
+            It ran on permitted, approved data only, inside your sandbox. Personal columns stay
+            masked.
           </p>
         </TabsContent>
       </TabsRoot>
@@ -104,7 +108,9 @@ function Notes({ notes }: { notes: string[] }) {
           aria-expanded={open}
           className="mt-1 ml-5 text-xs text-signal-strong underline-offset-4 hover:underline"
         >
-          {open ? "Show fewer notes" : `${hidden} more ${hidden === 1 ? "note" : "notes"} on this result`}
+          {open
+            ? "Show fewer notes"
+            : `${hidden} more ${hidden === 1 ? "note" : "notes"} on this result`}
         </button>
       ) : null}
     </div>

@@ -1,151 +1,112 @@
 import { queryOptions } from "@tanstack/react-query";
-import { mockResponse } from "@/lib/mock-api";
-import type { Dashboard, DashboardSummary } from "../types";
+import { API_URL, ApiError, api } from "@/lib/api";
+import type { ChartSettings, Dashboard, DashboardChartType, DashboardSummary } from "../types";
 
-const dashboards: Dashboard[] = [
-  {
-    id: "exec-overview",
-    name: "Executive overview",
-    owner: "Data Stewardship",
-    visibility: "Organisation",
-    description: "Governed view of active learners, completion and regional revenue. Shared read-only.",
-    updated: "Today",
-    sharedWith: ["Organisation"],
-    charts: [
-      {
-        id: "c1",
-        title: "Active learners",
-        type: "line",
-        metric: "Active learners",
-        explanation: "Learners with at least one session in the last 30 days, from the semantic layer.",
-        sql: "SELECT month, COUNT(DISTINCT learner_id) FROM gold.sessions GROUP BY month;",
-        points: [
-          { name: "Oct", value: 10820 },
-          { name: "Nov", value: 11140 },
-          { name: "Dec", value: 10990 },
-          { name: "Jan", value: 11610 },
-          { name: "Feb", value: 11970 },
-          { name: "Mar", value: 12480 },
-        ],
-      },
-      {
-        id: "c2",
-        title: "Revenue by region",
-        type: "bar",
-        metric: "Regional revenue",
-        explanation: "Sum of approved fees, grouped by region, with row-level security applied.",
-        sql: "SELECT region, SUM(revenue) FROM gold.revenue_by_region GROUP BY region;",
-        points: [
-          { name: "Gauteng", value: 2410 },
-          { name: "Western Cape", value: 1284 },
-          { name: "KZN", value: 964 },
-          { name: "Eastern Cape", value: 513 },
-          { name: "Free State", value: 249 },
-        ],
-      },
-      {
-        id: "c3",
-        title: "Completion rate",
-        type: "area",
-        metric: "Completion rate",
-        explanation: "Completions divided by enrolments in the period.",
-        sql: "SELECT month, completions / NULLIF(enrolments, 0) FROM gold.completions;",
-        points: [
-          { name: "Oct", value: 61 },
-          { name: "Nov", value: 62 },
-          { name: "Dec", value: 60 },
-          { name: "Jan", value: 63 },
-          { name: "Feb", value: 65 },
-          { name: "Mar", value: 66 },
-        ],
-      },
-    ],
-  },
-  {
-    id: "enrolment-health",
-    name: "Enrolment health",
-    owner: "Thandi Mokoena",
-    visibility: "Team",
-    description: "Quality and volume of new enrolments for the learning operations team.",
-    updated: "Yesterday",
-    sharedWith: ["Sipho Dlamini", "Naledi Khumalo"],
-    charts: [
-      {
-        id: "c4",
-        title: "Enrolments by region",
-        type: "bar",
-        metric: "Enrolments",
-        explanation: "Count of approved enrolments grouped by region.",
-        sql: "SELECT region, COUNT(*) FROM gold.enrolments_clean GROUP BY region;",
-        points: [
-          { name: "Gauteng", value: 19740 },
-          { name: "Western Cape", value: 9120 },
-          { name: "KZN", value: 7480 },
-          { name: "Eastern Cape", value: 4310 },
-        ],
-      },
-      {
-        id: "c5",
-        title: "Open data issues",
-        type: "line",
-        metric: "Open data issues",
-        explanation: "Quality flags on datasets owned by the team.",
-        sql: "SELECT week, COUNT(*) FROM audit.quality_flags GROUP BY week;",
-        points: [
-          { name: "W1", value: 4 },
-          { name: "W2", value: 5 },
-          { name: "W3", value: 3 },
-          { name: "W4", value: 7 },
-        ],
-      },
-    ],
-  },
-  {
-    id: "my-scratch",
-    name: "My scratch board",
-    owner: "Thandi Mokoena",
-    visibility: "Private",
-    description: "Private working charts. Not visible to anyone else.",
-    updated: "3 days ago",
-    sharedWith: [],
-    charts: [
-      {
-        id: "c6",
-        title: "Fee experiment",
-        type: "bar",
-        metric: "Average fee paid",
-        explanation: "A private cut of average fee by course.",
-        sql: "SELECT course, AVG(fee_paid) FROM gold.enrolments_clean GROUP BY course;",
-        points: [
-          { name: "Data literacy", value: 1250 },
-          { name: "SQL basics", value: 980 },
-          { name: "Python", value: 1400 },
-        ],
-      },
-    ],
-  },
-];
+export const dashboardsQuery = () =>
+  queryOptions({
+    queryKey: ["dashboards"],
+    queryFn: () => api.get<DashboardSummary[]>("/dashboards"),
+  });
 
-export function fetchDashboards() {
-  return mockResponse(dashboards);
-}
-
-export function fetchDashboard(id: string) {
-  return mockResponse(dashboards.find((item) => item.id === id) ?? null);
-}
-
-export function toSummaries(items: Dashboard[]): DashboardSummary[] {
-  return items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    owner: item.owner,
-    visibility: item.visibility,
-    updated: item.updated,
-    charts: item.charts.length,
-  }));
-}
-
-export const dashboardsQuery = () => queryOptions({ queryKey: ["dashboards"], queryFn: fetchDashboards });
-
+/** A dashboard with every chart computed for the person viewing it, under their own role. */
 export const dashboardQuery = (id: string) =>
-  queryOptions({ queryKey: ["dashboards", id], queryFn: () => fetchDashboard(id) });
+  queryOptions({
+    queryKey: ["dashboards", id],
+    queryFn: () => api.get<Dashboard>(`/dashboards/${encodeURIComponent(id)}`),
+  });
+
+export function createDashboard(body: {
+  name: string;
+  description: string;
+  visibility: "private" | "team" | "organisation";
+}) {
+  return api.post<Dashboard>("/dashboards", body);
+}
+
+export function updateDashboard(
+  id: string,
+  changes: {
+    name?: string;
+    description?: string;
+    visibility?: "private" | "team" | "organisation";
+  },
+) {
+  return api.patch<Dashboard>(`/dashboards/${encodeURIComponent(id)}`, changes);
+}
+
+export function deleteDashboard(id: string) {
+  return api.delete(`/dashboards/${encodeURIComponent(id)}`);
+}
+
+/** Add a chart from analysis settings or from SQL. The dashboard stores how it is made, not its numbers. */
+export function addChart(
+  dashboardId: string,
+  chart: {
+    title: string;
+    type: DashboardChartType;
+    config?: ChartSettings;
+    sql?: string;
+    explanation?: string;
+  },
+) {
+  return api.post<Dashboard>(`/dashboards/${encodeURIComponent(dashboardId)}/charts`, chart);
+}
+
+export function removeChart(dashboardId: string, chartId: string) {
+  return api.delete<Dashboard>(
+    `/dashboards/${encodeURIComponent(dashboardId)}/charts/${encodeURIComponent(chartId)}`,
+  );
+}
+
+export function shareDashboard(dashboardId: string, emails: string[]) {
+  return api.post<Dashboard>(`/dashboards/${encodeURIComponent(dashboardId)}/shares`, { emails });
+}
+
+export function unshareDashboard(dashboardId: string, userId: string) {
+  return api.delete<Dashboard>(
+    `/dashboards/${encodeURIComponent(dashboardId)}/shares/${encodeURIComponent(userId)}`,
+  );
+}
+
+export function setEmbedding(dashboardId: string, enabled: boolean) {
+  return api.post<{
+    embedEnabled: boolean;
+    token?: string;
+    path?: string;
+    expiresInHours?: number;
+  }>(`/dashboards/${encodeURIComponent(dashboardId)}/embed`, { enabled });
+}
+
+/**
+ * A dashboard as another internal application shows it: read with the signed, expiring token from its embed
+ * link instead of a member's session. It holds organisation-wide data only.
+ */
+export async function fetchEmbeddedDashboard(
+  dashboardId: string,
+  token: string,
+): Promise<Dashboard> {
+  const response = await fetch(
+    `${API_URL}/embed/dashboards/${encodeURIComponent(dashboardId)}?token=${encodeURIComponent(token)}`,
+    { headers: { Accept: "application/json" } },
+  );
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      "embed",
+      response.status === 404 || response.status === 401
+        ? "This embed link is no longer valid. Ask the dashboard's owner for a new one."
+        : "The dashboard could not be loaded.",
+    );
+  }
+  return (await response.json()) as Dashboard;
+}
+
+/** The address of the read-only page that another application can put in a frame. */
+export function embedPageUrl(dashboardId: string, token: string) {
+  return `${window.location.origin}/embed/${encodeURIComponent(dashboardId)}?token=${encodeURIComponent(token)}`;
+}
+
+/** The chart type that suits an analysis method. */
+export function chartTypeFor(method: string): DashboardChartType {
+  return method === "trend" ? "line" : "bar";
+}

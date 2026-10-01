@@ -10,7 +10,8 @@ export function NotFoundPage() {
         <p className="label-paren">(unavailable)</p>
         <h1 className="heading-1 mt-1">This page is not here</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          The address does not match a screen you can open. Head back to your workspace, or search the catalogue.
+          The address does not match a screen you can open. Head back to your workspace, or search
+          the catalogue.
         </p>
         <div className="mt-6">
           <Link to="/" className={signalButtonClass}>

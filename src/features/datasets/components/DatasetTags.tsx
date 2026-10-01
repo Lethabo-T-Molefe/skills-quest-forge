@@ -1,19 +1,26 @@
 import { ShieldCheck } from "lucide-react";
 import { Chip } from "@/components";
-import { classificationLabel, layerLabels } from "../constants";
+import { statusLabel, visibilityLabel } from "../constants";
 import type { Dataset } from "../types";
 
 export function DatasetTags({ dataset }: { dataset: Dataset }) {
   return (
     <div className="flex flex-wrap gap-2">
-      <Chip>{layerLabels[dataset.layer]}</Chip>
-      <Chip tone={dataset.status === "approved" ? "ok" : "warn"}>{dataset.status}</Chip>
+      <Chip>{dataset.layerLabel}</Chip>
+      <Chip
+        tone={
+          dataset.status === "approved" ? "ok" : dataset.status === "rejected" ? "signal" : "warn"
+        }
+      >
+        {statusLabel[dataset.status]}
+      </Chip>
       <Chip tone={dataset.classification === "restricted-personal" ? "signal" : "neutral"}>
         <ShieldCheck className="size-3.5" strokeWidth={1.75} aria-hidden />
-        {classificationLabel[dataset.classification]}
+        {dataset.classificationLabel}
       </Chip>
       <Chip>Owner · {dataset.owner}</Chip>
-      <Chip>{dataset.sourceName}</Chip>
+      <Chip>Visible to · {visibilityLabel[dataset.visibility].toLowerCase()}</Chip>
+      <Chip>Version {dataset.version}</Chip>
     </div>
   );
 }

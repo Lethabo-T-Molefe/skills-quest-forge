@@ -31,8 +31,9 @@ export function ContactPage() {
             <p className="label-paren">(a named person)</p>
             <h1 className="heading-1 mt-2">Write to Amina.</h1>
             <p className="mt-6 max-w-[42ch] text-muted-foreground">
-              Amina Patel is the platform contact. She speaks English and isiZulu. DataForge is self-hosted for one
-              organisation. There is no public signup for other companies in the first release.
+              Amina Patel is the platform contact. She speaks English and isiZulu. DataForge is
+              self-hosted for one organisation. There is no public signup for other companies in the
+              first release.
             </p>
             <MediaFrame {...media.contact} className="mt-8" />
             <dl className="mt-8 space-y-3 text-sm">
@@ -60,13 +61,24 @@ export function ContactPage() {
               <TextInput value={name} onChange={(event) => setName(event.target.value)} />
             </Field>
             <Field label="Work email">
-              <TextInput type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+              <TextInput
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
             </Field>
             <Field label="Organisation">
-              <TextInput value={organisation} onChange={(event) => setOrganisation(event.target.value)} />
+              <TextInput
+                value={organisation}
+                onChange={(event) => setOrganisation(event.target.value)}
+              />
             </Field>
             <Field label="Message">
-              <TextArea rows={5} value={message} onChange={(event) => setMessage(event.target.value)} />
+              <TextArea
+                rows={5}
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+              />
             </Field>
             <SignalButton type="submit">Send the message</SignalButton>
           </form>

@@ -4,9 +4,21 @@ import { media } from "@/config/media";
 import { PublicLayout } from "@/layouts/PublicLayout";
 
 const layers = [
-  { name: "Bronze", body: "Raw, immutable data as it arrived. An upload or a connector read lands here and is never overwritten.", image: media.raw },
-  { name: "Silver", body: "Cleaned, typed, masked and deduplicated. Produced by a versioned recipe you can rerun.", image: media.cleaned },
-  { name: "Gold", body: "Analytics-ready data for dashboards, insights and predictions, governed by role and by row- and column-level security.", image: media.plates },
+  {
+    name: "Bronze",
+    body: "Raw, immutable data as it arrived. An upload or a connector read lands here and is never overwritten.",
+    image: media.raw,
+  },
+  {
+    name: "Silver",
+    body: "Cleaned, typed, masked and deduplicated. Produced by a versioned recipe you can rerun.",
+    image: media.cleaned,
+  },
+  {
+    name: "Gold",
+    body: "Analytics-ready data for dashboards, insights and predictions, governed by role and by row- and column-level security.",
+    image: media.plates,
+  },
 ];
 
 export function ProductPage() {
@@ -16,10 +28,13 @@ export function ProductPage() {
         <div className="grid items-end gap-10 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <p className="label-paren">(the product)</p>
-            <h1 className="heading-1 mt-2 max-w-[18ch]">From no-code to code, on the same artefact.</h1>
+            <h1 className="heading-1 mt-2 max-w-[18ch]">
+              From no-code to code, on the same artefact.
+            </h1>
             <p className="mt-6 max-w-[68ch] text-muted-foreground">
-              DataForge pairs guided workflows with an AI assistant that carries out the technical steps and explains them.
-              A member who cannot write a query still gets a real answer, and sees how it was produced.
+              DataForge pairs guided workflows with an AI assistant that carries out the technical
+              steps and explains them. A member who cannot write a query still gets a real answer,
+              and sees how it was produced.
             </p>
           </div>
           <div className="lg:col-span-6">
@@ -34,16 +49,21 @@ export function ProductPage() {
           </div>
           <div className="max-w-[60ch] space-y-4 text-sm leading-relaxed text-muted-foreground lg:col-span-6 lg:col-start-7">
             <p>
-              <strong className="font-semibold text-foreground">A chart built by point and click</strong> generates SQL
-              behind the scene. Open it in the workbench, add a join, rerun it in the sandbox. No rework.
+              <strong className="font-semibold text-foreground">
+                A chart built by point and click
+              </strong>{" "}
+              generates SQL behind the scene. Open it in the workbench, add a join, rerun it in the
+              sandbox. No rework.
             </p>
             <p>
-              <strong className="font-semibold text-foreground">An assistant answer</strong> always includes the exact
-              code it ran. That is why an expert can take an everyday result further without starting again.
+              <strong className="font-semibold text-foreground">An assistant answer</strong> always
+              includes the exact code it ran. That is why an expert can take an everyday result
+              further without starting again.
             </p>
             <p>
-              <strong className="font-semibold text-foreground">A cleaning recipe</strong> is a first-class artefact.
-              Share it, version it, or rerun it on a new upload of the same source.
+              <strong className="font-semibold text-foreground">A cleaning recipe</strong> is a
+              first-class artefact. Share it, version it, or rerun it on a new upload of the same
+              source.
             </p>
           </div>
         </section>
@@ -71,8 +91,9 @@ export function ProductPage() {
             <div className="p-6">
               <h2 className="heading-2">The assistant</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                It plans, retrieves grounding from the catalogue and the semantic layer, drafts SQL, validates it against
-                your permissions, and runs it inside a sandbox. You get the result, the code and an explanation.
+                It plans, retrieves grounding from the catalogue and the semantic layer, drafts SQL,
+                validates it against your permissions, and runs it inside a sandbox. You get the
+                result, the code and an explanation.
               </p>
             </div>
           </div>
@@ -81,8 +102,9 @@ export function ProductPage() {
             <div className="p-6">
               <h2 className="heading-2">What we left out</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                There is no course catalogue, no certificates, no multi-tenant hosting and no subscription billing in the
-                first release. Understanding is built into the tools through in-context help.
+                There is no course catalogue, no certificates, no multi-tenant hosting and no
+                subscription billing in the first release. Understanding is built into the tools
+                through in-context help.
               </p>
             </div>
           </div>

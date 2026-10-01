@@ -6,7 +6,11 @@ import { cn } from "@/lib/utils";
 
 function formatDay(date?: Date) {
   if (!date) return "Choose a date";
-  return new Intl.DateTimeFormat("en-ZA", { day: "numeric", month: "short", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat("en-ZA", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }
 
 export function DatePicker({

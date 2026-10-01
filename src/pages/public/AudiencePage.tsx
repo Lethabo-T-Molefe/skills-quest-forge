@@ -43,8 +43,9 @@ export function AudiencePage() {
             <p className="label-paren">(who it is for)</p>
             <h1 className="heading-1 mt-2 max-w-[18ch]">One organisation, many skill levels.</h1>
             <p className="mt-6 max-w-[68ch] text-muted-foreground">
-              DataForge serves the members of a single organisation. There is no tenant separation and no hosting of
-              external organisations. Access is granted by role. Each role carries permissions and fair-use quotas.
+              DataForge serves the members of a single organisation. There is no tenant separation
+              and no hosting of external organisations. Access is granted by role. Each role carries
+              permissions and fair-use quotas.
             </p>
           </div>
           <div className="lg:col-span-6">
@@ -56,14 +57,16 @@ export function AudiencePage() {
           {roles.map((role) => (
             <li key={role.name} className="grid gap-3 py-6 md:grid-cols-12">
               <h2 className="font-medium md:col-span-4">{role.name}</h2>
-              <p className="max-w-[58ch] text-sm leading-relaxed text-muted-foreground md:col-span-8">{role.body}</p>
+              <p className="max-w-[58ch] text-sm leading-relaxed text-muted-foreground md:col-span-8">
+                {role.body}
+              </p>
             </li>
           ))}
         </ul>
 
         <p className="mt-12 max-w-[60ch] text-sm text-muted-foreground">
-          The platform is sized for a few thousand registered members and about five hundred concurrent users, as a
-          single-region deployment.
+          The platform is sized for a few thousand registered members and about five hundred
+          concurrent users, as a single-region deployment.
         </p>
         <Link to="/register" className={`${signalButtonClass} mt-8`}>
           Create an account

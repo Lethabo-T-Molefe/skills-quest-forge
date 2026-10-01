@@ -11,7 +11,10 @@ export const TabsRoot = TabsPrimitive.Root;
 export function TabsList({ className, ...props }: ComponentProps<typeof TabsPrimitive.List>) {
   return (
     <TabsPrimitive.List
-      className={cn("inline-flex max-w-full flex-wrap gap-1 rounded-[999px] bg-surface-alt p-1", className)}
+      className={cn(
+        "inline-flex max-w-full flex-wrap gap-1 rounded-[999px] bg-surface-alt p-1",
+        className,
+      )}
       {...props}
     />
   );
@@ -32,5 +35,7 @@ export function TabsTrigger({ className, ...props }: ComponentProps<typeof TabsP
 }
 
 export function TabsContent({ className, ...props }: ComponentProps<typeof TabsPrimitive.Content>) {
-  return <TabsPrimitive.Content className={cn("focus-visible:outline-none", className)} {...props} />;
+  return (
+    <TabsPrimitive.Content className={cn("focus-visible:outline-none", className)} {...props} />
+  );
 }

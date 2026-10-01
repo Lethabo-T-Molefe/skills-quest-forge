@@ -20,7 +20,11 @@ export function CodeBlock({ code, label = "Generated SQL" }: { code: string; lab
             window.setTimeout(() => setCopied(false), 1600);
           }}
         >
-          {copied ? <Check className="size-3.5" strokeWidth={1.75} /> : <Copy className="size-3.5" strokeWidth={1.5} />}
+          {copied ? (
+            <Check className="size-3.5" strokeWidth={1.75} />
+          ) : (
+            <Copy className="size-3.5" strokeWidth={1.5} />
+          )}
           {copied ? "Copied" : "Copy"}
         </button>
       </div>

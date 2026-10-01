@@ -1,24 +1,25 @@
-import { queryOptions } from "@tanstack/react-query";
-import { mockResponse } from "@/lib/mock-api";
-import type { AuditEvent } from "../types";
+import { queryOptions, keepPreviousData } from "@tanstack/react-query";
+import { api, query } from "@/lib/api";
+import type { AuditFilters, AuditPage } from "../types";
 
-const auditEvents: AuditEvent[] = [
-  { id: "e1", when: "14:02", actor: "Thandi Mokoena", action: "Ran AI query", resource: "gold.enrolments_clean", detail: "Average fee by region, last quarter" },
-  { id: "e2", when: "13:47", actor: "Thandi Mokoena", action: "Applied cleaning step", resource: "Learner enrolments 2026", detail: "Remove duplicates · keep first row" },
-  { id: "e3", when: "13:44", actor: "Thandi Mokoena", action: "Applied cleaning step", resource: "Learner enrolments 2026", detail: "Fix column types · enrolled_on to date" },
-  { id: "e4", when: "12:20", actor: "System", action: "Masked columns", resource: "Learner enrolments 2026", detail: "full_name, id_number detected as personal information" },
-  { id: "e5", when: "12:19", actor: "Thandi Mokoena", action: "Uploaded dataset", resource: "enrolments_q3.csv", detail: "48 213 rows landed in bronze" },
-  { id: "e6", when: "09:55", actor: "Sipho Dlamini", action: "Approved dataset", resource: "Course completions", detail: "Quality profile reviewed, classification internal-confidential" },
-  { id: "e7", when: "09:31", actor: "Naledi Khumalo", action: "Connected source", resource: "PostgreSQL · servicedesk.tickets", detail: "Read-only connector, credentials from secrets service" },
-  { id: "e8", when: "08:12", actor: "Thandi Mokoena", action: "Signed in", resource: "Identity provider", detail: "Multi-factor authentication passed" },
-  { id: "e9", when: "Yesterday", actor: "Lerato Naidoo", action: "Opened dashboard", resource: "Executive overview", detail: "Read-only organisation share" },
-  { id: "e10", when: "Yesterday", actor: "System", action: "Raised alert", resource: "Revenue · Free State", detail: "23% below expected band" },
-  { id: "e11", when: "2 days ago", actor: "Sipho Dlamini", action: "Opened generated SQL", resource: "Workbench", detail: "Average fee by region, last quarter" },
-  { id: "e12", when: "3 days ago", actor: "Zola Nkosi", action: "Reviewed model", resource: "completion-heuristic v1.4", detail: "Factor weights sum to 1.00" },
-];
+/**
+ * The append-only audit trail, newest first. Members see their own entries; stewards, auditors and
+ * administrators see everyone's. Filtering happens in the API, so it covers the whole trail.
+ */
+export const auditEventsQuery = (filters: AuditFilters = {}) =>
+  queryOptions({
+    queryKey: ["audit", "events", filters],
+    queryFn: () =>
+      api.get<AuditPage>(
+        `/audit/events${query({ q: filters.q, actor_id: filters.actorId, limit: filters.limit ?? 25 })}`,
+      ),
+    placeholderData: keepPreviousData,
+  });
 
-export function fetchAuditEvents() {
-  return mockResponse(auditEvents);
+/** How many entries the recent-activity panel shows. Route loaders preload the same number. */
+export const RECENT_ACTIVITY_LIMIT = 6;
+
+/** Download the trail as CSV. The export is itself recorded as an audit entry. */
+export function exportAuditTrail() {
+  return api.download("/audit/export", "dataforge-audit.csv");
 }
-
-export const auditEventsQuery = () => queryOptions({ queryKey: ["audit", "events"], queryFn: fetchAuditEvents });

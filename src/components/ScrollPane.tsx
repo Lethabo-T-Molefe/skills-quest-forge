@@ -16,7 +16,9 @@ export function ScrollPane({
 
   return (
     <ScrollAreaPrimitive.Root className={cn("relative overflow-hidden", className)}>
-      <ScrollAreaPrimitive.Viewport className="h-full max-h-full w-full">{children}</ScrollAreaPrimitive.Viewport>
+      <ScrollAreaPrimitive.Viewport className="h-full max-h-full w-full">
+        {children}
+      </ScrollAreaPrimitive.Viewport>
       {showVertical ? (
         <ScrollAreaPrimitive.ScrollAreaScrollbar
           orientation="vertical"

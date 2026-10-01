@@ -5,7 +5,7 @@ export function useDatasets() {
   return useSuspenseQuery(datasetsQuery()).data;
 }
 
-/** Returns the dataset, or null when no dataset has this id. */
+/** One dataset with its full profile. The route loader turns a missing dataset into the not-found page. */
 export function useDataset(datasetId: string) {
   return useSuspenseQuery(datasetQuery(datasetId)).data;
 }

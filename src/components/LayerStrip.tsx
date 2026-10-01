@@ -13,7 +13,10 @@ export function LayerStrip({ current }: { current?: "bronze" | "silver" | "gold"
         const reached = current ? index <= order[current] : true;
         return (
           <li key={layer.key} className="bg-surface-raised p-4">
-            <span className={`block h-1.5 w-10 ${layer.tone} ${reached ? "" : "opacity-30"}`} aria-hidden />
+            <span
+              className={`block h-1.5 w-10 ${layer.tone} ${reached ? "" : "opacity-30"}`}
+              aria-hidden
+            />
             <p className="mt-3 text-xs text-muted-foreground">({layer.label.toLowerCase()})</p>
             <p className="mt-0.5 text-sm font-medium">{layer.body}</p>
           </li>

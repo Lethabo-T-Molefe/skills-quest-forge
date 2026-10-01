@@ -53,7 +53,11 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
           >
-            {open ? <X className="size-5" strokeWidth={1.5} /> : <Menu className="size-5" strokeWidth={1.5} />}
+            {open ? (
+              <X className="size-5" strokeWidth={1.5} />
+            ) : (
+              <Menu className="size-5" strokeWidth={1.5} />
+            )}
             <span className="sr-only">Menu</span>
           </button>
         </div>
@@ -69,7 +73,11 @@ export function PublicLayout({ children }: { children: ReactNode }) {
                 {item.label}
               </Link>
             ))}
-            <Link to={session ? "/workspace" : "/register"} className={`${signalButtonClass} mt-2`} onClick={() => setOpen(false)}>
+            <Link
+              to={session ? "/workspace" : "/register"}
+              className={`${signalButtonClass} mt-2`}
+              onClick={() => setOpen(false)}
+            >
               {session ? "Open workspace" : "Open a workspace"}
             </Link>
           </nav>
@@ -88,8 +96,8 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             />
             <Logo variant="primary" tone="reverse" className="w-48" />
             <p className="mt-6 max-w-[36ch] text-sm leading-relaxed text-white/70">
-              A governed AI data analyst that a non-technical person can actually use. One organisation, one instance,
-              self-hosted.
+              A governed AI data analyst that a non-technical person can actually use. One
+              organisation, one instance, self-hosted.
             </p>
           </div>
           <div className="md:col-span-3">
@@ -108,7 +116,10 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <p className="text-sm text-white/50">A person at the end</p>
             <p className="mt-3 font-medium">Amina Patel</p>
             <p className="mt-1 text-sm text-white/70">Platform contact · English and isiZulu</p>
-            <Link to="/contact" className="mt-4 inline-block text-sm text-white underline-offset-4 hover:underline">
+            <Link
+              to="/contact"
+              className="mt-4 inline-block text-sm text-white underline-offset-4 hover:underline"
+            >
               Write to Amina
             </Link>
           </div>

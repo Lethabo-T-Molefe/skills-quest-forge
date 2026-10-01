@@ -6,19 +6,63 @@ import { getSession } from "@/features/auth";
 import { PublicLayout } from "@/layouts/PublicLayout";
 
 const steps = [
-  { label: "01", title: "Bring data in", body: "Upload a file or connect a live source. Both are classified, profiled and scanned for personal information before anyone can use them.", image: media.raw },
-  { label: "02", title: "Clean it in steps", body: "A guided wizard previews each operation on a sample. Accepted steps become a versioned recipe. Bronze data never changes.", image: media.cleaned },
-  { label: "03", title: "Ask in English", body: "The assistant grounds itself in shared metrics and permitted data, then returns the result, the SQL and a plain-language explanation.", image: media.hero },
-  { label: "04", title: "Share the answer", body: "Save a chart, watch a metric, or hand the same SQL to an expert. Every action is written to an immutable audit trail.", image: media.audit },
+  {
+    label: "01",
+    title: "Bring data in",
+    body: "Upload a file or connect a live source. Both are classified, profiled and scanned for personal information before anyone can use them.",
+    image: media.raw,
+  },
+  {
+    label: "02",
+    title: "Clean it in steps",
+    body: "A guided wizard previews each operation on a sample. Accepted steps become a versioned recipe. Bronze data never changes.",
+    image: media.cleaned,
+  },
+  {
+    label: "03",
+    title: "Ask in English",
+    body: "The assistant grounds itself in shared metrics and permitted data, then returns the result, the SQL and a plain-language explanation.",
+    image: media.hero,
+  },
+  {
+    label: "04",
+    title: "Share the answer",
+    body: "Save a chart, watch a metric, or hand the same SQL to an expert. Every action is written to an immutable audit trail.",
+    image: media.audit,
+  },
 ];
 
 const capabilities = [
-  { title: "Guided cleaning", body: "Fix types, missing values, duplicates and outliers one step at a time, with a before-and-after preview.", image: media.cleaned },
-  { title: "Point-and-click explorer", body: "Filter, group and chart without code. The SQL is generated so an expert can take it further.", image: media.plot },
-  { title: "Grounded assistant", body: "It answers against defined metrics. If it cannot ground a request, it refuses rather than guessing.", image: media.hero },
-  { title: "Semantic layer", body: "Active learner is defined once. Dashboards, notebooks and the assistant all use the same figure.", image: media.hands },
-  { title: "Explainable predictions", body: "A score in a fixed range, a ranked factor breakdown, and a reading of the top factors. Weights always sum to one.", image: media.plot },
-  { title: "Metric monitoring", body: "When a number moves past its band, the platform explains why, with the contributing figures.", image: media.waiting },
+  {
+    title: "Guided cleaning",
+    body: "Fix types, missing values, duplicates and outliers one step at a time, with a before-and-after preview.",
+    image: media.cleaned,
+  },
+  {
+    title: "Point-and-click explorer",
+    body: "Filter, group and chart without code. The SQL is generated so an expert can take it further.",
+    image: media.plot,
+  },
+  {
+    title: "Grounded assistant",
+    body: "It answers against defined metrics. If it cannot ground a request, it refuses rather than guessing.",
+    image: media.hero,
+  },
+  {
+    title: "Semantic layer",
+    body: "Active learner is defined once. Dashboards, notebooks and the assistant all use the same figure.",
+    image: media.hands,
+  },
+  {
+    title: "Explainable predictions",
+    body: "A score in a fixed range, a ranked factor breakdown, and a reading of the top factors. Weights always sum to one.",
+    image: media.plot,
+  },
+  {
+    title: "Metric monitoring",
+    body: "When a number moves past its band, the platform explains why, with the contributing figures.",
+    image: media.waiting,
+  },
 ];
 
 export function LandingPage() {
@@ -36,8 +80,8 @@ export function LandingPage() {
               <span className="hero-line block">are.</span>
             </h1>
             <p className="mt-8 max-w-[42ch] text-lg leading-relaxed text-muted-foreground">
-              DataForge is a governed analytics platform that lets any member of an organisation do real data work,
-              without installing anything and without needing SQL to get started.
+              DataForge is a governed analytics platform that lets any member of an organisation do
+              real data work, without installing anything and without needing SQL to get started.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to={session ? "/workspace" : "/register"} className={signalButtonClass}>
@@ -62,9 +106,9 @@ export function LandingPage() {
             Routine questions pile up on the few people who can write a query.
           </p>
           <p className="mt-8 max-w-[62ch] text-sm leading-relaxed text-white/70">
-            Everyone else waits, or works in a spreadsheet and gets the analysis wrong. Work done on personal machines
-            breaks privacy rules and cannot be reconstructed later. DataForge closes that gap of skills, tooling and
-            confidence, inside an auditable environment.
+            Everyone else waits, or works in a spreadsheet and gets the analysis wrong. Work done on
+            personal machines breaks privacy rules and cannot be reconstructed later. DataForge
+            closes that gap of skills, tooling and confidence, inside an auditable environment.
           </p>
         </div>
       </section>
@@ -96,7 +140,9 @@ export function LandingPage() {
                 <MediaFrame {...item.image} ratio="16 / 10" />
                 <div className="p-6">
                   <p className="font-medium">{item.title}</p>
-                  <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                  <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-muted-foreground">
+                    {item.body}
+                  </p>
                 </div>
               </li>
             ))}
@@ -116,18 +162,26 @@ export function LandingPage() {
           </div>
           <div className="max-w-[58ch] space-y-4 text-sm leading-relaxed text-muted-foreground lg:col-span-6 lg:col-start-7">
             <p>
-              <strong className="font-semibold text-foreground">No answer appears without the code</strong> and a
-              plain-language explanation of what was done and why.
+              <strong className="font-semibold text-foreground">
+                No answer appears without the code
+              </strong>{" "}
+              and a plain-language explanation of what was done and why.
             </p>
             <p>
-              <strong className="font-semibold text-foreground">The assistant refuses rather than guesses</strong> when a
-              request does not map to a defined metric or to data you may see.
+              <strong className="font-semibold text-foreground">
+                The assistant refuses rather than guesses
+              </strong>{" "}
+              when a request does not map to a defined metric or to data you may see.
             </p>
             <p>
-              <strong className="font-semibold text-foreground">All code runs in a sandbox</strong> with hard limits, so
-              many people can work at once without reaching each other or the host.
+              <strong className="font-semibold text-foreground">All code runs in a sandbox</strong>{" "}
+              with hard limits, so many people can work at once without reaching each other or the
+              host.
             </p>
-            <Link to="/security" className="inline-block text-signal-strong underline-offset-4 hover:underline">
+            <Link
+              to="/security"
+              className="inline-block text-signal-strong underline-offset-4 hover:underline"
+            >
               How DataForge protects data
             </Link>
           </div>
@@ -140,7 +194,8 @@ export function LandingPage() {
             <p className="label-paren">(next)</p>
             <h2 className="heading-1 mt-2">Try the workspace.</h2>
             <p className="mt-3 max-w-[50ch] text-sm text-muted-foreground">
-              The prototype runs on mock data. Sign in as Thandi, or create an account and walk the same path.
+              The prototype runs on mock data. Sign in as Thandi, or create an account and walk the
+              same path.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

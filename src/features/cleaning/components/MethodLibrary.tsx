@@ -1,16 +1,16 @@
 import { useMemo, useState } from "react";
 import { Chip, CodeBlock, HelpTip, SearchField } from "@/components";
-import { methodFamilies } from "../data/catalogue";
-import type { CleaningChapter, CleaningMethod } from "../types";
+import { methodFamilies } from "../data/families";
+import type { ChapterInfo, MethodInfo } from "../types";
 
 export function MethodLibrary({
   chapters,
   methods,
   onPick,
 }: {
-  chapters: CleaningChapter[];
-  methods: CleaningMethod[];
-  /** When set, choosing a method applies it to the matching step. Without it the library is a reference. */
+  chapters: ChapterInfo[];
+  methods: MethodInfo[];
+  /** When set, choosing a method opens it at the matching step. Without it the library is a reference. */
   onPick?: (methodId: string) => void;
 }) {
   const [query, setQuery] = useState("");
@@ -34,7 +34,8 @@ export function MethodLibrary({
         {onPick
           ? "Every family from profiling through governance. Choose a method to use it at the matching step."
           : "Every family from profiling through governance. Open a file to clean, then choose any of these at the matching step."}{" "}
-        Everyday methods are marked. Expert methods stay available so a practitioner does not have to leave the wizard.
+        Everyday methods are marked. Expert methods stay available so a practitioner does not have
+        to leave the wizard.
       </p>
 
       <ul className="space-y-3 text-sm">
@@ -48,17 +49,18 @@ export function MethodLibrary({
 
       <HelpTip title="How the work is done, and when">
         <p>
-          Preventive checks belong at the form. This wizard is batch cleaning on a landed file. Streaming would route
-          bad rows to a dead-letter queue. Continuous monitors watch freshness and drift after silver exists.
+          Preventive checks belong at the form. This wizard is batch cleaning on a landed file.
+          Streaming would route bad rows to a dead-letter queue. Continuous monitors watch freshness
+          and drift after silver exists.
         </p>
         <p className="mt-2">
-          Methods can be manual, rule-based, statistical, learned, constraint-based, knowledge-based, or
-          human-in-the-loop. An LLM may propose a mapping; the recipe still records a deterministic transform and a
-          steward can refuse it.
+          Methods can be manual, rule-based, statistical, learned, constraint-based or
+          knowledge-based. Whatever proposes a change, the recipe records a deterministic transform
+          and a steward can refuse it.
         </p>
         <p className="mt-2">
-          Bronze is never overwritten. Every accepted step is an audit line. The recipe is versioned so the same silver
-          table can be reproduced.
+          Bronze is never overwritten. Every accepted step is an audit line. The recipe is versioned
+          so the same silver table can be reproduced.
         </p>
       </HelpTip>
 
@@ -94,14 +96,20 @@ export function MethodLibrary({
           );
         })}
 
+      {filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No method matches “{query}”.</p>
+      ) : null}
+
       <div>
-        <p className="text-xs text-muted-foreground">The selected method&apos;s transform is always inspectable.</p>
+        <p className="text-xs text-muted-foreground">
+          The selected method&apos;s transform is always inspectable.
+        </p>
         <div className="mt-3">
           <CodeBlock
             label="Recipe contract"
             code={`# Each accepted step stores
-#   method_id, parameters, sample_preview, full_row_count
-# Replay must match the sample preview on the same bronze version.`}
+#   method_id, parameters, summary of what it changed
+# Replaying the recipe on the same raw version gives the same checksum.`}
           />
         </div>
       </div>
@@ -109,7 +117,7 @@ export function MethodLibrary({
   );
 }
 
-function MethodSummary({ method }: { method: CleaningMethod }) {
+function MethodSummary({ method }: { method: MethodInfo }) {
   return (
     <>
       <span className="flex flex-wrap items-center gap-2">

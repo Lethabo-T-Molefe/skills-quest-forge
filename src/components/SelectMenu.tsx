@@ -27,7 +27,13 @@ export function SelectMenu({
 }) {
   return (
     <label className={cn("block text-sm", className)}>
-      {label ? <span className={size === "sm" ? "text-xs font-medium text-muted-foreground" : "font-medium"}>{label}</span> : null}
+      {label ? (
+        <span
+          className={size === "sm" ? "text-xs font-medium text-muted-foreground" : "font-medium"}
+        >
+          {label}
+        </span>
+      ) : null}
       <SelectPrimitive.Root value={value} onValueChange={onValueChange}>
         <SelectPrimitive.Trigger
           id={id}

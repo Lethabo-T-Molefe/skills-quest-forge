@@ -19,8 +19,8 @@ export function AuthLayout({
         </Link>
         <p className="display-1 mt-14 max-w-[12ch]">Show the work.</p>
         <p className="mt-8 max-w-[36ch] text-sm leading-relaxed text-white/70">
-          Every answer comes with the code behind it and a plain-language explanation. Access is role-checked. Personal
-          information is masked. Nothing runs outside a sandbox.
+          Every answer comes with the code behind it and a plain-language explanation. Access is
+          role-checked. Personal information is masked. Nothing runs outside a sandbox.
         </p>
         <div className="mt-auto">
           <img
@@ -28,7 +28,9 @@ export function AuthLayout({
             alt=""
             className="mb-6 aspect-[4/3] w-full object-cover opacity-80"
           />
-          <p className="text-sm text-white/50">Amina Patel · platform contact · English and isiZulu</p>
+          <p className="text-sm text-white/50">
+            Amina Patel · platform contact · English and isiZulu
+          </p>
         </div>
       </aside>
 

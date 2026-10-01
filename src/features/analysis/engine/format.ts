@@ -1,5 +1,5 @@
 import { formatNumber } from "@/lib/format";
-import type { MeasureUnit } from "../types";
+import type { MeasureUnit, ValueFormat } from "../types";
 
 /** Formats a value in its measure's unit: 48 213, R1 214, 66.3% or 3.07. */
 export function formatValue(value: number, unit: MeasureUnit) {
@@ -41,4 +41,26 @@ export function formatCompact(value: number, unit: MeasureUnit) {
   if (size >= 10_000) return `${prefix}${Math.round(value / 1_000)}k`;
   if (size >= 1_000) return `${prefix}${(value / 1_000).toFixed(1)}k`;
   return `${prefix}${Math.round(value)}`;
+}
+
+/** A formatter for a format the API describes (the unit, a percentage, a share, an index). */
+export function formatterFor(format: ValueFormat): (value: number) => string {
+  switch (format.type) {
+    case "measure":
+      return (value) => formatValue(value, format.unit);
+    case "compact":
+      return (value) => formatCompact(value, format.unit);
+    case "percent":
+      return (value) => formatPercent(value, format.digits);
+    case "delta":
+      return (value) => formatDelta(value, format.unit);
+    case "share":
+      return (value) => (Number.isFinite(value) ? `${value.toFixed(1)}%` : "—");
+    case "index":
+      return (value) => (Number.isFinite(value) ? value.toFixed(0) : "—");
+    case "count":
+      return (value) => `${formatNumber(value)} ${value === 1 ? format.singular : format.plural}`;
+    default:
+      return (value) => (Number.isFinite(value) ? formatNumber(value) : "—");
+  }
 }

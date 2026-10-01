@@ -1,6 +1,7 @@
 export const siteConfig = {
   name: "DataForge",
-  description: "DataForge is a governed analytics platform that lets any member of an organisation do real data work.",
+  description:
+    "DataForge is a governed analytics platform that lets any member of an organisation do real data work.",
   locale: "en-ZA",
 } as const;
 

@@ -26,7 +26,10 @@ export function Notice({
   const Icon = look.icon;
 
   return (
-    <div role="status" className={cn("flex gap-3 border-l-2 bg-surface-raised px-4 py-3", look.bar, className)}>
+    <div
+      role="status"
+      className={cn("flex gap-3 border-l-2 bg-surface-raised px-4 py-3", look.bar, className)}
+    >
       <Icon className={cn("mt-0.5 size-4 shrink-0", look.iconClass)} strokeWidth={1.75} />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{title}</p>

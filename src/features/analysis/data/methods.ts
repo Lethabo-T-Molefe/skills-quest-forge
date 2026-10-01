@@ -10,16 +10,22 @@ export const analysisMethods: AnalysisMethod[] = [
     techniques: [
       {
         name: "Median or mean",
-        plain: "The median is the middle value and ignores extremes. The mean is the arithmetic average and is pulled by them.",
+        plain:
+          "The median is the middle value and ignores extremes. The mean is the arithmetic average and is pulled by them.",
       },
       {
         name: "Spread",
-        plain: "Standard deviation and the interquartile range (the middle half of values) show how far values sit from typical.",
+        plain:
+          "Standard deviation and the interquartile range (the middle half of values) show how far values sit from typical.",
       },
-      { name: "Distribution", plain: "A histogram shows whether values cluster, spread evenly or lean to one side." },
+      {
+        name: "Distribution",
+        plain: "A histogram shows whether values cluster, spread evenly or lean to one side.",
+      },
       {
         name: "Unusual values",
-        plain: "Tukey fences flag values more than 1.5 × the interquartile range beyond the middle half. You decide whether to keep them.",
+        plain:
+          "Tukey fences flag values more than 1.5 × the interquartile range beyond the middle half. You decide whether to keep them.",
       },
     ],
     cautions: [
@@ -38,20 +44,31 @@ export const analysisMethods: AnalysisMethod[] = [
     techniques: [
       {
         name: "Total or monthly average",
-        plain: "Totals favour groups that were active for longer. A monthly average or median puts them on the same footing.",
+        plain:
+          "Totals favour groups that were active for longer. A monthly average or median puts them on the same footing.",
       },
-      { name: "Share of total", plain: "Each group's part of the whole, for measures that add up." },
-      { name: "Index against the average", plain: "100 is the average group. 120 means 20% above it." },
+      {
+        name: "Share of total",
+        plain: "Each group's part of the whole, for measures that add up.",
+      },
+      {
+        name: "Index against the average",
+        plain: "100 is the average group. 120 means 20% above it.",
+      },
       {
         name: "Pooled or averaged rates",
-        plain: "A pooled rate divides total completions by total enrolments. Averaging group rates gives a small group the same weight as a large one.",
+        plain:
+          "A pooled rate divides total completions by total enrolments. Averaging group rates gives a small group the same weight as a large one.",
       },
     ],
     cautions: [
       "Small groups swing more from month to month. Look at their size before ranking them.",
       "For rates, pooling is usually right. Averaging rates can mislead when groups differ in size.",
     ],
-    examples: ["What was the average fee by region last quarter?", "Which region has the most enrolments?"],
+    examples: [
+      "What was the average fee by region last quarter?",
+      "Which region has the most enrolments?",
+    ],
     modes: ["build", "ask", "code"],
   },
   {
@@ -64,14 +81,23 @@ export const analysisMethods: AnalysisMethod[] = [
       { name: "Level", plain: "The value in each month." },
       { name: "Month-on-month change", plain: "The percentage change from the month before." },
       { name: "Running total", plain: "Everything so far, added up month by month." },
-      { name: "Three-month moving average", plain: "Smooths out single-month noise so the direction is easier to see." },
-      { name: "Split by group", plain: "One line per region or course, to see whether they move together." },
+      {
+        name: "Three-month moving average",
+        plain: "Smooths out single-month noise so the direction is easier to see.",
+      },
+      {
+        name: "Split by group",
+        plain: "One line per region or course, to see whether they move together.",
+      },
     ],
     cautions: [
       "December is seasonally low. Compare like with like before calling a move a trend.",
       "Six months is a short series. Treat a single month's jump with care.",
     ],
-    examples: ["How has completion rate changed by course this year?", "How have enrolments moved since October?"],
+    examples: [
+      "How has completion rate changed by course this year?",
+      "How have enrolments moved since October?",
+    ],
     modes: ["build", "ask", "code"],
   },
   {
@@ -86,9 +112,13 @@ export const analysisMethods: AnalysisMethod[] = [
       },
       {
         name: "Spearman correlation (ρ)",
-        plain: "Works on ranks, so it also catches curved relationships and resists extreme values.",
+        plain:
+          "Works on ranks, so it also catches curved relationships and resists extreme values.",
       },
-      { name: "Scatter plot with a fitted line", plain: "Each dot is one unit. The line is the best straight-line fit." },
+      {
+        name: "Scatter plot with a fitted line",
+        plain: "Each dot is one unit. The line is the best straight-line fit.",
+      },
       {
         name: "Unit of analysis",
         plain: "Choose what one dot is: a region in a month, a course in a region, and so on.",
@@ -114,12 +144,17 @@ export const analysisMethods: AnalysisMethod[] = [
     techniques: [
       {
         name: "Contribution analysis",
-        plain: "Each group's change between the two months. The contributions add up to the total change.",
+        plain:
+          "Each group's change between the two months. The contributions add up to the total change.",
       },
-      { name: "Share of the change", plain: "How much of the total change each group accounts for." },
+      {
+        name: "Share of the change",
+        plain: "How much of the total change each group accounts for.",
+      },
       {
         name: "Automatic alerts",
-        plain: "Monitors watch key metrics and explain their moves for you. Open Monitors to see them.",
+        plain:
+          "Monitors watch key metrics and explain their moves for you. Open Monitors to see them.",
       },
     ],
     cautions: [
@@ -139,9 +174,18 @@ export const analysisMethods: AnalysisMethod[] = [
     description:
       "Score a cohort's likelihood of an outcome, with a ranked and documented breakdown of the factors behind the score.",
     techniques: [
-      { name: "Documented weighted scoring", plain: "A deterministic, published heuristic that a trained model can later replace." },
-      { name: "Factor breakdown", plain: "Each factor's weight and direction. The weights always add up to 1." },
-      { name: "Recorded model version", plain: "Every score records the version that produced it, for audit." },
+      {
+        name: "Documented weighted scoring",
+        plain: "A deterministic, published heuristic that a trained model can later replace.",
+      },
+      {
+        name: "Factor breakdown",
+        plain: "Each factor's weight and direction. The weights always add up to 1.",
+      },
+      {
+        name: "Recorded model version",
+        plain: "Every score records the version that produced it, for audit.",
+      },
     ],
     cautions: [
       "Scores describe cohorts, not individual people. Personal data stays masked.",
@@ -157,33 +201,38 @@ export const analysisMethods: AnalysisMethod[] = [
   },
 ];
 
-export const analysisModes: Record<AnalysisMode, { label: string; short: string; description: string; bestFor: string }> =
-  {
-    ask: {
-      label: "Ask in plain English",
-      short: "Ask",
-      description: "Type a question. The assistant grounds it in shared metrics, runs it, and shows the SQL behind the answer.",
-      bestFor: "A quick answer without setting anything up.",
-    },
-    build: {
-      label: "Build a chart",
-      short: "Build",
-      description: "Choose the fields and how the numbers are calculated, by point and click. The chart, table and SQL update as you go.",
-      bestFor: "Deciding exactly how the numbers are worked out.",
-    },
-    code: {
-      label: "Write SQL",
-      short: "Code",
-      description: "Start from a template for the method, or your own query, and run it in the sandbox.",
-      bestFor: "Full control: joins, custom logic and notebooks.",
-    },
-    guided: {
-      label: "Guided scoring",
-      short: "Predict",
-      description: "Choose an outcome and a cohort. You get a score and the factors behind it.",
-      bestFor: "Predictions with a documented explanation.",
-    },
-  };
+export const analysisModes: Record<
+  AnalysisMode,
+  { label: string; short: string; description: string; bestFor: string }
+> = {
+  ask: {
+    label: "Ask in plain English",
+    short: "Ask",
+    description:
+      "Type a question. The assistant grounds it in shared metrics, runs it, and shows the SQL behind the answer.",
+    bestFor: "A quick answer without setting anything up.",
+  },
+  build: {
+    label: "Build a chart",
+    short: "Build",
+    description:
+      "Choose the fields and how the numbers are calculated, by point and click. The chart, table and SQL update as you go.",
+    bestFor: "Deciding exactly how the numbers are worked out.",
+  },
+  code: {
+    label: "Write SQL",
+    short: "Code",
+    description:
+      "Start from a template for the method, or your own query, and run it in the sandbox.",
+    bestFor: "Full control: joins, custom logic and notebooks.",
+  },
+  guided: {
+    label: "Guided scoring",
+    short: "Predict",
+    description: "Choose an outcome and a cohort. You get a score and the factors behind it.",
+    bestFor: "Predictions with a documented explanation.",
+  },
+};
 
 export function getMethod(id: MethodId | undefined) {
   return analysisMethods.find((item) => item.id === id);

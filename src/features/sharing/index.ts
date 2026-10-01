@@ -1,1 +1,1 @@
-export { SharePanel } from "./SharePanel";
+export { SharePanel, type ShareVisibility } from "./SharePanel";

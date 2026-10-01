@@ -14,7 +14,17 @@ import {
 import { canAdmin, canApprove, type CurrentUser } from "@/features/auth";
 
 export interface NavItem {
-  to: "/workspace" | "/datasets" | "/clean" | "/analyse" | "/dashboards" | "/monitors" | "/semantic" | "/governance" | "/audit" | "/admin";
+  to:
+    | "/workspace"
+    | "/datasets"
+    | "/clean"
+    | "/analyse"
+    | "/dashboards"
+    | "/monitors"
+    | "/semantic"
+    | "/governance"
+    | "/audit"
+    | "/admin";
   label: string;
   icon: LucideIcon;
   /** One line on what the page is for, shown on hover and to screen readers. */
@@ -37,24 +47,67 @@ export interface NavSection {
 export const navSections: NavSection[] = [
   {
     id: "home",
-    items: [{ to: "/workspace", label: "Home", icon: House, hint: "Your next steps and what needs attention", exact: true }],
+    items: [
+      {
+        to: "/workspace",
+        label: "Home",
+        icon: House,
+        hint: "Your next steps and what needs attention",
+        exact: true,
+      },
+    ],
   },
   {
     id: "workflow",
     title: "Your workflow",
     items: [
-      { to: "/datasets", label: "Datasets", icon: Database, hint: "Bring data in and find what exists", step: 1 },
-      { to: "/clean", label: "Clean", icon: Wand2, hint: "Fix problems before the data is used", step: 2 },
-      { to: "/analyse", label: "Analyse", icon: ChartNoAxesCombined, hint: "Answer a question with the method you choose", step: 3 },
-      { to: "/dashboards", label: "Dashboards", icon: LayoutDashboard, hint: "Save and share results", step: 4 },
-      { to: "/monitors", label: "Monitors", icon: Bell, hint: "Watch metrics and explain their changes", step: 5 },
+      {
+        to: "/datasets",
+        label: "Datasets",
+        icon: Database,
+        hint: "Bring data in and find what exists",
+        step: 1,
+      },
+      {
+        to: "/clean",
+        label: "Clean",
+        icon: Wand2,
+        hint: "Fix problems before the data is used",
+        step: 2,
+      },
+      {
+        to: "/analyse",
+        label: "Analyse",
+        icon: ChartNoAxesCombined,
+        hint: "Answer a question with the method you choose",
+        step: 3,
+      },
+      {
+        to: "/dashboards",
+        label: "Dashboards",
+        icon: LayoutDashboard,
+        hint: "Save and share results",
+        step: 4,
+      },
+      {
+        to: "/monitors",
+        label: "Monitors",
+        icon: Bell,
+        hint: "Watch metrics and explain their changes",
+        step: 5,
+      },
     ],
   },
   {
     id: "governance",
     title: "Governance",
     items: [
-      { to: "/semantic", label: "Metrics", icon: BookMarked, hint: "Shared metric definitions everyone uses" },
+      {
+        to: "/semantic",
+        label: "Metrics",
+        icon: BookMarked,
+        hint: "Shared metric definitions everyone uses",
+      },
       {
         to: "/governance",
         label: "Approvals",
@@ -64,7 +117,13 @@ export const navSections: NavSection[] = [
         badge: "pendingApprovals",
       },
       { to: "/audit", label: "Audit trail", icon: ScrollText, hint: "Who did what, and when" },
-      { to: "/admin", label: "Users and roles", icon: Users, hint: "Members, roles and quotas", visible: canAdmin },
+      {
+        to: "/admin",
+        label: "Users and roles",
+        icon: Users,
+        hint: "Members, roles and quotas",
+        visible: canAdmin,
+      },
     ],
   },
 ];
