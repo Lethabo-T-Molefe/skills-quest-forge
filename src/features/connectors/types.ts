@@ -1,5 +1,15 @@
 export type ConnectorKind = "postgres" | "warehouse" | "spreadsheet";
 export type ConnectorStatus = "connected" | "pending" | "error";
+export type RefreshCadence = "hourly" | "daily" | "weekly";
+
+/** What a refresh did to one dataset read from the source. */
+export interface RefreshOutcome {
+  datasetId: string;
+  name: string;
+  /** current: approval kept · review: waits for a steward · raw: no recipe yet · unchanged · failed · skipped */
+  status: "current" | "review" | "raw" | "unchanged" | "failed" | "skipped";
+  detail: string;
+}
 
 export interface Connector {
   id: string;
@@ -16,6 +26,8 @@ export interface Connector {
   config: Record<string, string | number>;
   /** Why the last connection attempt failed, when it did. */
   lastError: string | null;
+  /** How often a steward has it re-read; null means only when someone asks. */
+  refreshCadence: RefreshCadence | null;
   hasCredentials: boolean;
   /** Whether this member may test, approve or remove the connector. */
   canManage: boolean;

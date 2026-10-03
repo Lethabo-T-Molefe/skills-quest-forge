@@ -43,11 +43,18 @@ export function AskPage() {
   const history = useQuery({ ...assistantHistoryQuery(), enabled: mayAsk });
   const [question, setQuestion] = useState(search.q ?? "");
   const [turns, setTurns] = useState<(AssistantTurn | FailedTurn)[]>([]);
+  // Turns before this index belong to an earlier topic, so a new question does not build on them.
+  const [topicStart, setTopicStart] = useState(0);
   const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const method = getMethod(search.method);
+  // The answer a follow-up builds on: the latest one in this topic that was answered.
+  const context = turns
+    .slice(topicStart)
+    .filter((turn): turn is AssistantTurn => !("error" in turn) && !turn.refused)
+    .at(-1);
   // Suggestions come from the metrics and data this member may see, so every one of them can be answered.
   const suggestions = suggested.data ?? [];
 
@@ -62,7 +69,7 @@ export function AskPage() {
     setBusy(true);
     setQuestion("");
     try {
-      const turn = await askAssistant(trimmed);
+      const turn = await askAssistant(trimmed, context?.id);
       setTurns((current) => [...current, turn]);
       // An answer uses the monthly AI allowance and is written to the audit trail.
       void Promise.all(
@@ -170,6 +177,23 @@ export function AskPage() {
             </div>
 
             {/* The question box stays at the bottom of the window while the conversation scrolls. */}
+            {context ? (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border px-4 pt-3 text-xs text-muted-foreground">
+                <span className="min-w-0 truncate">
+                  Follow-ups build on <span className="text-foreground">{context.question}</span>
+                </span>
+                <button
+                  type="button"
+                  className="text-signal-strong underline-offset-4 hover:underline"
+                  onClick={() => {
+                    setTopicStart(turns.length);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  Start a new topic
+                </button>
+              </div>
+            ) : null}
             <form
               className="sticky bottom-0 z-20 flex items-end gap-2 border-t border-border bg-surface-raised/95 p-4 backdrop-blur-sm"
               onSubmit={(event) => {
@@ -193,7 +217,11 @@ export function AskPage() {
                     void submit(question);
                   }
                 }}
-                placeholder="Ask about a shared metric or a dataset you can see"
+                placeholder={
+                  context
+                    ? "Ask a follow-up, such as “what about last quarter?”"
+                    : "Ask about a shared metric or a dataset you can see"
+                }
                 className="max-h-32 min-h-11 flex-1 resize-none rounded-[22px] border border-line-strong bg-surface-raised px-4 py-2.5 text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-signal focus-visible:outline-none"
               />
               <SignalButton type="submit" disabled={busy || !question.trim()}>
@@ -211,6 +239,9 @@ export function AskPage() {
 function Answer({ turn, dataset }: { turn: AssistantTurn; dataset: string | undefined }) {
   return (
     <div className="border border-border bg-background p-4">
+      {turn.followsUp ? (
+        <p className="mb-1.5 text-xs text-muted-foreground">Follow-up to your previous question</p>
+      ) : null}
       <p className={`text-sm font-medium ${turn.refused ? "text-destructive" : ""}`}>
         {turn.answer}
       </p>

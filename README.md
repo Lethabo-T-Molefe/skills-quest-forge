@@ -56,9 +56,16 @@ Older addresses (`/assistant`, `/explorer`, `/workbench`, `/predict`, `/datasets
 
 ## Working with the API
 
-- **`src/lib/api.ts`** is the only place that calls `fetch`. The access token is kept in memory; the refresh token
-  is kept in local storage so a reload keeps the session. A 401 triggers one shared refresh, then the request is
-  retried once. When the API ends the session, the app clears its cache and returns to sign-in.
+- **`src/lib/api.ts`** is the only place that calls the API. The access token is kept in memory; the refresh token
+  never reaches the app, because the API keeps it in an HttpOnly cookie for its auth endpoints. Every request
+  is sent with credentials so that cookie works across the app's and the API's ports. Local storage only holds
+  a marker that a session exists, so a reload knows to ask for a new access token. A 401 triggers one shared
+  refresh, then the request is retried once. When the API ends the session, the app clears its cache and returns
+  to sign-in. Uploads use `api.upload`, which reports how much of the file has been sent.
+- **Notifications** (`src/features/notifications`) are checked every minute and shown under the bell in the top
+  bar: alerts, decisions on the member's data, data waiting for a steward, shares and refresh problems.
+- **Ask** sends the id of the latest answer in the conversation as `contextId`, so follow-ups ("what about
+  Gauteng?") build on it. "Start a new topic" stops that.
 - **Errors** arrive as `ApiError` with the API's own message. `errorMessage()` turns one into text for a person;
   `notifyError()` (in `src/lib/notify.ts`) is the `onError` handler mutations use.
 - **Permissions** come from the API with the signed-in member (`user.permissions`). The checks in

@@ -57,6 +57,7 @@ export function MonitorForm({ onCreated }: { onCreated: () => void }) {
   const [threshold, setThreshold] = useState("15");
   const [cadence, setCadence] = useState<Cadence>("daily");
   const [notifySlack, setNotifySlack] = useState(false);
+  const [notifyEmail, setNotifyEmail] = useState(true);
 
   const chosenMeasure =
     dataset?.measures.find((item) => item.id === measure)?.id ?? dataset?.defaultMeasure ?? "";
@@ -77,6 +78,7 @@ export function MonitorForm({ onCreated }: { onCreated: () => void }) {
         rule: { kind, threshold: Number(threshold), window: 6 },
         cadence,
         notifySlack,
+        notifyEmail,
       });
     },
     onSuccess: async (monitor) => {
@@ -178,6 +180,20 @@ export function MonitorForm({ onCreated }: { onCreated: () => void }) {
         onValueChange={(next) => setCadence(next as Cadence)}
         options={cadences}
       />
+      <label className="flex items-start gap-3 text-sm">
+        <input
+          type="checkbox"
+          className="mt-1 accent-[var(--signal)]"
+          checked={notifyEmail}
+          onChange={(event) => setNotifyEmail(event.target.checked)}
+        />
+        <span>
+          Email me when it trips
+          <span className="block text-xs text-muted-foreground">
+            The alert and what drove it. It also appears under the bell at the top of the page.
+          </span>
+        </span>
+      </label>
       <label className="flex items-start gap-3 text-sm">
         <input
           type="checkbox"

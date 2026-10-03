@@ -1,5 +1,5 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
-import { api, query } from "@/lib/api";
+import { api, query, type UploadProgress } from "@/lib/api";
 import type {
   Classification,
   Dataset,
@@ -74,8 +74,8 @@ function fileForm(file: File, options?: UploadOptions) {
 }
 
 /** Upload a file. It lands in bronze, is scanned for personal information and profiled before this returns. */
-export function uploadDataset(file: File, options: UploadOptions) {
-  return api.post<Dataset>("/datasets", fileForm(file, options));
+export function uploadDataset(file: File, options: UploadOptions, onProgress?: UploadProgress) {
+  return api.upload<Dataset>("/datasets", fileForm(file, options), onProgress);
 }
 
 /** A new version of the same dataset, so its saved recipe can be rerun on it. */

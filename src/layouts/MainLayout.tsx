@@ -17,6 +17,7 @@ import { navSections, type NavItem } from "@/config/navigation";
 import { canApprove, signOut, useCurrentUser, type CurrentUser } from "@/features/auth";
 import { datasetsQuery } from "@/features/datasets";
 import { helpFor } from "@/features/help";
+import { NotificationsBell } from "@/features/notifications";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { toggleSidebar, useSidebarCollapsed } from "@/stores/sidebar-store";
@@ -145,6 +146,7 @@ export function MainLayout({
                 >
                   <Search className="size-5" strokeWidth={1.5} />
                 </Link>
+                <NotificationsBell />
                 <button
                   type="button"
                   onClick={() => setHelpOpen(true)}

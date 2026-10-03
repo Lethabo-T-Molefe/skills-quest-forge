@@ -1,7 +1,13 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { Dataset } from "@/features/datasets";
-import type { Connector, ConnectorRequest, SourceTable } from "../types";
+import type {
+  Connector,
+  ConnectorRequest,
+  RefreshCadence,
+  RefreshOutcome,
+  SourceTable,
+} from "../types";
 
 const path = (connectorId: string, rest = "") =>
   `/connectors/${encodeURIComponent(connectorId)}${rest}`;
@@ -51,9 +57,17 @@ export function importTable(connectorId: string, table: string, name?: string) {
   return api.post<Dataset>(path(connectorId, "/import"), { table, ...(name ? { name } : {}) });
 }
 
-/** Re-read every dataset that came from this connector, as new versions. */
+/**
+ * Refresh now: re-read every dataset from this source and rerun its saved recipe. An approved dataset stays
+ * approved only when its columns, types and personal information are unchanged.
+ */
 export function syncConnector(connectorId: string) {
-  return api.post<Dataset[]>(path(connectorId, "/sync"));
+  return api.post<RefreshOutcome[]>(path(connectorId, "/sync"));
+}
+
+/** Stewards only: how often the source is re-read on its own. */
+export function setRefreshCadence(connectorId: string, refreshCadence: RefreshCadence | null) {
+  return api.patch<Connector>(path(connectorId), { refreshCadence });
 }
 
 export function deleteConnector(connectorId: string) {

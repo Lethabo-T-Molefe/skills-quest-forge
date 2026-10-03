@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Chip, ConfirmDialog, Notice, QuietButton } from "@/components";
+import { Chip, ConfirmDialog, Notice, QuietButton, SelectMenu } from "@/components";
 import { hasPermission, useCurrentUser } from "@/features/auth";
 import { errorMessage } from "@/lib/api";
 import { notifyError } from "@/lib/notify";
@@ -12,15 +12,50 @@ import {
   deleteConnector,
   importTable,
   refreshConnectors,
+  setRefreshCadence,
   syncConnector,
   testConnector,
   uploadWorkbook,
 } from "../api/connectors";
-import type { Connector } from "../types";
+import type { Connector, RefreshCadence, RefreshOutcome } from "../types";
 
 const smallButton = "px-3 py-1.5 text-xs";
 
 const statusTone = { connected: "ok", pending: "warn", error: "signal" } as const;
+
+const CADENCE_OPTIONS = [
+  { value: "manual", label: "Only when asked" },
+  { value: "hourly", label: "Every hour" },
+  { value: "daily", label: "Every day" },
+  { value: "weekly", label: "Every week" },
+];
+
+function cadenceWords(cadence: RefreshCadence) {
+  return CADENCE_OPTIONS.find((option) => option.value === cadence)?.label.toLowerCase() ?? cadence;
+}
+
+/** One line on what a refresh did, for the toast after "Refresh now". */
+function describeRefresh(outcomes: RefreshOutcome[]) {
+  if (outcomes.length === 0) {
+    return { title: "Nothing to refresh yet", description: "Import a table first." };
+  }
+  const count = (status: RefreshOutcome["status"]) =>
+    outcomes.filter((outcome) => outcome.status === status).length;
+  const parts = [
+    [count("current"), "up to date and still approved"],
+    [count("unchanged"), "unchanged at the source"],
+    [count("review"), "waiting for a steward's review"],
+    [count("raw"), "new raw data to clean"],
+    [count("failed"), "could not be refreshed"],
+  ] as const;
+  return {
+    title: `${outcomes.length} ${outcomes.length === 1 ? "dataset" : "datasets"} refreshed`,
+    description: parts
+      .filter(([n]) => n > 0)
+      .map(([n, words]) => `${n} ${words}`)
+      .join(" · "),
+  };
+}
 
 /** One connection: its state, what a member may do with it, and its tables once it is connected. */
 export function ConnectorCard({ connector }: { connector: Connector }) {
@@ -85,21 +120,28 @@ export function ConnectorCard({ connector }: { connector: Connector }) {
 
   const sync = useMutation({
     mutationFn: () => syncConnector(connector.id),
-    onSuccess: async (datasets) => {
+    onSuccess: async (outcomes) => {
+      await refreshConnectors(queryClient);
+      await queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      const { title, description } = describeRefresh(outcomes);
+      if (outcomes.some((outcome) => outcome.status === "failed"))
+        toast.error(title, { description });
+      else toast.success(title, { description });
+    },
+    onError: notifyError("The source could not be refreshed."),
+  });
+
+  const schedule = useMutation({
+    mutationFn: (cadence: RefreshCadence | null) => setRefreshCadence(connector.id, cadence),
+    onSuccess: async (updated) => {
       await refreshConnectors(queryClient);
       toast.success(
-        datasets.length === 0
-          ? "Nothing to refresh yet"
-          : `${datasets.length} ${datasets.length === 1 ? "dataset" : "datasets"} refreshed`,
-        {
-          description:
-            datasets.length === 0
-              ? "Import a table first."
-              : "Each has a new version. Rerun its recipe to clean it.",
-        },
+        updated.refreshCadence
+          ? `${updated.name} refreshes ${cadenceWords(updated.refreshCadence)}`
+          : `${updated.name} refreshes only when asked`,
       );
     },
-    onError: notifyError("The source could not be synced."),
+    onError: notifyError("The refresh schedule could not be changed."),
   });
 
   const remove = useMutation({
@@ -111,7 +153,14 @@ export function ConnectorCard({ connector }: { connector: Connector }) {
     onError: notifyError("The connector could not be removed."),
   });
 
-  const busy = change.isPending || upload.isPending || sync.isPending || remove.isPending;
+  const busy =
+    change.isPending ||
+    upload.isPending ||
+    sync.isPending ||
+    remove.isPending ||
+    schedule.isPending;
+  const schedulable =
+    connector.canManage && connector.status === "connected" && connector.kind !== "spreadsheet";
 
   return (
     <li className="p-4">
@@ -125,6 +174,7 @@ export function ConnectorCard({ connector }: { connector: Connector }) {
       <p className="num mt-2 text-xs text-muted-foreground">
         {connector.tables} {connector.tables === 1 ? "table" : "tables"} · owner {connector.owner} ·
         synced {connector.lastSync.toLowerCase()}
+        {connector.refreshCadence ? ` · refreshes ${cadenceWords(connector.refreshCadence)}` : ""}
       </p>
       {connector.status === "error" && connector.lastError ? (
         <p className="mt-2 text-xs text-destructive">{connector.lastError}</p>
@@ -185,9 +235,9 @@ export function ConnectorCard({ connector }: { connector: Connector }) {
             </QuietButton>
           </>
         ) : null}
-        {connector.status === "connected" && mayTest && hasPermission(user, "upload") ? (
+        {connector.status === "connected" && mayTest ? (
           <QuietButton className={smallButton} disabled={busy} onClick={() => sync.mutate()}>
-            {sync.isPending ? "Syncing…" : "Sync its datasets"}
+            {sync.isPending ? "Refreshing…" : "Refresh now"}
           </QuietButton>
         ) : null}
         {connector.canManage ? (
@@ -196,6 +246,24 @@ export function ConnectorCard({ connector }: { connector: Connector }) {
           </QuietButton>
         ) : null}
       </div>
+
+      {schedulable ? (
+        <div className="mt-3 max-w-xs">
+          <SelectMenu
+            label="Refresh from the source"
+            size="sm"
+            value={connector.refreshCadence ?? "manual"}
+            options={CADENCE_OPTIONS}
+            onValueChange={(value) =>
+              schedule.mutate(value === "manual" ? null : (value as RefreshCadence))
+            }
+          />
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            Each refresh reruns the saved recipe. Approval is kept only if the columns, their types
+            and the personal information stay the same; otherwise it comes back to a steward.
+          </p>
+        </div>
+      ) : null}
 
       {browsing && connector.status === "connected" ? (
         <div className="mt-3 border-t border-border pt-3">

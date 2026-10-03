@@ -50,6 +50,7 @@ export interface Monitor {
   filters: Record<string, string>;
   rule: MonitorRule;
   notifySlack: boolean;
+  notifyEmail: boolean;
   /** False when the data it watches is no longer available to analyse. */
   available: boolean;
 }
@@ -62,6 +63,8 @@ export interface MonitorDraft {
   rule: MonitorRule;
   cadence: Cadence;
   notifySlack: boolean;
+  /** Email the owner when it trips. */
+  notifyEmail: boolean;
 }
 
 export interface MonitorCheck {

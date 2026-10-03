@@ -6,8 +6,12 @@ import type { AssistantTurn } from "../types";
  * Ask in plain English. The assistant plans the question against the shared metrics and the data this member
  * may see; the answer comes with the SQL that ran, or a clear refusal when it cannot be grounded.
  */
-export function askAssistant(question: string) {
-  return api.post<AssistantTurn>("/assistant/ask", { question });
+export function askAssistant(question: string, contextId?: string) {
+  // contextId is the previous answer in this conversation, so "what about Gauteng?" builds on it.
+  return api.post<AssistantTurn>("/assistant/ask", {
+    question,
+    ...(contextId ? { contextId } : {}),
+  });
 }
 
 /** The member's earlier questions, newest first. */

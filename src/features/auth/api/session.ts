@@ -1,17 +1,10 @@
-import {
-  api,
-  clearTokens,
-  currentRefreshToken,
-  hasSession,
-  storeTokens,
-  type TokenPair,
-} from "@/lib/api";
+import { api, clearTokens, hasSession, storeTokens, type SessionTokens } from "@/lib/api";
 import type { CurrentUser, RoleId } from "../types";
 
 const MFA_KEY = "dataforge.mfa-challenge";
 const PENDING_EMAIL_KEY = "dataforge.pending-email";
 
-interface SessionResponse extends TokenPair {
+interface SessionResponse extends SessionTokens {
   user: CurrentUser;
 }
 
@@ -88,7 +81,8 @@ export async function resendVerification(email: string) {
 
 export async function signOut() {
   try {
-    await api.post("/auth/logout", { refreshToken: currentRefreshToken() });
+    // The API reads the session from its cookie, revokes it, and clears the cookie.
+    await api.post("/auth/logout");
   } catch {
     // The local session ends whatever the API says.
   } finally {

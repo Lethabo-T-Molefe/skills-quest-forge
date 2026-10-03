@@ -63,11 +63,16 @@ export function UploadPage() {
   const [dragging, setDragging] = useState(false);
   const mayUpload = hasPermission(user, "upload");
 
+  // How much of the file has been sent (0–1), or null once the API is reading and profiling it.
+  const [sent, setSent] = useState<number | null>(0);
   const upload = useMutation({
-    mutationFn: (chosen: File) =>
-      uploadDataset(chosen, { name, description, classification, visibility }),
+    mutationFn: (chosen: File) => {
+      setSent(0);
+      return uploadDataset(chosen, { name, description, classification, visibility }, setSent);
+    },
     onSuccess: () => refreshDatasets(queryClient),
   });
+  const working = sent === null ? "Scanning and profiling…" : `Sending ${Math.round(sent * 100)}%…`;
 
   function choose(next: File | undefined) {
     if (!next) return;
@@ -255,8 +260,23 @@ export function UploadPage() {
             ) : (
               <Upload className="size-4" strokeWidth={1.75} aria-hidden />
             )}
-            {upload.isPending ? "Uploading and measuring…" : "Upload"}
+            {upload.isPending ? working : "Upload"}
           </SignalButton>
+          {upload.isPending && sent !== null ? (
+            <div
+              className="h-1.5 w-full overflow-hidden rounded-full bg-accent"
+              role="progressbar"
+              aria-label="File sent"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(sent * 100)}
+            >
+              <div
+                className="h-full rounded-full bg-signal-strong transition-[width] duration-200"
+                style={{ width: `${Math.round(sent * 100)}%` }}
+              />
+            </div>
+          ) : null}
         </form>
 
         <section className="panel flex flex-col p-5" aria-label="Progress" aria-live="polite">
