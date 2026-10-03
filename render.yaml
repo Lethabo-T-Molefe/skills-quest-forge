@@ -1,0 +1,15 @@
+# Render blueprint for the DataForge web app: a static site built with Vite.
+# The API address comes from .env.production; set VITE_API_URL on the service to override it.
+services:
+  - type: web
+    name: skills-quest-forge
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    autoDeployTrigger: checksPass
+    routes:
+      # The app routes in the browser, so every path must serve index.html. Without this rule, reloading
+      # any page other than the home page (or opening a link from an email) returns 404.
+      - type: rewrite
+        source: /*
+        destination: /index.html

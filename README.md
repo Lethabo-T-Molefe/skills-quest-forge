@@ -17,6 +17,17 @@ npm run dev               # http://localhost:5173
 The API must allow this origin (`CORS_ORIGINS`) and link back to it in emails (`FRONTEND_URL`). Both default to
 `http://localhost:5173`.
 
+`npm run dev` reads `.env` (your local API). `npm run build` reads `.env.production`, which is committed and
+holds the deployed API's address, so the deployed site never calls `localhost`. A `VITE_API_URL` set on the
+build host overrides it.
+
+### Deploying on Render
+
+`render.yaml` describes the static site: build with `npm ci && npm run build`, publish `dist/`, and rewrite
+every path to `/index.html`. That rewrite matters: the app routes in the browser, so without it reloading
+any page other than the home page, or opening a link from an email, returns 404. On a site created by hand,
+add it under **Redirects/Rewrites**: source `/*`, destination `/index.html`, action **Rewrite**.
+
 With the API in demo mode (`DEMO_MODE=true`), the sign-in page offers "Use the demo workspace" for each role, and
 Settings lets you switch between the seeded members. Demo mode is refused in production.
 
