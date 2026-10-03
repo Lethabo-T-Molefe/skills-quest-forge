@@ -40,7 +40,8 @@ const stages = [
 ];
 
 const ACCEPT = ".csv,.tsv,.txt,.xlsx,.xls,.json,.jsonl";
-const MAX_MB = 250;
+// Matches the API's MAX_UPLOAD_MB, so a file that is too big is refused before it is sent.
+const MAX_MB = Number(import.meta.env.VITE_MAX_UPLOAD_MB) || 250;
 const SAMPLE = { url: "/samples/enrolments_sample.csv", name: "enrolments_sample.csv" };
 
 const classifications = Object.keys(classificationLabel) as Classification[];
