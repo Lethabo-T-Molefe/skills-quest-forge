@@ -3,6 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Defence in depth when the static host has not yet synced response headers from render.yaml. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://dataforge-backend-8ohs.onrender.com https://dataforge-superset.onrender.com https://dataforge-jupyterhub.onrender.com; frame-src https://dataforge-superset.onrender.com; upgrade-insecure-requests"
+    />
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/brand/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/brand/icon-192.png" type="image/png" sizes="192x192" />
@@ -16,6 +21,18 @@
       rel="stylesheet"
     />
     <title>DataForge</title>
+    <style>
+      html.df-framed {
+        display: none !important;
+      }
+    </style>
+    <script>
+      // Clickjacking protection when X-Frame-Options / CSP frame-ancestors are not yet on the response.
+      if (window.top !== window.self) {
+        document.documentElement.classList.add("df-framed");
+        window.top.location = window.self.location;
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
