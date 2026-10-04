@@ -6,7 +6,7 @@ services:
     runtime: static
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     routes:
       # The app routes in the browser, so every path must serve index.html. Without this rule, reloading
       # any page other than the home page (or opening a link from an email) returns 404.
