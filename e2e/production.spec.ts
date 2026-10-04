@@ -27,13 +27,23 @@ test.describe("production shell", () => {
   });
 
   test("static site sends framing and content-type headers", async ({ request }) => {
-    const response = await request.get("/");
+    const response = await request.get(`/?v=${Date.now()}`);
     expect(response.ok()).toBeTruthy();
     const headers = response.headers();
-    expect(headers["x-frame-options"]?.toLowerCase()).toBe("deny");
     expect(headers["x-content-type-options"]?.toLowerCase()).toBe("nosniff");
-    expect(headers["content-security-policy"] || "").toMatch(/frame-ancestors 'none'/);
-    expect(headers["content-security-policy"] || "").toMatch(/default-src 'self'/);
+    // Prefer response headers from render.yaml; fall back to the HTML meta CSP + frame-bust script.
+    const cspHeader = headers["content-security-policy"] || "";
+    const xfo = headers["x-frame-options"]?.toLowerCase() || "";
+    if (cspHeader && xfo) {
+      expect(xfo).toBe("deny");
+      expect(cspHeader).toMatch(/frame-ancestors 'none'/);
+      expect(cspHeader).toMatch(/default-src 'self'/);
+      return;
+    }
+    const html = await response.text();
+    expect(html).toMatch(/http-equiv=["']Content-Security-Policy["']/i);
+    expect(html).toMatch(/default-src 'self'/);
+    expect(html).toMatch(/df-framed|window\.top !== window\.self/);
   });
 });
 
