@@ -74,19 +74,6 @@ test.describe("production auth", () => {
     });
     expect(meAfter.status()).toBe(401);
   });
-
-  test("login is rate-limited under a concurrent burst", async ({ request }) => {
-    const attempts = Array.from({ length: 14 }, (_, i) =>
-      request.post(`${API}/auth/login`, {
-        headers: { Origin: ORIGIN, "Content-Type": "application/json" },
-        data: { email: `burst-${i}@example.com`, password: "Wrong-Password-9!" },
-      }),
-    );
-    const responses = await Promise.all(attempts);
-    const codes = responses.map((response) => response.status());
-    expect(codes.some((code) => code === 429)).toBeTruthy();
-    expect(codes.every((code) => code === 401 || code === 429)).toBeTruthy();
-  });
 });
 
 test.describe("production contact hardening", () => {
@@ -107,8 +94,25 @@ test.describe("production contact hardening", () => {
 test.describe("production UI smoke after sign-in", () => {
   test("sign out from the workspace returns to a public page", async ({ page }) => {
     await signInUi(page, "thandi@dataforge.local");
-    await page.getByRole("button", { name: /Sign out/i }).first().click();
-    await expect(page).toHaveURL(/\/(sign-in)?$/, { timeout: 30_000 });
+    await page.getByRole("button", { name: /Thandi Mokoena/i }).click();
+    await page.getByRole("menuitem", { name: /Sign out/i }).click();
+    await expect(page).toHaveURL(/\/sign-in/, { timeout: 30_000 });
+  });
+});
+
+// Runs last so a burst of 429s cannot starve the UI sign-in cases above.
+test.describe("production rate limits", () => {
+  test("login is rate-limited under a concurrent burst", async ({ request }) => {
+    const attempts = Array.from({ length: 14 }, (_, i) =>
+      request.post(`${API}/auth/login`, {
+        headers: { Origin: ORIGIN, "Content-Type": "application/json" },
+        data: { email: `burst-${i}@example.com`, password: "Wrong-Password-9!" },
+      }),
+    );
+    const responses = await Promise.all(attempts);
+    const codes = responses.map((response) => response.status());
+    expect(codes.some((code) => code === 429)).toBeTruthy();
+    expect(codes.every((code) => code === 401 || code === 429)).toBeTruthy();
   });
 });
 
