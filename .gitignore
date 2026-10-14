@@ -19,6 +19,8 @@ dist-ssr
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+# Keep assignment evidence screenshots out of accidental clutter; commit deliberately if needed.
+# /e2e/screenshots/
 
 # Editor directories and files
 .vscode/*

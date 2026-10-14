@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:q5": "playwright test e2e/question5.spec.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
