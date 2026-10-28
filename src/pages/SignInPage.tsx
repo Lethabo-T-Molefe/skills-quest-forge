@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Field, QuietButton, SelectMenu, SignalButton, TextInput } from "@/components";
 import { demoAvailable, roleLabels, signIn, signInDemo, type RoleId } from "@/features/auth";
@@ -8,12 +8,22 @@ import { errorMessage } from "@/lib/api";
 
 const demoRoles = Object.entries(roleLabels) as [RoleId, string][];
 
+function safeRedirect(path: string | undefined): string {
+  if (!path || !path.startsWith("/") || path.startsWith("//") || path.startsWith("/sign-in")) {
+    return "/workspace";
+  }
+  return path;
+}
+
 export function SignInPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { redirect: redirectTo } = useSearch({ from: "/sign-in" });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [formError, setFormError] = useState("");
   const [busy, setBusy] = useState(false);
   const [demo, setDemo] = useState(false);
   const [demoRole, setDemoRole] = useState<RoleId>("analyst");
@@ -24,17 +34,32 @@ export function SignInPage() {
 
   async function enter(action: () => Promise<unknown>) {
     setBusy(true);
-    setError("");
+    setEmailError("");
+    setPasswordError("");
+    setFormError("");
     try {
       const outcome = await action();
-      if (outcome === "mfa") {
-        void navigate({ to: "/mfa" });
+      if (outcome === "mfa" || outcome === "mfa-enroll") {
+        void navigate({
+          to: "/mfa",
+          search: redirectTo ? { redirect: redirectTo } : {},
+        });
         return;
       }
       await queryClient.invalidateQueries({ queryKey: ["auth"] });
-      void navigate({ to: "/workspace" });
+      void navigate({ to: safeRedirect(redirectTo) });
     } catch (caught) {
-      setError(errorMessage(caught, "Sign-in failed. Try again."));
+      const message = errorMessage(caught, "Sign-in failed. Try again.");
+      const lower = message.toLowerCase();
+      if (lower.includes("password") && !lower.includes("email")) {
+        setPasswordError(message);
+      } else if (lower.includes("email") || lower.includes("account") || lower.includes("locked")) {
+        setEmailError(message);
+      } else if (lower.includes("email or password") || lower.includes("not correct")) {
+        setPasswordError(message);
+      } else {
+        setFormError(message);
+      }
     } finally {
       setBusy(false);
     }
@@ -46,30 +71,39 @@ export function SignInPage() {
         className="space-y-4"
         onSubmit={(event) => {
           event.preventDefault();
-          if (!email.includes("@") || password.length < 1) {
-            setError("Enter the work email and password you registered with.");
+          if (!email.includes("@")) {
+            setEmailError("Enter the work email you registered with.");
+            return;
+          }
+          if (password.length < 1) {
+            setPasswordError("Enter your password.");
             return;
           }
           void enter(() => signIn(email.trim(), password));
         }}
       >
-        <Field label="Work email" error={error}>
+        <Field label="Work email" error={emailError || undefined}>
           <TextInput
             type="email"
             autoComplete="email"
             value={email}
             onChange={(event) => {
               setEmail(event.target.value);
-              setError("");
+              setEmailError("");
+              setFormError("");
             }}
           />
         </Field>
-        <Field label="Password">
+        <Field label="Password" error={passwordError || formError || undefined}>
           <TextInput
             type="password"
             autoComplete="current-password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) => {
+              setPassword(event.target.value);
+              setPasswordError("");
+              setFormError("");
+            }}
           />
         </Field>
         <SignalButton type="submit" className="w-full" disabled={busy}>

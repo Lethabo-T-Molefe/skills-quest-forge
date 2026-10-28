@@ -112,7 +112,10 @@ export function AskPage() {
           rail={
             <AskAside
               suggestions={suggestions}
+              suggestionsLoading={suggested.isPending}
               earlier={earlier}
+              historyLoading={history.isPending}
+              busy={busy}
               quota={user.quotas.ai}
               method={method}
               search={search}
@@ -132,16 +135,21 @@ export function AskPage() {
                     {suggestions.length > 0 ? " Pick a suggestion to see how it works." : ""}
                   </p>
                   <div className="mx-auto mt-5 flex max-w-2xl flex-wrap justify-center gap-2">
-                    {suggestions.slice(0, 4).map((item) => (
-                      <button
-                        key={item}
-                        type="button"
-                        className={smallQuiet}
-                        onClick={() => void submit(item)}
-                      >
-                        {item}
-                      </button>
-                    ))}
+                    {suggested.isPending ? (
+                      <p className="text-sm text-muted-foreground">Loading suggestions…</p>
+                    ) : (
+                      suggestions.slice(0, 4).map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          className={smallQuiet}
+                          disabled={busy}
+                          onClick={() => void submit(item)}
+                        >
+                          {item}
+                        </button>
+                      ))
+                    )}
                   </div>
                   {suggested.isSuccess && suggestions.length === 0 ? (
                     <p className="mx-auto mt-4 max-w-md text-sm text-warning">
@@ -158,7 +166,24 @@ export function AskPage() {
                     {turn.question}
                   </p>
                   {"error" in turn ? (
-                    <Notice tone="signal" title="That question was not answered">
+                    <Notice
+                      tone="signal"
+                      title="That question was not answered"
+                      action={
+                        <button
+                          type="button"
+                          className="text-sm font-medium text-signal-strong underline-offset-4 hover:underline disabled:opacity-50"
+                          disabled={busy}
+                          onClick={() => {
+                            if (busy) return;
+                            setTurns((current) => current.filter((item) => item.id !== turn.id));
+                            void submit(turn.question);
+                          }}
+                        >
+                          Try again
+                        </button>
+                      }
+                    >
                       {turn.error}
                     </Notice>
                   ) : (
@@ -318,7 +343,10 @@ function Answer({ turn, dataset }: { turn: AssistantTurn; dataset: string | unde
 
 function AskAside({
   suggestions,
+  suggestionsLoading,
   earlier,
+  historyLoading,
+  busy,
   quota,
   method,
   search,
@@ -326,7 +354,10 @@ function AskAside({
   onShow,
 }: {
   suggestions: string[];
+  suggestionsLoading: boolean;
   earlier: AssistantTurn[];
+  historyLoading: boolean;
+  busy: boolean;
   quota: string;
   method: ReturnType<typeof getMethod>;
   search: { dataset?: string | undefined; method?: MethodId | undefined };
@@ -336,7 +367,12 @@ function AskAside({
   return (
     <SideRail label="Suggestions and how it works" className="panel">
       <div className="space-y-6 p-5">
-        {suggestions.length > 0 ? (
+        {suggestionsLoading ? (
+          <div>
+            <h2 className="font-sans text-sm font-medium">Try asking</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Loading suggestions…</p>
+          </div>
+        ) : suggestions.length > 0 ? (
           <div>
             <h2 className="font-sans text-sm font-medium">Try asking</h2>
             <ul className="mt-2 space-y-1.5">
@@ -344,7 +380,8 @@ function AskAside({
                 <li key={item}>
                   <button
                     type="button"
-                    className="w-full text-left text-sm text-signal-strong underline-offset-4 hover:underline"
+                    className="w-full text-left text-sm text-signal-strong underline-offset-4 hover:underline disabled:pointer-events-none disabled:opacity-50"
+                    disabled={busy}
                     onClick={() => void onAsk(item)}
                   >
                     {item}
@@ -354,7 +391,12 @@ function AskAside({
             </ul>
           </div>
         ) : null}
-        {earlier.length > 0 ? (
+        {historyLoading ? (
+          <div className="border-t border-border pt-4 first:border-0 first:pt-0">
+            <h2 className="font-sans text-sm font-medium">Your earlier questions</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Loading history…</p>
+          </div>
+        ) : earlier.length > 0 ? (
           <div className="border-t border-border pt-4 first:border-0 first:pt-0">
             <h2 className="font-sans text-sm font-medium">Your earlier questions</h2>
             <ul className="mt-2 space-y-1.5">
@@ -362,7 +404,8 @@ function AskAside({
                 <li key={item.id}>
                   <button
                     type="button"
-                    className="w-full text-left text-sm underline-offset-4 hover:underline"
+                    className="w-full text-left text-sm underline-offset-4 hover:underline disabled:pointer-events-none disabled:opacity-50"
+                    disabled={busy}
                     onClick={() => onShow(item)}
                   >
                     {item.question}

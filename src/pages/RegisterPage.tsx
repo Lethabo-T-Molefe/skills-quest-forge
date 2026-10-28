@@ -10,7 +10,9 @@ export function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [busy, setBusy] = useState(false);
 
   return (
@@ -19,41 +21,65 @@ export function RegisterPage() {
         className="space-y-4"
         onSubmit={(event) => {
           event.preventDefault();
-          if (name.trim().length < 2 || !email.includes("@")) {
-            setError("Use your real name and a work email.");
+          setNameError("");
+          setEmailError("");
+          setPasswordError("");
+          if (name.trim().length < 2) {
+            setNameError("Enter your full name.");
+            return;
+          }
+          if (!email.includes("@")) {
+            setEmailError("Enter a work email.");
             return;
           }
           setBusy(true);
           register(name.trim(), email.trim(), password)
             .then(() => void navigate({ to: "/verify", search: { token: undefined } }))
-            .catch((caught: unknown) => setError(errorMessage(caught)))
+            .catch((caught: unknown) => {
+              const message = errorMessage(caught);
+              const lower = message.toLowerCase();
+              if (lower.includes("password")) setPasswordError(message);
+              else if (lower.includes("email") || lower.includes("already")) setEmailError(message);
+              else if (lower.includes("name")) setNameError(message);
+              else setEmailError(message);
+            })
             .finally(() => setBusy(false));
         }}
       >
-        <Field label="Full name" error={error}>
+        <Field label="Full name" error={nameError || undefined}>
           <TextInput
             autoComplete="name"
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => {
+              setName(event.target.value);
+              setNameError("");
+            }}
           />
         </Field>
-        <Field label="Work email">
+        <Field label="Work email" error={emailError || undefined}>
           <TextInput
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setEmailError("");
+            }}
           />
         </Field>
         <Field
           label="Password"
           hint="At least 10 characters, mixing three of: lower case, upper case, digits and symbols."
+          error={passwordError || undefined}
         >
           <TextInput
             type="password"
             autoComplete="new-password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) => {
+              setPassword(event.target.value);
+              setPasswordError("");
+            }}
           />
         </Field>
         <SignalButton type="submit" className="w-full" disabled={busy}>

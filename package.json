@@ -12,7 +12,9 @@
     "format": "prettier --write .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:q5": "playwright test e2e/question5.spec.ts"
+    "test:e2e:q5": "playwright test e2e/question5.spec.ts",
+    "test:e2e:a11y": "playwright test e2e/a11y.spec.ts",
+    "report:vitals": "echo Open the app, then watch [web-vitals] in the browser console. Optional: set VITE_VITALS_ENDPOINT."
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -68,9 +70,11 @@
     "tailwindcss": "^4.2.1",
     "tw-animate-css": "^1.3.4",
     "vaul": "^1.1.2",
+    "web-vitals": "^6.2.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^9.32.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^22.16.5",
@@ -79,6 +83,7 @@
     "@vitejs/plugin-react": "^5.2.0",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

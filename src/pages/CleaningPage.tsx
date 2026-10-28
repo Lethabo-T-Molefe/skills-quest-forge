@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useParams, useSearch } from "@tanstack/react-router";
 import { useIsFetching, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, BookOpen, History, Library } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, History, Library, LoaderCircle } from "lucide-react";
 import {
   BackLink,
   CodeBlock,
@@ -162,6 +162,7 @@ export function CleaningPage() {
   const finish = useMutation({
     mutationFn: () => runRecipe(datasetId),
     onSuccess: async (result) => {
+      setConfirmFinish(false);
       setRun(result);
       setPhase("done");
       window.scrollTo({ top: 0 });
@@ -173,7 +174,10 @@ export function CleaningPage() {
         description: `${formatNumber(result.rows)} cleaned rows written. Lineage recorded.`,
       });
     },
-    onError: notifyError("The recipe could not be run."),
+    onError: (error) => {
+      setConfirmFinish(false);
+      notifyError("The recipe could not be run.")(error);
+    },
   });
 
   function openChapter(chapterId: string) {
@@ -231,18 +235,30 @@ export function CleaningPage() {
                 },
               ]}
             />
-            <QuietButton onClick={() => setLibraryOpen(true)}>
-              <Library className="size-4" strokeWidth={1.5} aria-hidden />
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              onClick={() => setLibraryOpen(true)}
+            >
+              <Library className="size-3.5" strokeWidth={1.5} aria-hidden />
               Every method
-            </QuietButton>
-            <QuietButton onClick={() => setHistoryOpen(true)}>
-              <History className="size-4" strokeWidth={1.5} aria-hidden />
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              onClick={() => setHistoryOpen(true)}
+            >
+              <History className="size-3.5" strokeWidth={1.5} aria-hidden />
               Recipes
-            </QuietButton>
-            <QuietButton onClick={() => setGuideOpen(true)}>
-              <BookOpen className="size-4" strokeWidth={1.5} aria-hidden />
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              onClick={() => setGuideOpen(true)}
+            >
+              <BookOpen className="size-3.5" strokeWidth={1.5} aria-hidden />
               How this works
-            </QuietButton>
+            </button>
           </>
         )
       }
@@ -295,6 +311,9 @@ export function CleaningPage() {
                     disabled={readOnly || busy || accepted === 0}
                     onClick={() => (undecided > 0 ? setConfirmFinish(true) : finish.mutate())}
                   >
+                    {finish.isPending ? (
+                      <LoaderCircle className="size-3.5 animate-spin" strokeWidth={2} aria-hidden />
+                    ) : null}
                     {finish.isPending ? "Cleaning the full data…" : "Finish and save the recipe"}
                   </SignalButton>
                   {!readOnly && accepted === 0 ? (
@@ -376,14 +395,32 @@ export function CleaningPage() {
                       disabled={readOnly || busy}
                       onClick={() => decide.mutate("skipped")}
                     >
-                      Skip this step
+                      {decide.isPending && decide.variables === "skipped" ? (
+                        <LoaderCircle className="size-4 animate-spin" strokeWidth={2} aria-hidden />
+                      ) : null}
+                      {decide.isPending && decide.variables === "skipped"
+                        ? "Skipping…"
+                        : "Skip this step"}
                     </QuietButton>
                     <SignalButton
                       disabled={readOnly || busy || refreshing || !selected?.applicable}
                       onClick={() => decide.mutate("accepted")}
                     >
-                      Accept and continue
-                      <ArrowRight className="size-4" strokeWidth={1.75} aria-hidden />
+                      {decide.isPending && decide.variables === "accepted" ? (
+                        <>
+                          <LoaderCircle
+                            className="size-4 animate-spin"
+                            strokeWidth={2}
+                            aria-hidden
+                          />
+                          Accepting…
+                        </>
+                      ) : (
+                        <>
+                          Accept and continue
+                          <ArrowRight className="size-4" strokeWidth={1.75} aria-hidden />
+                        </>
+                      )}
                     </SignalButton>
                   </>
                 )}
@@ -437,8 +474,11 @@ export function CleaningPage() {
         open={confirmFinish}
         title="Finish with steps left?"
         confirmLabel="Finish and save"
+        busy={finish.isPending}
         onConfirm={() => finish.mutate()}
-        onClose={() => setConfirmFinish(false)}
+        onClose={() => {
+          if (!finish.isPending) setConfirmFinish(false);
+        }}
       >
         {undecided} {undecided === 1 ? "step has" : "steps have"} not been decided.{" "}
         {undecided === 1 ? "It" : "They"} will be left out of the recipe. You can edit the recipe

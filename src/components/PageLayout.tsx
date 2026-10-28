@@ -115,6 +115,7 @@ export function TableFrame({
     <div
       role="region"
       aria-label={label}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- scrollable region needs a focus target
       tabIndex={0}
       className={cn("relative overflow-x-auto border border-border bg-surface-raised", className)}
     >

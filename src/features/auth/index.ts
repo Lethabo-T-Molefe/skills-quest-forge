@@ -16,6 +16,7 @@ export {
   forgotPassword,
   getSession,
   hasMfaChallenge,
+  mfaEnrollmentDetails,
   initialsFromName,
   pendingEmail,
   register,

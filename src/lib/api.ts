@@ -41,7 +41,8 @@ export class ApiError extends Error {
 
 let accessToken: string | null = null;
 let refreshing: Promise<boolean> | null = null;
-const sessionListeners = new Set<() => void>();
+export type SessionEndReason = "logout" | "expired";
+const sessionListeners = new Set<(reason: SessionEndReason) => void>();
 
 function readStored(key: string) {
   try {
@@ -71,10 +72,10 @@ export function storeTokens(tokens: SessionTokens) {
   markSession(true);
 }
 
-export function clearTokens() {
+export function clearTokens(reason: SessionEndReason = "expired") {
   accessToken = null;
   markSession(false);
-  sessionListeners.forEach((listener) => listener());
+  sessionListeners.forEach((listener) => listener(reason));
 }
 
 function mayResume() {
@@ -87,7 +88,7 @@ export function hasSession() {
 }
 
 /** Called when the session ends (sign-out, or a refresh the API refused). */
-export function onSessionEnd(listener: () => void) {
+export function onSessionEnd(listener: (reason: SessionEndReason) => void) {
   sessionListeners.add(listener);
   return () => sessionListeners.delete(listener);
 }

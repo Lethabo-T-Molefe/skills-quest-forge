@@ -8,6 +8,8 @@ export function ConfirmDialog({
   title,
   children,
   confirmLabel = "Confirm",
+  busy = false,
+  confirmDisabled = false,
   onConfirm,
   onClose,
 }: {
@@ -15,6 +17,9 @@ export function ConfirmDialog({
   title: string;
   children: ReactNode;
   confirmLabel?: string;
+  /** Keeps the dialog open and disables confirm while the action runs. */
+  busy?: boolean;
+  confirmDisabled?: boolean;
   onConfirm: () => void;
   onClose: () => void;
 }) {
@@ -28,14 +33,14 @@ export function ConfirmDialog({
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     confirmRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeRef.current();
+      if (event.key === "Escape" && !busy) closeRef.current();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       previous?.focus();
     };
-  }, [open]);
+  }, [open, busy]);
 
   if (!open) return null;
 
@@ -46,12 +51,16 @@ export function ConfirmDialog({
         className="absolute inset-0 bg-foreground/55"
         aria-label="Close"
         tabIndex={-1}
-        onClick={onClose}
+        disabled={busy}
+        onClick={() => {
+          if (!busy) onClose();
+        }}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        aria-busy={busy || undefined}
         className="relative w-full max-w-md border border-border bg-surface-raised p-6"
       >
         <h2 id={titleId} className="heading-2">
@@ -61,14 +70,16 @@ export function ConfirmDialog({
         <div className="mt-6 flex flex-wrap gap-2">
           <SignalButton
             ref={confirmRef}
+            disabled={busy || confirmDisabled}
             onClick={() => {
               onConfirm();
-              onClose();
             }}
           >
-            {confirmLabel}
+            {busy ? "Working…" : confirmLabel}
           </SignalButton>
-          <QuietButton onClick={onClose}>Cancel</QuietButton>
+          <QuietButton disabled={busy} onClick={onClose}>
+            Cancel
+          </QuietButton>
         </div>
       </div>
     </div>

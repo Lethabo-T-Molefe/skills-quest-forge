@@ -10,6 +10,7 @@ import {
   notFound,
   redirect,
 } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { ApiError, onSessionEnd } from "@/lib/api";
 import { isPublicPath } from "@/config/public";
@@ -127,7 +128,7 @@ const rootRoute = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: ({ location }) => {
     const session = getSession();
     if (!session && !isPublicPath(location.pathname)) {
-      throw redirect({ to: "/sign-in" });
+      throw redirect({ to: "/sign-in", search: {} });
     }
     // Links from an email (verify, reset) can be opened while signed in, so they stay reachable.
     if (session && isAuthPath(location.pathname) && !emailLinkPaths.includes(location.pathname)) {
@@ -158,6 +159,10 @@ const rootRoute = createRootRouteWithContext<{ queryClient: QueryClient }>()({
 const signInRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "sign-in",
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
+    const redirect = typeof search["redirect"] === "string" ? search["redirect"] : undefined;
+    return redirect !== undefined ? { redirect } : {};
+  },
   head: () => ({ meta: pageMeta(pageTitle("Sign in"), "Sign in to your DataForge workspace.") }),
   component: SignInPage,
 });
@@ -220,6 +225,10 @@ const embedRoute = createRoute({
 const mfaRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "mfa",
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
+    const redirect = typeof search["redirect"] === "string" ? search["redirect"] : undefined;
+    return redirect !== undefined ? { redirect } : {};
+  },
   head: () => ({
     meta: pageMeta(pageTitle("Second factor"), "Approve this sign-in with a second factor."),
   }),
@@ -690,14 +699,24 @@ const router = createRouter({
 });
 
 // When a session ends (sign-out, a changed password, an expired or replayed refresh token), start again.
-onSessionEnd(() => {
-  if (isPublicPath(router.state.location.pathname)) {
+onSessionEnd((reason) => {
+  const location = router.state.location;
+  if (isPublicPath(location.pathname)) {
     queryClient.clear();
     return;
   }
+  const returnTo = `${location.pathname}${location.searchStr || ""}`;
+  if (reason === "expired") {
+    toast.message("Your session ended. Sign in again.");
+  }
   // Leave the signed-in screens first. Clearing the cache while they are still mounted would make them
   // ask the API again, now signed out.
-  void router.navigate({ to: "/sign-in" }).finally(() => queryClient.clear());
+  void router
+    .navigate({
+      to: "/sign-in",
+      search: reason === "expired" ? { redirect: returnTo } : ({} as { redirect?: string }),
+    })
+    .finally(() => queryClient.clear());
 });
 
 declare module "@tanstack/react-router" {

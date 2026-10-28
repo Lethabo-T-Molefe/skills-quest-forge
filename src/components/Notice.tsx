@@ -3,10 +3,30 @@ import { CircleAlert, CircleCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tones = {
-  info: { icon: Info, bar: "border-line-strong", iconClass: "text-muted-foreground" },
-  signal: { icon: CircleAlert, bar: "border-signal", iconClass: "text-signal" },
-  ok: { icon: CircleCheck, bar: "border-success", iconClass: "text-success" },
-  warn: { icon: CircleAlert, bar: "border-warning", iconClass: "text-warning" },
+  info: {
+    icon: Info,
+    bar: "border-line-strong",
+    iconClass: "text-muted-foreground",
+    role: "status" as const,
+  },
+  signal: {
+    icon: CircleAlert,
+    bar: "border-signal",
+    iconClass: "text-signal",
+    role: "alert" as const,
+  },
+  ok: {
+    icon: CircleCheck,
+    bar: "border-success",
+    iconClass: "text-success",
+    role: "status" as const,
+  },
+  warn: {
+    icon: CircleAlert,
+    bar: "border-warning",
+    iconClass: "text-warning",
+    role: "status" as const,
+  },
 } as const;
 
 export function Notice({
@@ -27,7 +47,7 @@ export function Notice({
 
   return (
     <div
-      role="status"
+      role={look.role}
       className={cn("flex gap-3 border-l-2 bg-surface-raised px-4 py-3", look.bar, className)}
     >
       <Icon className={cn("mt-0.5 size-4 shrink-0", look.iconClass)} strokeWidth={1.75} />

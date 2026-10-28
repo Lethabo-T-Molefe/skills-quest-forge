@@ -1,5 +1,7 @@
 # DataForge web app
 
+Operations kit (SLOs, backup/restore, k6, health runbooks): see [`ops/`](https://github.com/Lethabo-T-Molefe/dataforge.backend/tree/main/ops) in the API repo.
+
 The web app for DataForge: a governed analytics workspace where a file goes from upload to a shared answer.
 Built with React, TanStack Router, TanStack Query and Tailwind CSS. It talks to the DataForge API in
 [`../dataforge.backend`](../dataforge.backend); nothing in the app is mocked.
@@ -36,8 +38,10 @@ Settings lets you switch between the seeded members. Demo mode is refused in pro
 | `npm run dev` | Development server with hot reload |
 | `npm run build` | Production build into `dist/`, one chunk per page |
 | `npm run preview` | Serve the production build |
-| `npm run lint` | ESLint, including Prettier formatting |
+| `npm run lint` | ESLint, including Prettier and jsx-a11y |
 | `npx tsc --noEmit` | Type-check |
+| `npm run test:e2e:a11y` | Playwright + axe smoke (sign-in, landing) |
+| `npm run report:vitals` | How to read Core Web Vitals from the browser console |
 
 ## How the app is organised
 

@@ -54,7 +54,9 @@ test.describe("production auth", () => {
     await page.getByLabel("Password").fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: /^Sign in$/ }).click();
     await expect(page).toHaveURL(/\/workspace/, { timeout: 60_000 });
-    await expect(page.getByText(/workspace|datasets|Thandi/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/workspace|datasets|Thandi/i).first()).toBeVisible({
+      timeout: 30_000,
+    });
   });
 
   test("logout invalidates the access token immediately", async ({ request }) => {

@@ -54,9 +54,13 @@ export function ChapterWorkbench({
         >
           {shown.map((item) => {
             const checked = selected.id === item.id;
+            const inputId = `method-${chapter.id}-${item.id}`;
             return (
+              // Label wraps the radio and its caption; control association is via htmlFor + nesting.
+              // eslint-disable-next-line jsx-a11y/label-has-associated-control -- radio + caption are associated
               <label
                 key={item.id}
+                htmlFor={inputId}
                 className={cn(
                   "flex cursor-pointer items-start gap-3 border px-3 py-2.5 transition-colors",
                   checked
@@ -65,6 +69,7 @@ export function ChapterWorkbench({
                 )}
               >
                 <input
+                  id={inputId}
                   type="radio"
                   name={`method-${chapter.id}`}
                   value={item.id}

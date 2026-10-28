@@ -73,11 +73,24 @@ export function UploadPage() {
     },
     onSuccess: () => refreshDatasets(queryClient),
   });
-  const working = sent === null ? "Scanning and profiling…" : `Sending ${Math.round(sent * 100)}%…`;
+  const profiling = upload.isPending && sent === null;
+  const working = profiling ? "Checking the file…" : `Sending ${Math.round((sent ?? 0) * 100)}%…`;
+
+  function resetForm() {
+    upload.reset();
+    setFile(null);
+    setFileError(null);
+    setName("");
+    setDescription("");
+    setClassification("internal-confidential");
+    setVisibility("private");
+    setSent(0);
+  }
 
   function choose(next: File | undefined) {
     if (!next) return;
     upload.reset();
+    setSent(0);
     if (next.size > MAX_MB * 1024 * 1024) {
       setFile(null);
       setFileError(
@@ -87,6 +100,21 @@ export function UploadPage() {
     }
     setFileError(null);
     setFile(next);
+  }
+
+  /** Journey sidebar: stages complete in order while bytes send, then while the API profiles. */
+  function stageState(index: number): "done" | "current" | "upcoming" {
+    if (done) return "done";
+    if (!upload.isPending) return "upcoming";
+    if (sent !== null) {
+      if (index === 0) return "current";
+      return "upcoming";
+    }
+    // Bytes are in; profiling and masking stages run server-side.
+    if (index === 0) return "done";
+    if (index === 1) return "current";
+    if (index === 2) return "upcoming";
+    return "upcoming";
   }
 
   async function loadSample() {
@@ -278,6 +306,12 @@ export function UploadPage() {
               />
             </div>
           ) : null}
+          {profiling ? (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+              <LoaderCircle className="size-4 animate-spin" strokeWidth={2} aria-hidden />
+              Checking the file… measuring quality and looking for personal information.
+            </p>
+          ) : null}
         </form>
 
         <section className="panel flex flex-col p-5" aria-label="Progress" aria-live="polite">
@@ -285,33 +319,38 @@ export function UploadPage() {
             {done ? done.name : file ? file.name : "What happens when it arrives"}
           </h2>
           <ol className="mt-4 space-y-3">
-            {stages.map((item, index) => (
-              <li key={item} className="flex gap-3 text-sm">
-                <span
-                  className={cn(
-                    "num flex size-6 shrink-0 items-center justify-center rounded-full text-xs",
-                    done
-                      ? "bg-surface-inverse text-background"
-                      : "border border-line-strong text-muted-foreground",
-                  )}
-                >
-                  {done ? (
-                    <Check className="size-3.5" strokeWidth={2} aria-label="Done" />
-                  ) : upload.isPending ? (
-                    <LoaderCircle
-                      className="size-3.5 animate-spin"
-                      strokeWidth={2}
-                      aria-label="In progress"
-                    />
-                  ) : (
-                    index + 1
-                  )}
-                </span>
-                <span className={done || upload.isPending ? "" : "text-muted-foreground"}>
-                  {item}
-                </span>
-              </li>
-            ))}
+            {stages.map((item, index) => {
+              const state = stageState(index);
+              return (
+                <li key={item} className="flex gap-3 text-sm">
+                  <span
+                    className={cn(
+                      "num flex size-6 shrink-0 items-center justify-center rounded-full text-xs",
+                      state === "done"
+                        ? "bg-surface-inverse text-background"
+                        : state === "current"
+                          ? "border border-signal text-signal-strong"
+                          : "border border-line-strong text-muted-foreground",
+                    )}
+                  >
+                    {state === "done" ? (
+                      <Check className="size-3.5" strokeWidth={2} aria-label="Done" />
+                    ) : state === "current" ? (
+                      <LoaderCircle
+                        className="size-3.5 animate-spin"
+                        strokeWidth={2}
+                        aria-label="In progress"
+                      />
+                    ) : (
+                      index + 1
+                    )}
+                  </span>
+                  <span className={state === "upcoming" ? "text-muted-foreground" : undefined}>
+                    {item}
+                  </span>
+                </li>
+              );
+            })}
           </ol>
 
           {upload.isError ? (
@@ -320,14 +359,20 @@ export function UploadPage() {
             </Notice>
           ) : null}
 
-          {done ? <UploadResult dataset={done} /> : null}
+          {done ? <UploadResult dataset={done} onUploadAnother={resetForm} /> : null}
         </section>
       </div>
     </MainLayout>
   );
 }
 
-function UploadResult({ dataset }: { dataset: Dataset }) {
+function UploadResult({
+  dataset,
+  onUploadAnother,
+}: {
+  dataset: Dataset;
+  onUploadAnother: () => void;
+}) {
   const masked = Object.keys(dataset.piiColumns);
   return (
     <div className="mt-6 border-t border-border pt-5">
@@ -356,7 +401,7 @@ function UploadResult({ dataset }: { dataset: Dataset }) {
           : ""}
       </p>
       <JourneySteps className="mt-5" steps={dataset.journey} />
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap items-center gap-2">
         <Link
           to="/clean/$datasetId"
           params={{ datasetId: dataset.id }}
@@ -372,6 +417,13 @@ function UploadResult({ dataset }: { dataset: Dataset }) {
         >
           See its quality report
         </Link>
+        <button
+          type="button"
+          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          onClick={onUploadAnother}
+        >
+          Upload another
+        </button>
       </div>
     </div>
   );

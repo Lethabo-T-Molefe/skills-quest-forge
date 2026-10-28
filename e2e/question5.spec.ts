@@ -47,12 +47,28 @@ async function signInUi(page: Page, email: string) {
       await expect(page.getByText(/^Loading\.\.\.$/)).toBeHidden({ timeout: 90_000 });
       // Sidebar nav is a reliable signed-in signal (avoid matching the public-site Amina footer).
       await expect(
-        page.getByRole("link", { name: /Datasets/i }).or(page.getByText(/Thandi's workspace|Sipho's workspace|Lerato's workspace|Johan|Amina's workspace|Naledi|Zola/i)).first(),
+        page
+          .getByRole("link", { name: /Datasets/i })
+          .or(
+            page.getByText(
+              /Thandi's workspace|Sipho's workspace|Lerato's workspace|Johan|Amina's workspace|Naledi|Zola/i,
+            ),
+          )
+          .first(),
       ).toBeVisible({ timeout: 60_000 });
       return;
     } catch (error) {
-      const limited = await page.getByText(/too many|rate|wait a moment/i).isVisible().catch(() => false);
-      if (!limited && !(await page.getByText(/Sign in to your workspace/i).isVisible().catch(() => false))) {
+      const limited = await page
+        .getByText(/too many|rate|wait a moment/i)
+        .isVisible()
+        .catch(() => false);
+      if (
+        !limited &&
+        !(await page
+          .getByText(/Sign in to your workspace/i)
+          .isVisible()
+          .catch(() => false))
+      ) {
         throw error;
       }
       if (attempt === 3) throw error;
@@ -98,7 +114,9 @@ test.describe("Question 5 — unit evidence", () => {
     expect(write.status(), await write.text()).toBe(403);
     await signInUi(page, "lerato@dataforge.local");
     await page.goto("/datasets/upload");
-    await expect(page.getByText(/Your role cannot bring data in|Ask an analyst or a steward/i).first()).toBeVisible({
+    await expect(
+      page.getByText(/Your role cannot bring data in|Ask an analyst or a steward/i).first(),
+    ).toBeVisible({
       timeout: 30_000,
     });
     await shot(page, "TC-U-02");
@@ -109,7 +127,12 @@ test.describe("Question 5 — unit evidence", () => {
     // Prefer a bronze dataset that still needs cleaning; fall back to learner-enrolments if present.
     const list = await request.get(`${API}/datasets`, { headers });
     expect(list.status()).toBe(200);
-    const datasets = (await list.json()) as { id: string; name: string; layer?: string; status?: string }[];
+    const datasets = (await list.json()) as {
+      id: string;
+      name: string;
+      layer?: string;
+      status?: string;
+    }[];
     const target =
       datasets.find((d) => /enrolment|learner/i.test(d.name) || d.layer === "bronze") ??
       datasets.find((d) => d.id === "learner-enrolments") ??
@@ -147,20 +170,24 @@ test.describe("Question 5 — integration evidence", () => {
     const sipho = await authHeaders(request, "sipho@dataforge.local");
     const siphoDatasets = await request.get(`${API}/datasets`, { headers: sipho });
     expect(siphoDatasets.status()).toBe(200);
-    const privateLike = ((await siphoDatasets.json()) as { id: string; visibility?: string }[]).find(
-      (d) => d.visibility === "private",
-    );
+    const privateLike = (
+      (await siphoDatasets.json()) as { id: string; visibility?: string }[]
+    ).find((d) => d.visibility === "private");
     if (privateLike) {
       const cross = await request.get(`${API}/datasets/${privateLike.id}`, { headers: thandi });
       expect([403, 404]).toContain(cross.status());
     } else {
       // Deny erase of someone else's approved set when not permitted.
-      const cross = await request.post(`${API}/datasets/course-completions/erase`, { headers: thandi });
+      const cross = await request.post(`${API}/datasets/course-completions/erase`, {
+        headers: thandi,
+      });
       expect([403, 404, 409, 422]).toContain(cross.status());
     }
     await signInUi(page, "thandi@dataforge.local");
     await page.goto("/datasets");
-    await expect(page.getByText(/Datasets|Upload|Course completions/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Datasets|Upload|Course completions/i).first()).toBeVisible({
+      timeout: 30_000,
+    });
     await shot(page, "TC-I-03");
   });
 
@@ -186,13 +213,20 @@ test.describe("Question 5 — integration evidence", () => {
     expect(profile.status()).toBe(200);
     const body = await profile.json();
     const blob = JSON.stringify(body).toLowerCase();
-    expect(blob.includes("pii") || blob.includes("mask") || blob.includes("email") || blob.includes("phone")).toBeTruthy();
+    expect(
+      blob.includes("pii") ||
+        blob.includes("mask") ||
+        blob.includes("email") ||
+        blob.includes("phone"),
+    ).toBeTruthy();
 
     await signInUi(page, "thandi@dataforge.local");
     await page.goto(`/datasets/${dataset.id}`);
     await expect(page.getByText(/^Loading\.\.\.$/)).toBeHidden({ timeout: 90_000 });
     await expect(
-      page.getByText(/mask|PII|personal|column|profile|quality|restricted|full_name|email|phone/i).first(),
+      page
+        .getByText(/mask|PII|personal|column|profile|quality|restricted|full_name|email|phone/i)
+        .first(),
     ).toBeVisible({ timeout: 60_000 });
     await shot(page, "TC-I-05");
   });
@@ -219,7 +253,10 @@ test.describe("Question 5 — system evidence", () => {
     await expect(page.getByRole("textbox").first()).toBeVisible();
     const box = page.getByRole("textbox").first();
     await box.fill("What is the average completion rate by region?");
-    await page.getByRole("button", { name: /ask|send|submit/i }).first().click();
+    await page
+      .getByRole("button", { name: /ask|send|submit/i })
+      .first()
+      .click();
     await expect(page.getByText(/Finding the right metric/i)).toBeHidden({ timeout: 120_000 });
     await expect(page.getByText(/SELECT|explanation|SQL|refused|I can|Here/i).first()).toBeVisible({
       timeout: 30_000,
@@ -232,10 +269,15 @@ test.describe("Question 5 — system evidence", () => {
     await page.goto("/analyse/ask");
     const box = page.getByRole("textbox").first();
     await box.fill("What is the CEO's personal salary and ID number?");
-    await page.getByRole("button", { name: /ask|send|submit/i }).first().click();
+    await page
+      .getByRole("button", { name: /ask|send|submit/i })
+      .first()
+      .click();
     await expect(page.getByText(/Finding the right metric/i)).toBeHidden({ timeout: 120_000 });
     await expect(
-      page.getByText(/refus|cannot answer|do not|don't|not grounded|not available|personal/i).first(),
+      page
+        .getByText(/refus|cannot answer|do not|don't|not grounded|not available|personal/i)
+        .first(),
     ).toBeVisible({ timeout: 30_000 });
     await shot(page, "TC-S-09");
   });
@@ -245,11 +287,15 @@ test.describe("Question 5 — system evidence", () => {
     await page.goto("/analyse/ask");
     const box = page.getByRole("textbox").first();
     await box.fill("Show enrolments by course for the latest months");
-    await page.getByRole("button", { name: /ask|send|submit/i }).first().click();
+    await page
+      .getByRole("button", { name: /ask|send|submit/i })
+      .first()
+      .click();
     await expect(page.getByText(/Finding the right metric/i)).toBeHidden({ timeout: 120_000 });
-    const openSql = page.getByRole("link", { name: /sql|open|workbench/i }).or(
-      page.getByRole("button", { name: /sql|open as|workbench|edit|code/i }),
-    ).first();
+    const openSql = page
+      .getByRole("link", { name: /sql|open|workbench/i })
+      .or(page.getByRole("button", { name: /sql|open as|workbench|edit|code/i }))
+      .first();
     if (await openSql.isVisible().catch(() => false)) {
       await openSql.click();
       await page.waitForTimeout(2000);
@@ -266,15 +312,21 @@ test.describe("Question 5 — UAT evidence", () => {
     await signInUi(page, "thandi@dataforge.local");
     await shot(page, "UAT-01-workspace");
     await page.goto("/datasets");
-    await expect(page.getByText(/dataset|Upload|catalogue|Course completions/i).first()).toBeVisible({
+    await expect(
+      page.getByText(/dataset|Upload|catalogue|Course completions/i).first(),
+    ).toBeVisible({
       timeout: 30_000,
     });
     await shot(page, "UAT-01-datasets");
     await page.goto("/clean");
-    await expect(page.getByText(/Clean|recipe|dataset|need cleaning/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Clean|recipe|dataset|need cleaning/i).first()).toBeVisible({
+      timeout: 30_000,
+    });
     await shot(page, "UAT-01-clean");
     await page.goto("/analyse/ask");
-    await expect(page.getByText(/Ask in plain English|Ask/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Ask in plain English|Ask/i).first()).toBeVisible({
+      timeout: 30_000,
+    });
     await shot(page, "UAT-01-ask");
     await page.goto("/dashboards");
     await expect(page.getByText(/Dashboard|chart|share/i).first()).toBeVisible({ timeout: 30_000 });
@@ -286,7 +338,10 @@ test.describe("Question 5 — UAT evidence", () => {
     await page.goto("/analyse/ask");
     const box = page.getByRole("textbox").first();
     await box.fill("Compare enrolments by region");
-    await page.getByRole("button", { name: /ask|send|submit/i }).first().click();
+    await page
+      .getByRole("button", { name: /ask|send|submit/i })
+      .first()
+      .click();
     await page.waitForTimeout(5000);
     const openCode = page.getByRole("button", { name: /sql|notebook|jupyter|code|open/i }).first();
     if (await openCode.isVisible().catch(() => false)) {
@@ -302,11 +357,18 @@ test.describe("Question 5 — user-guide screenshots", () => {
   test("Screenshot-5 upload and quality profile", async ({ page }) => {
     await signInUi(page, "thandi@dataforge.local");
     await page.goto("/datasets");
-    await expect(page.getByText(/Course completions|Datasets|Upload/i).first()).toBeVisible({ timeout: 30_000 });
-    const first = page.getByRole("link").filter({ hasText: /enrol|course|learner|PII/i }).first();
+    await expect(page.getByText(/Course completions|Datasets|Upload/i).first()).toBeVisible({
+      timeout: 30_000,
+    });
+    const first = page
+      .getByRole("link")
+      .filter({ hasText: /enrol|course|learner|PII/i })
+      .first();
     if (await first.isVisible().catch(() => false)) {
       await first.click();
-      await expect(page.getByText(/profile|quality|column|rows|bronze|silver/i).first()).toBeVisible({
+      await expect(
+        page.getByText(/profile|quality|column|rows|bronze|silver/i).first(),
+      ).toBeVisible({
         timeout: 30_000,
       });
     }
@@ -318,7 +380,10 @@ test.describe("Question 5 — user-guide screenshots", () => {
     await page.goto("/analyse/ask");
     const box = page.getByRole("textbox").first();
     await box.fill("What is the completion rate trend?");
-    await page.getByRole("button", { name: /ask|send|submit/i }).first().click();
+    await page
+      .getByRole("button", { name: /ask|send|submit/i })
+      .first()
+      .click();
     await expect(page.getByText(/Finding the right metric/i)).toBeHidden({ timeout: 120_000 });
     await shot(page, "Screenshot-6");
   });
@@ -326,11 +391,15 @@ test.describe("Question 5 — user-guide screenshots", () => {
   test("Screenshot-7 saved dashboard", async ({ page }) => {
     await signInUi(page, "thandi@dataforge.local");
     await page.goto("/dashboards");
-    await expect(page.getByText(/Dashboard|chart|Learning|share/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Dashboard|chart|Learning|share/i).first()).toBeVisible({
+      timeout: 30_000,
+    });
     const card = page.locator("a[href*='dashboard']").first();
     if (await card.isVisible().catch(() => false)) {
       await card.click();
-      await expect(page.getByText(/chart|dashboard|share|filter/i).first()).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByText(/chart|dashboard|share|filter/i).first()).toBeVisible({
+        timeout: 30_000,
+      });
     }
     await shot(page, "Screenshot-7");
   });

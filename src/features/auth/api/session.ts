@@ -2,6 +2,7 @@ import { api, clearTokens, hasSession, storeTokens, type SessionTokens } from "@
 import type { CurrentUser, RoleId } from "../types";
 
 const MFA_KEY = "dataforge.mfa-challenge";
+const MFA_ENROLL_KEY = "dataforge.mfa-enroll";
 const PENDING_EMAIL_KEY = "dataforge.pending-email";
 
 interface SessionResponse extends SessionTokens {
@@ -9,18 +10,37 @@ interface SessionResponse extends SessionTokens {
 }
 
 type LoginResponse =
-  ({ mfaRequired: false } & SessionResponse) | { mfaRequired: true; challengeToken: string };
+  | ({ mfaRequired: false; mfaEnrollmentRequired?: false } & SessionResponse)
+  | { mfaRequired: true; challengeToken: string }
+  | {
+      mfaRequired: false;
+      mfaEnrollmentRequired: true;
+      challengeToken: string;
+      secret: string;
+      otpauthUri: string;
+    };
+
+export type SignInOutcome = "signed-in" | "mfa" | "mfa-enroll";
 
 /** Whether this browser holds a session (checked synchronously by the router). */
 export function getSession() {
   return hasSession();
 }
 
-/** Password sign-in. Resolves to "mfa" when a second factor is still needed. */
-export async function signIn(email: string, password: string): Promise<"signed-in" | "mfa"> {
+/** Password sign-in. Resolves to "mfa" / "mfa-enroll" when a second factor is still needed. */
+export async function signIn(email: string, password: string): Promise<SignInOutcome> {
   const result = await api.post<LoginResponse>("/auth/login", { email, password });
+  if ("mfaEnrollmentRequired" in result && result.mfaEnrollmentRequired) {
+    sessionStorage.setItem(MFA_KEY, result.challengeToken);
+    sessionStorage.setItem(
+      MFA_ENROLL_KEY,
+      JSON.stringify({ secret: result.secret, otpauthUri: result.otpauthUri }),
+    );
+    return "mfa-enroll";
+  }
   if (result.mfaRequired) {
     sessionStorage.setItem(MFA_KEY, result.challengeToken);
+    sessionStorage.removeItem(MFA_ENROLL_KEY);
     return "mfa";
   }
   storeTokens(result);
@@ -29,6 +49,16 @@ export async function signIn(email: string, password: string): Promise<"signed-i
 
 export function hasMfaChallenge() {
   return sessionStorage.getItem(MFA_KEY) !== null;
+}
+
+export function mfaEnrollmentDetails(): { secret: string; otpauthUri: string } | null {
+  const raw = sessionStorage.getItem(MFA_ENROLL_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as { secret: string; otpauthUri: string };
+  } catch {
+    return null;
+  }
 }
 
 export async function completeMfa(code: string): Promise<CurrentUser> {
@@ -44,6 +74,7 @@ export async function completeMfa(code: string): Promise<CurrentUser> {
   } finally {
     // A challenge works once: a wrong code blocks it, and the member signs in again.
     sessionStorage.removeItem(MFA_KEY);
+    sessionStorage.removeItem(MFA_ENROLL_KEY);
   }
 }
 
@@ -86,7 +117,7 @@ export async function signOut() {
   } catch {
     // The local session ends whatever the API says.
   } finally {
-    clearTokens();
+    clearTokens("logout");
   }
 }
 
