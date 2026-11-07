@@ -13,8 +13,8 @@ const safeguards = [
     body: "Incoming data is scanned for known patterns. Matching columns are masked before promotion beyond the raw layer.",
   },
   {
-    title: "Approval before use",
-    body: "Until a Steward approves a dataset, it is not queryable in silver or gold. The decision, the member and the reason are recorded.",
+    title: "Approval before sharing",
+    body: "Until a Steward approves a dataset, only its owner can analyse it, with personal columns masked. The decision, the member and the reason are recorded.",
   },
   {
     title: "Least-privilege execution",

@@ -40,7 +40,7 @@ async function signInUi(page: Page, email: string) {
   for (let attempt = 1; attempt <= 3; attempt++) {
     await page.goto("/sign-in");
     await page.getByLabel("Work email").fill(email);
-    await page.getByLabel("Password").fill(DEMO_PASSWORD);
+    await page.getByLabel("Password", { exact: true }).fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: /^Sign in$/ }).click();
     try {
       await expect(page).toHaveURL(/\/workspace/, { timeout: 45_000 });

@@ -22,5 +22,5 @@ export { Segmented, type SegmentedOption } from "./Segmented";
 export { SelectMenu } from "./SelectMenu";
 export { SignalButton, signalButtonClass } from "./SignalButton";
 export { TabsContent, TabsList, TabsRoot, TabsTrigger } from "./Tabs";
-export { TextArea, TextInput } from "./TextInput";
+export { PasswordInput, TextArea, TextInput } from "./TextInput";
 export { SideRail, SplitLayout, StickyActions, TableFrame } from "./PageLayout";

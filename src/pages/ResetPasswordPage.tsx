@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
-import { Field, Notice, SignalButton, TextInput } from "@/components";
+import { Field, Notice, PasswordInput, SignalButton } from "@/components";
 import { PASSWORD_MIN_LENGTH, passwordHint, resetPassword, signOut } from "@/features/auth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { errorMessage } from "@/lib/api";
@@ -48,8 +48,7 @@ export function ResetPasswordPage() {
       ) : (
         <form className="space-y-4" onSubmit={(event) => void submit(event)}>
           <Field label="New password" hint={passwordHint}>
-            <TextInput
-              type="password"
+            <PasswordInput
               autoComplete="new-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
@@ -59,8 +58,7 @@ export function ResetPasswordPage() {
             />
           </Field>
           <Field label="New password, again" error={error}>
-            <TextInput
-              type="password"
+            <PasswordInput
               autoComplete="new-password"
               value={repeat}
               onChange={(event) => setRepeat(event.target.value)}

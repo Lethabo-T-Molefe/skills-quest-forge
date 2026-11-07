@@ -2,7 +2,15 @@ import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
-import { Field, Notice, Panel, QuietButton, SignalButton, TextInput } from "@/components";
+import {
+  Field,
+  Notice,
+  Panel,
+  PasswordInput,
+  QuietButton,
+  SignalButton,
+  TextInput,
+} from "@/components";
 import { notifyError } from "@/lib/notify";
 import { changePassword, disableMfa, enableMfa, signOut, startMfaSetup } from "../api/session";
 import { PASSWORD_MIN_LENGTH, passwordHint } from "../constants";
@@ -75,8 +83,7 @@ function MfaPanel() {
             }}
           >
             <Field label="Your password">
-              <TextInput
-                type="password"
+              <PasswordInput
                 autoComplete="current-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
@@ -190,8 +197,7 @@ function PasswordPanel() {
         }}
       >
         <Field label="Current password">
-          <TextInput
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
             value={current}
             onChange={(event) => setCurrent(event.target.value)}
@@ -199,8 +205,7 @@ function PasswordPanel() {
           />
         </Field>
         <Field label="New password" hint={passwordHint}>
-          <TextInput
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             value={next}
             onChange={(event) => setNext(event.target.value)}
@@ -213,8 +218,7 @@ function PasswordPanel() {
           label="New password, again"
           {...(mismatch ? { error: "The two passwords are not the same." } : {})}
         >
-          <TextInput
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             value={repeat}
             onChange={(event) => setRepeat(event.target.value)}

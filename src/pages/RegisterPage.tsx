@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Field, SignalButton, TextInput } from "@/components";
+import { Field, PasswordInput, SignalButton, TextInput } from "@/components";
 import { register } from "@/features/auth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { errorMessage } from "@/lib/api";
@@ -72,8 +72,7 @@ export function RegisterPage() {
           hint="At least 10 characters, mixing three of: lower case, upper case, digits and symbols."
           error={passwordError || undefined}
         >
-          <TextInput
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             value={password}
             onChange={(event) => {

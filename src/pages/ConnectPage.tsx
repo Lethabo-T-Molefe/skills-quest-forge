@@ -2,7 +2,16 @@ import { useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BackLink, Field, HelpTip, Notice, Segmented, SignalButton, TextInput } from "@/components";
+import {
+  BackLink,
+  Field,
+  HelpTip,
+  Notice,
+  PasswordInput,
+  Segmented,
+  SignalButton,
+  TextInput,
+} from "@/components";
 import { hasPermission, useCurrentUser } from "@/features/auth";
 import {
   ConnectorCard,
@@ -165,8 +174,7 @@ export function ConnectPage() {
                       />
                     </Field>
                     <Field label="Password">
-                      <TextInput
-                        type="password"
+                      <PasswordInput
                         value={form.password}
                         onChange={(event) => set("password")(event.target.value)}
                         autoComplete="new-password"

@@ -51,7 +51,7 @@ test.describe("production auth", () => {
   test("analyst can sign in through the UI and reach the workspace", async ({ page }) => {
     await page.goto("/sign-in");
     await page.getByLabel("Work email").fill("thandi@dataforge.local");
-    await page.getByLabel("Password").fill(DEMO_PASSWORD);
+    await page.getByLabel("Password", { exact: true }).fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: /^Sign in$/ }).click();
     await expect(page).toHaveURL(/\/workspace/, { timeout: 60_000 });
     await expect(page.getByText(/workspace|datasets|Thandi/i).first()).toBeVisible({
@@ -121,7 +121,7 @@ test.describe("production rate limits", () => {
 async function signInUi(page: Page, email: string) {
   await page.goto("/sign-in");
   await page.getByLabel("Work email").fill(email);
-  await page.getByLabel("Password").fill(DEMO_PASSWORD);
+  await page.getByLabel("Password", { exact: true }).fill(DEMO_PASSWORD);
   await page.getByRole("button", { name: /^Sign in$/ }).click();
   await expect(page).toHaveURL(/\/workspace/, { timeout: 60_000 });
 }

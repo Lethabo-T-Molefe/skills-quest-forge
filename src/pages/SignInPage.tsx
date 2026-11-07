@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Field, QuietButton, SelectMenu, SignalButton, TextInput } from "@/components";
+import {
+  Field,
+  PasswordInput,
+  QuietButton,
+  SelectMenu,
+  SignalButton,
+  TextInput,
+} from "@/components";
 import { demoAvailable, roleLabels, signIn, signInDemo, type RoleId } from "@/features/auth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { errorMessage } from "@/lib/api";
@@ -95,8 +102,7 @@ export function SignInPage() {
           />
         </Field>
         <Field label="Password" error={passwordError || formError || undefined}>
-          <TextInput
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
             value={password}
             onChange={(event) => {
