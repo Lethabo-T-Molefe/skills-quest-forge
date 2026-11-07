@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BarChart3, Code2, Sparkles } from "lucide-react";
 import {
@@ -7,12 +7,13 @@ import {
   HelpTip,
   Notice,
   ResultTable,
+  SelectMenu,
   SideRail,
   SignalButton,
   SplitLayout,
   quietButtonClass,
 } from "@/components";
-import { AnalyseTabs, getMethod, type MethodId } from "@/features/analysis";
+import { AnalyseTabs, analysisCatalogueQuery, getMethod, type MethodId } from "@/features/analysis";
 import {
   askAssistant,
   assistantHistoryQuery,
@@ -36,10 +37,19 @@ interface FailedTurn {
 
 export function AskPage() {
   const search = useSearch({ from: "/analyse/ask" });
+  const navigate = useNavigate({ from: "/analyse/ask" });
   const user = useCurrentUser();
   const queryClient = useQueryClient();
   const mayAsk = hasPermission(user, "analyse");
-  const suggested = useQuery({ ...assistantSuggestionsQuery(), enabled: mayAsk });
+  // The datasets this member may analyse. The one chosen (in the address) is the only one the assistant
+  // answers from; with none chosen it may use any of them.
+  const catalogue = useQuery({ ...analysisCatalogueQuery(), enabled: mayAsk });
+  const datasets = catalogue.data?.datasets ?? [];
+  const datasetId = datasets.some((item) => item.id === search.dataset)
+    ? search.dataset
+    : undefined;
+  const chosenNotReady = Boolean(search.dataset) && catalogue.isSuccess && !datasetId;
+  const suggested = useQuery({ ...assistantSuggestionsQuery(datasetId), enabled: mayAsk });
   const history = useQuery({ ...assistantHistoryQuery(), enabled: mayAsk });
   const [question, setQuestion] = useState(search.q ?? "");
   const [turns, setTurns] = useState<(AssistantTurn | FailedTurn)[]>([]);
@@ -69,7 +79,7 @@ export function AskPage() {
     setBusy(true);
     setQuestion("");
     try {
-      const turn = await askAssistant(trimmed, context?.id);
+      const turn = await askAssistant(trimmed, context?.id, datasetId);
       setTurns((current) => [...current, turn]);
       // An answer uses the monthly AI allowance and is written to the audit trail.
       void Promise.all(
@@ -125,6 +135,42 @@ export function AskPage() {
           }
         >
           <section className="panel flex min-h-[28rem] flex-col" aria-label="Conversation">
+            <div className="flex flex-wrap items-center gap-3 border-b border-border px-6 py-3">
+              <SelectMenu
+                size="sm"
+                label="Answering from"
+                className="min-w-64"
+                value={datasetId ?? "all"}
+                options={[
+                  { value: "all", label: "All the data you can analyse" },
+                  ...datasets.map((item) => ({ value: item.id, label: item.name })),
+                ]}
+                onValueChange={(value) => {
+                  // A different dataset is a new topic: follow-ups must not build on the old one.
+                  setTopicStart(turns.length);
+                  void navigate({
+                    search: (previous) => ({
+                      ...previous,
+                      dataset: value === "all" ? undefined : value,
+                    }),
+                  });
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                {datasetId
+                  ? "Answers come from this dataset only."
+                  : "Choose a dataset to keep answers to it."}
+              </p>
+            </div>
+            {chosenNotReady ? (
+              <Notice
+                className="mx-6 mt-4"
+                tone="warn"
+                title="That dataset is not ready to analyse"
+              >
+                Open it from Datasets to see its next step, or choose one of yours above.
+              </Notice>
+            ) : null}
             <div className="flex-1 space-y-6 p-6" aria-live="polite">
               {turns.length === 0 && !busy ? (
                 <div className="py-10 text-center">
@@ -153,8 +199,8 @@ export function AskPage() {
                   </div>
                   {suggested.isSuccess && suggestions.length === 0 ? (
                     <p className="mx-auto mt-4 max-w-md text-sm text-warning">
-                      There is no approved data for you to ask about yet. A dataset can be asked
-                      about once it is cleaned and a steward approves it.
+                      There is no data for you to ask about yet. Upload a dataset and you can ask
+                      about it straight away; others can once it is cleaned and approved.
                     </p>
                   ) : null}
                 </div>

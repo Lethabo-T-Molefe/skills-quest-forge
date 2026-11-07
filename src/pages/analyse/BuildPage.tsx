@@ -57,7 +57,7 @@ export function BuildPage() {
       >
         <EmptyState
           title="Nothing is ready to analyse yet"
-          body="A dataset can be charted once it is cleaned and a steward has approved it."
+          body="Upload a dataset and you can chart it straight away. Others can once it is cleaned and approved."
           action={
             <Link to="/datasets" className={signalButtonClass}>
               See the datasets
@@ -75,7 +75,7 @@ export function BuildPage() {
       requestedId={requested?.id}
       notice={
         notReady
-          ? `${notReady.name} is not approved yet, so it cannot be analysed. Showing ${first.name} instead.`
+          ? `${notReady.name} is not ready to analyse yet. Open it from Datasets to see its next step. Showing ${first.name} instead.`
           : search.dataset && !requested
             ? `That dataset is not available to you. Showing ${first.name} instead.`
             : null
