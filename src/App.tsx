@@ -36,6 +36,7 @@ import { dashboardQuery, dashboardsQuery } from "@/features/dashboards";
 import { datasetQuery, datasetsQuery } from "@/features/datasets";
 import { metricDefinitionsQuery, metricSummariesQuery } from "@/features/metrics";
 import { modelDetailQuery } from "@/features/models";
+import { reportTemplatesQuery } from "@/features/reports";
 import { alertQuery, alertsQuery, monitorsQuery } from "@/features/monitors";
 import { predictionModelsQuery } from "@/features/predictions";
 import { ErrorPage } from "@/pages/ErrorPage";
@@ -83,6 +84,7 @@ const ModelsPage = lazyRouteComponent(() => import("@/pages/ModelsPage"), "Model
 const MonitorsPage = lazyRouteComponent(() => import("@/pages/MonitorsPage"), "MonitorsPage");
 const OverviewPage = lazyRouteComponent(() => import("@/pages/OverviewPage"), "OverviewPage");
 const RegisterPage = lazyRouteComponent(() => import("@/pages/RegisterPage"), "RegisterPage");
+const ReportsPage = lazyRouteComponent(() => import("@/pages/ReportsPage"), "ReportsPage");
 const ResetPasswordPage = lazyRouteComponent(
   () => import("@/pages/ResetPasswordPage"),
   "ResetPasswordPage",
@@ -549,6 +551,20 @@ const modelsRoute = createRoute({
   component: ModelsPage,
 });
 
+const reportsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "reports",
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(reportTemplatesQuery()),
+      context.queryClient.ensureQueryData(analysisCatalogueQuery()),
+    ]),
+  head: () => ({
+    meta: pageMeta(pageTitle("Reports"), "Governed reports with the SQL behind every figure."),
+  }),
+  component: ReportsPage,
+});
+
 const modelDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "models/$modelId",
@@ -698,6 +714,7 @@ const routeTree = rootRoute.addChildren([
   alertDetailRoute,
   modelsRoute,
   modelDetailRoute,
+  reportsRoute,
   semanticRoute,
   governanceRoute,
   auditRoute,

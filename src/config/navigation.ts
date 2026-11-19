@@ -5,6 +5,7 @@ import {
   Brain,
   ChartNoAxesCombined,
   Database,
+  FileText,
   House,
   LayoutDashboard,
   ScrollText,
@@ -21,6 +22,7 @@ export interface NavItem {
     | "/clean"
     | "/analyse"
     | "/dashboards"
+    | "/reports"
     | "/monitors"
     | "/semantic"
     | "/models"
@@ -90,6 +92,12 @@ export const navSections: NavSection[] = [
         icon: LayoutDashboard,
         hint: "Save and share results",
         step: 4,
+      },
+      {
+        to: "/reports",
+        label: "Reports",
+        icon: FileText,
+        hint: "Governed reports with the SQL behind every figure",
       },
       {
         to: "/monitors",
