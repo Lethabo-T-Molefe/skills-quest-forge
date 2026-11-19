@@ -5,10 +5,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { DEMO_PASSWORD } from "./env";
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000/api/v1";
 const ORIGIN = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:5173";
-const DEMO_PASSWORD = "DataForge!2026";
 const SHOT_DIR = path.join(process.cwd(), "e2e", "screenshots");
 
 fs.mkdirSync(SHOT_DIR, { recursive: true });
@@ -237,8 +237,30 @@ test.describe("Question 5 — integration evidence", () => {
     expect(events.status()).toBe(200);
     const payload = await events.json();
     expect(payload.items?.length ?? payload.length ?? 0).toBeGreaterThan(0);
+    const first = payload.items[0];
 
-    // Direct mutation must fail at the DB/API layer — surface the audit UI as evidence.
+    // Every way in is tried and refused: no API verb alters an event, and SQL that writes is refused.
+    for (const method of ["DELETE", "PUT", "PATCH"] as const) {
+      const attempt = await request.fetch(`${API}/audit/events/${first.id}`, {
+        method,
+        headers: auditor,
+        data: { action: "tampered" },
+      });
+      expect([403, 404, 405], `${method} on an audit event`).toContain(attempt.status());
+    }
+    const analyst = await authHeaders(request, "thandi@dataforge.local");
+    for (const sql of [
+      `DELETE FROM app.audit_events WHERE id = ${Number(first.id)}`,
+      `UPDATE app.audit_events SET action = 'tampered' WHERE id = ${Number(first.id)}`,
+    ]) {
+      const attempt = await request.post(`${API}/sql/run`, { headers: analyst, data: { sql } });
+      if (attempt.status() === 200) expect((await attempt.json()).refused).toBe(true);
+      else expect([403, 422]).toContain(attempt.status());
+    }
+    const after = await request.get(`${API}/audit/events?limit=20`, { headers: auditor });
+    const unchanged = (await after.json()).items.find((e: { id: string }) => e.id === first.id);
+    expect(unchanged.action).toBe(first.action);
+
     await signInUi(page, "johan@dataforge.local");
     await page.goto("/audit");
     await expect(page.getByText(/audit|event|action/i).first()).toBeVisible({ timeout: 30_000 });
@@ -247,7 +269,22 @@ test.describe("Question 5 — integration evidence", () => {
 });
 
 test.describe("Question 5 — system evidence", () => {
-  test("TC-S-08 assistant returns result, code, explanation", async ({ page }) => {
+  test("TC-S-08 assistant returns result, code, explanation", async ({ page, request }) => {
+    // The API must answer (not refuse) with SQL, an explanation and a full governance trace.
+    const analyst = await authHeaders(request, "thandi@dataforge.local");
+    const turn = await (
+      await request.post(`${API}/assistant/ask`, {
+        headers: analyst,
+        data: { question: "What is the average completion rate by region?" },
+      })
+    ).json();
+    expect(turn.refused, JSON.stringify(turn)).toBe(false);
+    expect(turn.sql).toMatch(/^\s*SELECT/i);
+    expect(turn.explanation.length).toBeGreaterThan(20);
+    expect(turn.trace.map((s: { key: string }) => s.key)).toEqual(
+      expect.arrayContaining(["screen", "plan", "validation", "sql", "sandbox", "audit"]),
+    );
+
     await signInUi(page, "thandi@dataforge.local");
     await page.goto("/analyse/ask");
     await expect(page.getByRole("textbox").first()).toBeVisible();
@@ -258,9 +295,8 @@ test.describe("Question 5 — system evidence", () => {
       .first()
       .click();
     await expect(page.getByText(/Finding the right metric/i)).toBeHidden({ timeout: 120_000 });
-    await expect(page.getByText(/SELECT|explanation|SQL|refused|I can|Here/i).first()).toBeVisible({
-      timeout: 30_000,
-    });
+    await expect(page.getByText(/Show the SQL it ran/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/How this answer was governed/i).first()).toBeVisible();
     await shot(page, "TC-S-08");
   });
 
@@ -292,17 +328,13 @@ test.describe("Question 5 — system evidence", () => {
       .first()
       .click();
     await expect(page.getByText(/Finding the right metric/i)).toBeHidden({ timeout: 120_000 });
-    const openSql = page
-      .getByRole("link", { name: /sql|open|workbench/i })
-      .or(page.getByRole("button", { name: /sql|open as|workbench|edit|code/i }))
-      .first();
-    if (await openSql.isVisible().catch(() => false)) {
-      await openSql.click();
-      await page.waitForTimeout(2000);
-    } else {
-      await page.goto("/analyse/sql");
-      await expect(page.getByText(/SQL|query|run/i).first()).toBeVisible({ timeout: 30_000 });
-    }
+    // The answer must offer "Open as SQL", and it must land in the workbench with the SQL filled in.
+    await page
+      .getByRole("link", { name: /Open as SQL/i })
+      .first()
+      .click();
+    await expect(page).toHaveURL(/\/analyse\/code/, { timeout: 30_000 });
+    await expect(page.locator("textarea").first()).toHaveValue(/SELECT/i, { timeout: 30_000 });
     await shot(page, "TC-S-12");
   });
 });

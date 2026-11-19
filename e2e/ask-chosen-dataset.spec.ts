@@ -3,11 +3,11 @@
  * Needs a dataset the signed-in member may analyse: set ASK_DATASET_ID (default: owner-analysis-check).
  */
 import { expect, test } from "@playwright/test";
+import { DEMO_PASSWORD as PASSWORD } from "./env";
 
 const ORIGIN = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:5173";
 const DATASET = process.env.ASK_DATASET_ID ?? "owner-analysis-check";
 const EMAIL = process.env.ASK_EMAIL ?? "thandi@dataforge.local";
-const PASSWORD = "DataForge!2026";
 
 test("a chosen dataset is the only one the assistant answers from", async ({ page }) => {
   test.setTimeout(240_000);

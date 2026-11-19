@@ -41,7 +41,11 @@ Settings lets you switch between the seeded members. Demo mode is refused in pro
 | `npm run lint` | ESLint, including Prettier and jsx-a11y |
 | `npx tsc --noEmit` | Type-check |
 | `npm run test:e2e:a11y` | Playwright + axe smoke (sign-in, landing) |
+| `DEMO_PASSWORD=… npx playwright test e2e/final-year.spec.ts` | Models, the anomaly scan and answer traces against a seeded stack |
 | `npm run report:vitals` | How to read Core Web Vitals from the browser console |
+
+The end-to-end specs sign in as the seeded demo members. Their password is read from `DEMO_PASSWORD` (the value
+the API was started with); it is never kept in the repository.
 
 ## How the app is organised
 

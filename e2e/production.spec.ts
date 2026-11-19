@@ -1,8 +1,8 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { DEMO_PASSWORD } from "./env";
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "https://dataforge-backend-8ohs.onrender.com/api/v1";
 const ORIGIN = process.env.PLAYWRIGHT_BASE_URL ?? "https://skills-quest-forge.onrender.com";
-const DEMO_PASSWORD = "DataForge!2026";
 
 async function apiLogin(request: APIRequestContext, email: string) {
   const response = await request.post(`${API}/auth/login`, {
