@@ -35,7 +35,9 @@ import { connectorsQuery } from "@/features/connectors";
 import { dashboardQuery, dashboardsQuery } from "@/features/dashboards";
 import { datasetQuery, datasetsQuery } from "@/features/datasets";
 import { metricDefinitionsQuery, metricSummariesQuery } from "@/features/metrics";
+import { modelDetailQuery } from "@/features/models";
 import { alertQuery, alertsQuery, monitorsQuery } from "@/features/monitors";
+import { predictionModelsQuery } from "@/features/predictions";
 import { ErrorPage } from "@/pages/ErrorPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { PendingPage } from "@/pages/PendingPage";
@@ -73,6 +75,11 @@ const ForgotPasswordPage = lazyRouteComponent(
 );
 const GovernancePage = lazyRouteComponent(() => import("@/pages/GovernancePage"), "GovernancePage");
 const MfaPage = lazyRouteComponent(() => import("@/pages/MfaPage"), "MfaPage");
+const ModelDetailPage = lazyRouteComponent(
+  () => import("@/pages/ModelDetailPage"),
+  "ModelDetailPage",
+);
+const ModelsPage = lazyRouteComponent(() => import("@/pages/ModelsPage"), "ModelsPage");
 const MonitorsPage = lazyRouteComponent(() => import("@/pages/MonitorsPage"), "MonitorsPage");
 const OverviewPage = lazyRouteComponent(() => import("@/pages/OverviewPage"), "OverviewPage");
 const RegisterPage = lazyRouteComponent(() => import("@/pages/RegisterPage"), "RegisterPage");
@@ -527,6 +534,33 @@ const alertDetailRoute = createRoute({
 
 /* ------------------------------------------------------------------ governance and account */
 
+const modelsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "models",
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(predictionModelsQuery()),
+      // Training chooses from the datasets that can be analysed.
+      context.queryClient.ensureQueryData(analysisCatalogueQuery()),
+    ]),
+  head: () => ({
+    meta: pageMeta(pageTitle("Models"), "Train, validate, audit and approve predictive models."),
+  }),
+  component: ModelsPage,
+});
+
+const modelDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "models/$modelId",
+  loader: async ({ context, params }) => ({
+    model: await orNotFound(context.queryClient.ensureQueryData(modelDetailQuery(params.modelId))),
+  }),
+  head: ({ loaderData }) => ({
+    meta: pageMeta(pageTitle(loaderData?.model.label ?? "Model"), loaderData?.model.outcome ?? ""),
+  }),
+  component: ModelDetailPage,
+});
+
 const semanticRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "semantic",
@@ -662,6 +696,8 @@ const routeTree = rootRoute.addChildren([
   dashboardDetailRoute,
   monitorsRoute,
   alertDetailRoute,
+  modelsRoute,
+  modelDetailRoute,
   semanticRoute,
   governanceRoute,
   auditRoute,

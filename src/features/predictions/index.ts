@@ -4,6 +4,7 @@ export {
   predictionModelsQuery,
   scoreCohort,
   type ModelFactor,
+  type ModelTarget,
   type Prediction,
   type PredictionFactor,
   type PredictionModel,

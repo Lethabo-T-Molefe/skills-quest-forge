@@ -12,6 +12,17 @@ export interface ModelFactor {
   direction: "up" | "down";
 }
 
+/** The outcome a trained model predicts, and how it reads in a sentence. */
+export interface ModelTarget {
+  column: string;
+  positive: string;
+  unlabelled: string[];
+  label: string;
+  entity: string;
+  keyColumn?: string | null;
+  trainUntil?: string | null;
+}
+
 export interface PredictionModel {
   id: string;
   name: string;
@@ -21,9 +32,29 @@ export interface PredictionModel {
   outcome: string;
   description: string;
   datasetId: string;
+  /** heuristic: documented weighted factors · trained: fitted and validated on labelled data. */
+  kind: "heuristic" | "trained";
+  algorithm: string | null;
   factors: ModelFactor[];
   weightsSum: number;
-  status: "active" | "retired" | string;
+  /** draft: waiting for a second person's review · active: approved and in use. */
+  status: "draft" | "active" | "retired" | "rejected";
+  target: ModelTarget | null;
+  threshold: number | null;
+  metrics: {
+    rocAuc: number | null;
+    prAuc: number | null;
+    recall: number | null;
+    precision: number | null;
+    liftOverHeuristic: number | null;
+  } | null;
+  fairnessFlagged: boolean;
+  driftStatus: "stable" | "watch" | "drift" | null;
+  createdBy: string | null;
+  trainedBy: string | null;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  decisionNote: string | null;
   createdAt: string;
   reviewedAt: string | null;
 }

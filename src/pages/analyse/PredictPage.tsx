@@ -7,6 +7,7 @@ import {
   HelpTip,
   Notice,
   QuietButton,
+  Segmented,
   SelectMenu,
   SideRail,
   SignalButton,
@@ -14,6 +15,7 @@ import {
 } from "@/components";
 import { AnalyseTabs, analysisCatalogueQuery } from "@/features/analysis";
 import { hasPermission, useCurrentUser } from "@/features/auth";
+import { ScoredRecordsPanel } from "@/features/models";
 import {
   exportPrediction,
   predictionHistoryQuery,
@@ -39,9 +41,16 @@ export function PredictPage() {
   const [modelId, setModelId] = useState("");
   const [cohort, setCohort] = useState<Record<string, string>>({});
   const [shown, setShown] = useState<Prediction | null>(null);
+  const [mode, setMode] = useState<"records" | "cohort" | null>(null);
+  const [trainedId, setTrainedId] = useState("");
 
+  // Approved versions only: drafts are for their reviewers. Trained models score records; heuristics, cohorts.
+  const approved = (models.data ?? []).filter((item) => item.status === "active");
+  const trained = approved.filter((item) => item.kind === "trained");
+  const trainedModel = trained.find((item) => item.id === trainedId) ?? trained[0];
+  const view = mode ?? (trained.length > 0 ? "records" : "cohort");
   // Prefer a model for the dataset the member arrived with, then the newest one.
-  const available = models.data ?? [];
+  const available = approved.filter((item) => item.kind !== "trained");
   const model =
     available.find((item) => item.id === modelId) ??
     available.find((item) => item.datasetId === search.dataset) ??
@@ -95,6 +104,40 @@ export function PredictPage() {
         <Notice tone="signal" title="The models did not load">
           {errorMessage(failed)}
         </Notice>
+      ) : view === "records" && trainedModel ? (
+        <div className="space-y-5">
+          <div className="flex flex-wrap items-end gap-4">
+            <Segmented
+              label="What to score"
+              value={view}
+              onValueChange={setMode}
+              options={[
+                { value: "records", label: "Scored records" },
+                ...(model ? [{ value: "cohort" as const, label: "Cohort score" }] : []),
+              ]}
+            />
+            {trained.length > 1 ? (
+              <SelectMenu
+                label="Model"
+                size="sm"
+                value={trainedModel.id}
+                onValueChange={setTrainedId}
+                options={trained.map((item) => ({
+                  value: item.id,
+                  label: `${item.outcome} · ${item.label}`,
+                }))}
+              />
+            ) : null}
+          </div>
+          <section className="panel p-5" aria-label="Scored records">
+            <ScoredRecordsPanel model={trainedModel} />
+          </section>
+          <HelpTip title="How these scores are made">
+            A model trained on past records with a known outcome, tested on records it never saw,
+            audited for fairness and approved by someone other than the person who trained it. Each
+            score is a likelihood for deciding whom to support first; a person decides what to do.
+          </HelpTip>
+        </div>
       ) : !model ? (
         <Notice title="No model is available yet">
           A Model Curator publishes a documented model for an approved dataset. Until then there is
@@ -106,6 +149,19 @@ export function PredictPage() {
           railFirstOnMobile
           rail={
             <SideRail label="What to predict" className="panel flex flex-col p-6">
+              {trainedModel ? (
+                <Segmented
+                  className="mb-4"
+                  size="sm"
+                  label="What to score"
+                  value={view}
+                  onValueChange={setMode}
+                  options={[
+                    { value: "records", label: "Scored records" },
+                    { value: "cohort", label: "Cohort score" },
+                  ]}
+                />
+              ) : null}
               <h2 className="font-display text-xl">What should we predict?</h2>
               <div className="mt-4 space-y-4">
                 <SelectMenu
@@ -154,9 +210,10 @@ export function PredictPage() {
               <p className="mt-3 text-xs text-muted-foreground">{model.description}</p>
               <div className="mt-5">
                 <HelpTip title="How the score is made">
-                  A documented, deterministic model weighs each factor. Each factor compares the
-                  cohort with every other group in the same data. Scores describe cohorts, never
-                  individual people, and every score records the model version that produced it.
+                  A documented heuristic, not a trained model: fixed weights on factors, each
+                  comparing the cohort with every other group in the same data. Scores describe
+                  cohorts, never individual people, and every score records the model version that
+                  produced it.
                 </HelpTip>
               </div>
               {history.data && history.data.length > 0 ? (

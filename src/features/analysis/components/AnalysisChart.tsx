@@ -28,7 +28,12 @@ const tooltipStyle = {
 const grid = <CartesianGrid stroke="currentColor" strokeOpacity={0.08} />;
 
 /** One chart per method: histogram, ranked bars, lines, scatter with a fitted line, or signed contributions. */
-export function AnalysisChart({ result }: { result: AnalysisResult }) {
+export function AnalysisChart({
+  result,
+}: {
+  /** Only what the chart draws, so an assistant answer's stored chart can use it too. */
+  result: Pick<AnalysisResult, "visual" | "format" | "axisFormat"> & { title?: string };
+}) {
   const { visual } = result;
   const format = formatterFor(result.format);
   const axisFormat = formatterFor(result.axisFormat);
@@ -89,7 +94,7 @@ export function AnalysisChart({ result }: { result: AnalysisResult }) {
             />
             <Tooltip
               contentStyle={tooltipStyle}
-              formatter={(value) => [formatTooltip(value), result.title]}
+              formatter={(value) => [formatTooltip(value), result.title ?? "Value"]}
               cursor={{ fill: "rgba(57,62,65,0.06)" }}
             />
             {visual.kind === "contribution" ? (

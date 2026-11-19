@@ -1,5 +1,23 @@
 import type { TableCell } from "@/components";
-import type { BuildMethodId } from "@/features/analysis";
+import type { AnalysisResult, BuildMethodId } from "@/features/analysis";
+
+/** One governance step an answer went through, with the evidence behind it. */
+export interface TraceStep {
+  key:
+    | "screen"
+    | "catalogue"
+    | "planner"
+    | "plan"
+    | "validation"
+    | "privacy"
+    | "sql"
+    | "sandbox"
+    | "audit";
+  label: string;
+  status: "passed" | "blocked" | "info";
+  detail: string;
+  data?: Record<string, unknown>;
+}
 
 export interface AssistantTurn {
   id: string;
@@ -25,4 +43,10 @@ export interface AssistantTurn {
     /** The second measure, for a relationship. */
     measureY?: string;
   };
+  /** How the answer was governed, step by step. Empty for answers given before traces were kept. */
+  trace?: TraceStep[];
+  /** The answer drawn as a chart. */
+  chart?: Pick<AnalysisResult, "visual" | "format" | "axisFormat">;
+  /** Why it refused: personal, injection, prediction, ungrounded… */
+  refusalReason?: string;
 }

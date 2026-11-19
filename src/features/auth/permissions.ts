@@ -36,6 +36,16 @@ export function canAdmin(user: CurrentUser) {
   return hasPermission(user, "admin_users");
 }
 
+/** Model Curators train models and submit them for review. */
+export function canCurateModels(user: CurrentUser) {
+  return hasPermission(user, "curate_models");
+}
+
+/** Approving a model is a second person's decision: stewards and administrators, or another curator. */
+export function canReviewModels(user: CurrentUser) {
+  return hasPermission(user, "approve_models") || hasPermission(user, "curate_models");
+}
+
 export function isReadOnly(user: CurrentUser) {
   return ["executive", "auditor"].includes(user.roleId);
 }

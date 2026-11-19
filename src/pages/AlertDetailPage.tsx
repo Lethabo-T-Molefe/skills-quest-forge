@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { BarChart3, Check, MessageSquareText } from "lucide-react";
 import { BackLink, Chip, QuietButton, quietButtonClass, signalButtonClass } from "@/components";
-import { acknowledgeAlert, refreshMonitors, useAlert } from "@/features/monitors";
+import { AlertSeriesChart, acknowledgeAlert, refreshMonitors, useAlert } from "@/features/monitors";
 import { MainLayout } from "@/layouts/MainLayout";
 import { notifyError } from "@/lib/notify";
 
@@ -65,16 +65,33 @@ export function AlertDetailPage() {
           {alert.severity === "high" ? "High severity" : "Low severity"}
         </Chip>
         <Chip>Raised {alert.when.toLowerCase()}</Chip>
+        {alert.source === "scan" ? <Chip>Found by the scheduled scan</Chip> : null}
+        {alert.detector?.method === "seasonal" ? <Chip>Seasonal baseline</Chip> : null}
+        {alert.detector?.method === "trend" ? <Chip>Trend baseline</Chip> : null}
         {alert.acknowledged ? <Chip tone="ok">Acknowledged</Chip> : null}
       </div>
+
+      {alert.series.length > 0 ? (
+        <section className="panel mt-5 max-w-4xl p-5" aria-labelledby="series-heading">
+          <h2 id="series-heading" className="font-display text-xl">
+            Against what was expected
+          </h2>
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">
+            The red line is what happened. The dashed line and shaded band are what the month was
+            expected to be, allowing for the time of year and the trend.
+          </p>
+          <AlertSeriesChart series={alert.series} detector={alert.detector} metric={alert.metric} />
+        </section>
+      ) : null}
 
       <section className="panel mt-5 max-w-4xl p-5" aria-labelledby="why-heading">
         <h2 id="why-heading" className="font-display text-xl">
           Why it moved
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          The main contributing factors, with the figures behind them. They use the same shared
-          metrics as dashboards and the assistant, so the numbers agree.
+          The main contributing factors, comparing {alert.month} with {alert.previousMonth}, with
+          the figures behind them. They use the same shared metrics as dashboards and the assistant,
+          so the numbers agree.
         </p>
         {alert.rootCause.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">

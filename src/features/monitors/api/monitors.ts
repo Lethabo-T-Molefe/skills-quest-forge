@@ -1,6 +1,6 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { Alert, Monitor, MonitorCheck, MonitorDraft } from "../types";
+import type { Alert, InsightFeed, Monitor, MonitorCheck, MonitorDraft, ScanResult } from "../types";
 
 const monitorPath = (monitorId: string, rest = "") =>
   `/monitors/${encodeURIComponent(monitorId)}${rest}`;
@@ -44,4 +44,16 @@ export function checkMonitor(monitorId: string) {
 
 export function acknowledgeAlert(alertId: string) {
   return api.post<Alert>(alertPath(alertId, "/acknowledge"));
+}
+
+/** Unusual months the scheduled scan found in governed metrics, and when it last ran. */
+export const insightFeedQuery = () =>
+  queryOptions({
+    queryKey: ["monitors", "feed"],
+    queryFn: () => api.get<InsightFeed>("/insights/feed"),
+  });
+
+/** Run the anomaly scan now (Data Steward or Administrator). */
+export function runScan() {
+  return api.post<ScanResult>("/insights/scan");
 }

@@ -29,10 +29,16 @@ const ruleKinds: { value: RuleKind; label: string; unit: string; hint: string }[
     hint: "In the metric's own unit. For a rate, 0.7 means 70%.",
   },
   {
+    value: "anomaly",
+    label: "A month is unusual for the time of year (recommended)",
+    unit: "Sensitivity",
+    hint: "Compares each month with its expected level, allowing for season and trend. 3.5 is typical; lower catches more, with more false alarms.",
+  },
+  {
     value: "band",
     label: "It leaves its usual range",
     unit: "Standard deviations",
-    hint: "How far from the last six months' average counts as unusual. 2 is a common choice.",
+    hint: "How far from the last six months' average counts as unusual. 2 is a common choice. Ignores the season.",
   },
 ];
 
@@ -159,7 +165,9 @@ export function MonitorForm({ onCreated }: { onCreated: () => void }) {
         value={kind}
         onValueChange={(next) => {
           setKind(next as RuleKind);
-          setThreshold(next === "change" ? "15" : next === "band" ? "2" : "");
+          setThreshold(
+            next === "change" ? "15" : next === "band" ? "2" : next === "anomaly" ? "3.5" : "",
+          );
         }}
         options={ruleKinds.map((item) => ({ value: item.value, label: item.label }))}
       />
@@ -168,7 +176,7 @@ export function MonitorForm({ onCreated }: { onCreated: () => void }) {
           type="number"
           inputMode="decimal"
           step="any"
-          min={kind === "change" || kind === "band" ? 0 : undefined}
+          min={kind === "change" || kind === "band" || kind === "anomaly" ? 0 : undefined}
           value={threshold}
           onChange={(event) => setThreshold(event.target.value)}
           required

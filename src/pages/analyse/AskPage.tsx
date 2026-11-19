@@ -13,8 +13,15 @@ import {
   SplitLayout,
   quietButtonClass,
 } from "@/components";
-import { AnalyseTabs, analysisCatalogueQuery, getMethod, type MethodId } from "@/features/analysis";
 import {
+  AnalyseTabs,
+  AnalysisChart,
+  analysisCatalogueQuery,
+  getMethod,
+  type MethodId,
+} from "@/features/analysis";
+import {
+  TrustTrace,
   askAssistant,
   assistantHistoryQuery,
   assistantSuggestionsQuery,
@@ -322,6 +329,11 @@ function Answer({ turn, dataset }: { turn: AssistantTurn; dataset: string | unde
           Grounded in {turn.groundedIn.join(" · ")}
         </p>
       ) : null}
+      {!turn.refused && turn.chart ? (
+        <div className="mt-3 h-60 border border-border bg-surface-raised p-2">
+          <AnalysisChart result={turn.chart} />
+        </div>
+      ) : null}
       {turn.table && turn.table.rows.length > 0 ? (
         <div className="mt-3">
           <ResultTable columns={turn.table.columns} rows={turn.table.rows} />
@@ -334,6 +346,7 @@ function Answer({ turn, dataset }: { turn: AssistantTurn; dataset: string | unde
           </HelpTip>
         </div>
       ) : null}
+      <TrustTrace steps={turn.trace ?? []} />
       {!turn.refused ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {turn.build ? (
@@ -467,12 +480,12 @@ function AskAside({
         ) : null}
         <div className="border-t border-border pt-4 first:border-0 first:pt-0">
           <h2 className="font-sans text-sm font-medium">How it answers</h2>
-          <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-muted-foreground">
-            <li>Finds the shared metrics and tables you may use.</li>
-            <li>Turns your question into an analysis of those fields.</li>
-            <li>Checks it against your role, then runs it in your sandbox.</li>
-            <li>Explains the result and shows the SQL.</li>
-          </ol>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Every answer shows each check it went through: the question screened, the plan, the
+            shared metric and its version, the masking, the SQL, the sandbox run and the audit
+            entry. Open “How this answer was governed” under any answer. The model plans; it never
+            writes the SQL and never sees your rows.
+          </p>
           <p className="mt-3 text-xs text-muted-foreground">
             Permissions come from your role, never from the question, so no question can reach data
             you may not see.

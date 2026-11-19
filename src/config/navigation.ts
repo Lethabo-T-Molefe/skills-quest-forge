@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bell,
   BookMarked,
+  Brain,
   ChartNoAxesCombined,
   Database,
   House,
@@ -11,7 +12,7 @@ import {
   Users,
   Wand2,
 } from "lucide-react";
-import { canAdmin, canApprove, type CurrentUser } from "@/features/auth";
+import { canAdmin, canApprove, canReviewModels, type CurrentUser } from "@/features/auth";
 
 export interface NavItem {
   to:
@@ -22,6 +23,7 @@ export interface NavItem {
     | "/dashboards"
     | "/monitors"
     | "/semantic"
+    | "/models"
     | "/governance"
     | "/audit"
     | "/admin";
@@ -107,6 +109,13 @@ export const navSections: NavSection[] = [
         label: "Metrics",
         icon: BookMarked,
         hint: "Shared metric definitions everyone uses",
+      },
+      {
+        to: "/models",
+        label: "Models",
+        icon: Brain,
+        hint: "Train, review and approve predictive models",
+        visible: canReviewModels,
       },
       {
         to: "/governance",

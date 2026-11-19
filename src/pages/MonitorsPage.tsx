@@ -6,6 +6,7 @@ import { Bell } from "lucide-react";
 import { Chip, ConfirmDialog, Drawer, Notice, QuietButton, SignalButton } from "@/components";
 import { hasPermission, useCurrentUser } from "@/features/auth";
 import {
+  InsightFeed,
   MonitorForm,
   checkMonitor,
   deleteMonitor,
@@ -71,6 +72,7 @@ export function MonitorsPage() {
         ) : null
       }
     >
+      <InsightFeed canScan={hasPermission(user, "approve")} />
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <section aria-labelledby="alerts-heading">
           <h2 id="alerts-heading" className="font-sans mb-3 text-sm font-medium">
@@ -98,6 +100,7 @@ export function MonitorsPage() {
                   }
                 >
                   {alert.message} · {alert.when}
+                  {alert.source === "scan" ? " · found by the scan" : ""}
                   {alert.acknowledged ? " · acknowledged" : ""}
                 </Notice>
               ))}
